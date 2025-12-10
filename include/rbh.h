@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2025 Commissariat à l'énergie atomique et aux énergies
+ * alternatives (CEA) and Institut national de recherche en sciences et
+ * technologies du numérique (INRIA)
+ * Contributor(s): Julien Rodriguez <julien.ro34@gmail.com>
+ *
+ * Licensed under the GPL, Version 3 (the "License");
+ * You may obtain a copy of the License at:
+ * https://www.gnu.org/licenses/gpl-3.0.txt
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+
+
+/************************************************************/
+/**                                                        **/
+/**   NAME       : rbh.h                                   **/
+/**                                                        **/
+/**   AUTHOR     : Julien RODRIGUEZ                        **/
+/**                                                        **/
+/**   FUNCTION   : These lines are declarations for the    **/
+/**                red-black hypergraph structure.         **/
+/**                                                        **/
+/**   DATES      : # Version 0.0  : from : 04 feb 2022     **/
+/**                                 to   : 13 oct 2023     **/
+/**                                                        **/
+/************************************************************/
+
+
+#ifndef RBH_H
+#define RBH_H
+#include "commons.h"
+#include "io.h"
+#include "matrix.h"
+#include "list.h"
+
+/*
+**  The type and structure definitions.
+*/
+
+
+/*+ The red-black hypergraph class type. +*/
+
+typedef struct hypergraph{
+  char *            s_rbh_name;                /*+ Hypergraph name.   +*/
+  INT               i_vertices;                /*+ Vertex number.     +*/
+  INT               i_hyperedges;              /*+ Hyperedges number. +*/
+  INT               i_reds;                    /*+ Red vertex number. +*/
+  INT               i_pins;                    /*+ Pin number.        +*/
+  INT               i_weights;                 /*+ Weight dimension.  +*/
+
+  INT *             ti_hyperedges;             /*+ Hyperedges.        +*/
+  INT *             ti_idx_hyperedges;         /*+ Index hyperedges.  +*/
+  INT *             ti_delays;                 /*+ Delays.            +*/
+  INT *             ti_criticalities_right;    /*+ Criticalities.     +*/
+  INT *             ti_criticalities_left;     /*+ Criticalities.     +*/
+  INT *             ti_reds;                   /*+ Red vertex.        +*/
+  INT *             ti_weights;                /*+ Vertex weight.     +*/
+
+  INT               (* rbhInit)  ();           /*+ Hypergraph init function.    +*/
+  INT               (* rbhFree)  ();           /*+ Hypergraph free function.    +*/
+  INT               (* rbhLoad)  ();           /*+ Hypergraph loading function. +*/
+  INT               (* rbhSave)  ();           /*+ Hypergraph saving function.  +*/
+
+} Hypergraph;
+
+/*
+**  The structure for function parameters.
+*/
+typedef struct {
+    Hypergraph *      h;                  /*+ Hypergraph. +*/
+    char *            s_path;             /*+ File path. +*/
+    INT               i_baseval;          /*+ Vertex indexation. +*/
+    bool              b_verbose;          /*+ Verbose. +*/
+} rbhLoad_args;
+
+int               varRbhLoad  (rbhLoad_args);
+
+/*
+**  The function prototypes.
+*/
+int               rbhInit           (Hypergraph * this);
+int               rbhFree           (Hypergraph * this);
+int               rbhLoadBase       (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
+int               rbhSave           (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
+int               computeNeighbors  (Hypergraph * this, Matrix * neighbors);
+int               computeInNeighbors(Hypergraph * this, Matrix * neighbors, Matrix * in_neighbors);
+int               computeListNeighbors  (Hypergraph * this, List ** neighbors);
+int               computeListInNeighbors(Hypergraph * this, List ** neighbors, List ** in_neighbors);
+int               topologicalSort   (Hypergraph * this, List ** neighbors, List ** in_neighbors, INT * sort);
+int               compute_criticality (Hypergraph * h, List ** neighbors, List **  in_neighbors, INT * sort);
+int               compute_subpmax     (Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, bool * vertices);
+int computeListNeighborsUnalloc(Hypergraph * this, List ** neighbors_list);
+int compute_path_length(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelmax, INT * lmax, INT * depth, float * avg, float * stdw);
+int compute_pmax(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelpmax, INT * lpmax, float * avg, float * stdw);
+int compute_maxdeg(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelmaxdeg, INT * lmaxdeg, float * avg, float * stdw);
+int compute_maxcon(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelmaxdeg, INT * lmaxdeg, float * avg, float * stdw);
+int computeListInNeighborsUnalloc(Hypergraph * this, List ** neighbors_list, List ** in_neighbors_list);
+int computeNeighborsUnalloc(Hypergraph * h, Matrix * neighbors);
+
+int computeInNeighborsUnalloc(
+Hypergraph * h, 
+Matrix     * neighbors, 
+Matrix     * in_neighbors);
+
+/*
+**  The macro definitions.
+*/
+
+#define rbhLoad(...) varRbhLoad((rbhLoad_args){__VA_ARGS__});
+
+
+
+#endif
