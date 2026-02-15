@@ -22,22 +22,15 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : a.h                                     **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are architecture functions  **/
-/**                declaration.                            **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
-
+/** 
+ * @file a.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  This file is part of the project.    
+ *        It contains declarations of architectures functions
+ *        for red-black hypergraphs partitioning.
+ *      
+ */
 #ifndef A_H
 
 #define A_H
@@ -69,9 +62,9 @@ typedef struct arch{
 **  The function prototypes.
 */
 
-int               archInit   (Arch * this, INT m, INT n);
-int               archFree   (Arch * this);
-int               archLoad   (Arch * this, const char * s_path, bool verbose);
+int               arch_init   (Arch * this, INT m, INT n);
+int               arch_free   (Arch * this);
+int               arch_load   (Arch * this, const char * s_path, bool verbose);
 
 /*
 **  The macro definitions.
