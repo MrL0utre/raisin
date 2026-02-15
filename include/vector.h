@@ -22,21 +22,14 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : vector.h                                **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are vector                  **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
+/** 
+ * @file vector.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are vector 
+ *        functions declarations.  
+ *      
+ */
 #ifndef VECTOR_H
 
 #include <stdlib.h>
@@ -51,10 +44,15 @@ struct vector{
 };
 typedef struct vector Vector;
 
-void new_vector(Vector * v, INT size);
+void 
+new_vector(Vector * v, 
+           INT      size);
 
-void push_back(Vector * v, INT val);
+void 
+push_back(Vector * v, 
+          INT      val);
 
-void delete_vector(Vector * v);
+void 
+delete_vector(Vector * v);
 
 #endif
