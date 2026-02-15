@@ -22,21 +22,14 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : uf.h                                    **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are union-find              **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
+/** 
+ * @file uf.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are union-find      
+ *        functions declarations.  
+ *      
+ */
 #ifndef UF_H
 
 #include <stdlib.h>
@@ -50,10 +43,13 @@ typedef struct union_find_elem {
     struct union_find_elem * parent;
 } Union_find;
 
-Union_find * new_set (INT element);
+Union_find * 
+new_set(INT element);
 
-Union_find * find    (Union_find * element);
+Union_find * 
+find(Union_find * element);
 
-Union_find * merge   (Union_find * a, Union_find * b);
+Union_find * merge(Union_find * a, 
+                   Union_find * b);
 
 #endif
