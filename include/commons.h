@@ -22,23 +22,15 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : commons.h                               **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are commons macros and      **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 04 feb 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
-
-
+/** 
+ * @file commons.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  This file is part of the project.    
+ *        It contains declarations of commons macros and functions
+ *        for red-black hypergraphs partitioning software (raisin).
+ *      
+ */
 #ifndef COMMONS_H
 
 #define COMMONS_H
@@ -48,6 +40,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define INT int
 
