@@ -21,31 +21,83 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-
+/** 
+ * @file vector.c
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are vector    
+ *        functions definitions.  
+ *      
+ */
 #include "vector.h"
 
-void new_vector(Vector * v, INT size) {
+/**
+ * @brief Function creating a new vector structure,
+ * of size "size" (integer).
+ *
+ * @param v          Vector adress.
+ * @param size       Integer (size of the vector).
+ * 
+ * @return void.
+ */
+void 
+new_vector(Vector * v, 
+           INT size) 
+{
 
-  v->v = (INT*)malloc(sizeof(INT)*size);
+  v->v = (INT*)malloc(sizeof(INT) * size);
+  
   MEM_ERROR(v->v);
+  
   v->size = size;
-  v->i=0;
+  
+  v->i = 0;
+
   return;
 }
 
-void push_back(Vector * v, INT val) {
-  if(v->i==v->size) {
-    v->size*=2;
-    void * err = realloc(v->v, sizeof(INT)*v->size);
-    if (err == NULL) {
-      /* exception */
+/**
+ * @brief Function push an integer after 
+ * the last element in the vector. The size 
+ * will be increased (by 2x the current size) 
+ * if the new element is out of bound. 
+ *
+ * @param v          Vector. 
+ * @param val        Integer. 
+ * 
+ * @return void.
+ */
+void 
+push_back(Vector * v, 
+          INT      val) 
+{
+  if(v->i == v->size) 
+    {
+      v->size *= 2;
+      
+      void * err = realloc(v->v, sizeof(INT) * v->size);
+      
+      if(err == NULL) 
+        {
+          /* exception */
+        }
     }
-  }
-  v->v[v->i++]=val;
+      v->v[v->i++] = val;
 }
 
-void delete_vector(Vector * v) {
+/**
+ * @brief Function deleting a vector. 
+ *
+ * @param v          Vector. 
+ * 
+ * @return void.
+ */
+void 
+delete_vector(Vector * v) 
+{
   free(v->v);
+  
   free(v);
+  
   return;
 }
