@@ -22,21 +22,13 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : list.h                                  **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are list                    **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
+/** 
+ * @file list.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are list 
+ *         functions declarations.      
+ */
 #ifndef LIST_H
 
 #include <stdlib.h>
@@ -51,14 +43,21 @@ struct list{
 };
 typedef struct list List;
 
-void new_list(List * l);
+void 
+new_list(List * l);
 
-void add_list(List * l, List * lb);
+void 
+add_list(List * l, 
+         List * lb);
 
-void list_add_element(List * la, INT i);
+void 
+list_add_element(List * la, 
+                 INT    i);
 
-void list_del_next_element(List * la);
+void 
+list_del_next_element(List * la);
 
-void delete_list(List * l);
+void 
+delete_list(List * l);
 
 #endif
