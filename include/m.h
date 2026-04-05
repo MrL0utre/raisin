@@ -32,13 +32,21 @@
 /**                multi-level schemes.                    **/
 /**                                                        **/
 /**   DATES      : # Version 1.0  : from : 01 jan 2022     **/
-/**                                 to   : 13 oct 2023     **/
+/**                                 to   : 05 apr 2025     **/
 /**                                                        **/
 /************************************************************/
 
 
 
 
+/** 
+ * @file m.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 05 apr 2025
+ * @brief  These lines are definitions for the  
+ *        multi-level schemes.
+ *      
+ */
 #ifndef M_H
 
 #define M_H
@@ -54,47 +62,48 @@
 #include "a.h"
 #include "dlist.h"
 #include "pqueue.h"
+#include "fm.h"
 
-INT multilevel(
-Hypergraph  * h,
-Arch        * a,
-List       ** neighbors, 
-List       ** in_neighbors, 
-INT         * sort, 
-INT         * partition, 
-INT           perform, 
-INT           tolerance,
-INT           k,
-INT           epsilon,
-INT           algo_cluster,
-int (*intialPart)(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon),
-int (*refinement)(Hypergraph * h, Arch * a, List ** neighbors, List ** in_neighbors, INT * sort, INT * partition, INT perform, INT tolerance, INT k));
+INT 
+multilevel(Hypergraph  * h,
+           Arch        * a,
+           List       ** neighbors, 
+           List       ** in_neighbors, 
+           INT         * sort, 
+           PART * partition, 
+           INT           perform, 
+           INT           tolerance,
+           INT           k,
+           INT           epsilon,
+           INT           algo_cluster,
+           int (*intialPart)(Hypergraph * h, List ** neighbors, List ** in_neighbors, PART * partition, INT k, INT epsilon),
+           int (*refinement)(Hypergraph * h, Arch * a, List ** neighbors, List ** in_neighbors, INT * sort, PART * partition, INT perform, INT tolerance, INT k));
 
-INT multilevel_cut(
-Hypergraph  * h,
-Arch        * a,
-List       ** neighbors, 
-List       ** in_neighbors, 
-INT         * sort, 
-INT         * partition, 
-INT           perform, 
-INT           tolerance,
-INT           k,
-INT           epsilon,
-INT           algo_cluster);
+INT 
+multilevel_cut(Hypergraph  * h,
+               Arch        * a,
+               List       ** neighbors, 
+               List       ** in_neighbors, 
+               INT         * sort, 
+               PART * partition, 
+               INT           perform, 
+               INT           tolerance,
+               INT           k,
+               INT           epsilon,
+               INT           algo_cluster);
 
-INT multilevel_pmax(
-Hypergraph  * h,
-Arch        * a,
-List       ** neighbors, 
-List       ** in_neighbors, 
-INT         * sort, 
-INT         * partition, 
-INT           perform, 
-INT           tolerance,
-INT           k,
-INT           epsilon,
-INT           algo_cluster);
-
+INT 
+multilevel_pmax(Hypergraph  * h,
+                Arch        * a,
+                List       ** neighbors, 
+                List       ** in_neighbors, 
+                INT         * sort, 
+                PART * partition, 
+                INT           perform, 
+                INT           tolerance,
+                INT           k,
+                INT           epsilon,
+                INT           algo_cluster);
 
 #endif
+
