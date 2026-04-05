@@ -22,42 +22,199 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : crbh.h                                  **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are clustering functions    **/
-/**                declarations for red-black hypergraph.  **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : 13 oct 2023     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
-
+/** 
+ * @file crbh.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  This file is part of the project.    
+ *        It contains declarations of clustering functions
+ *        for red-black hypergraphs partitioning software (raisin).
+ *      
+ */
 #ifndef CRBH_H
-
 #define CRBH_H
-#define __SPEED_DELAY_CLUSTERING__ 1
+
+#define SPEED_DELAY_CLUSTERING 1
 
 #include "commons.h"
 #include "rbh.h"
 #include "a.h"
 #include "matrix.h"
-#include"pqueue.h"
+#include "pqueue.h"
 
-int bestPhiClustering(Hypergraph * h1, Hypergraph * h2, Arch *a, List ** neighbors, List ** in_neighbors, INT * sort, INT umap[], INT cluster_size, INT epsilon, INT relax);
-int coarsening(Hypergraph * h1, Hypergraph * h2, List ** neighbors, List ** in_neighbors, unsigned int * map, unsigned int k);
-int heavyEdgeMatching(Hypergraph * h1, Hypergraph * h2, List ** neighbors, List ** in_neighbors, INT * map, INT k, INT epsilon);
-void quickSort(int array[], int keys[], int low, int high);
-int partition(int array[], int keys[], int low, int high);
-void swap(int *a, int *b);
-int compute_hypergraph_kclustering(Hypergraph * h1, Hypergraph * h2, List ** neighbors, List ** in_neighbors, INT * sort, INT * cluster, INT nvp);
-int compute_hypergraph_clustering(Hypergraph * h1, Hypergraph * h2, INT * cluster, INT nvp);
-int compute_clustering_criticality(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * partition, INT D);
+/**
+ * @brief Compute a reduced hypergraph (h2) according to clustering of 
+ * an input red-black hypergraph (h1).
+ *        
+ *
+ * @param h1               Input hypergraph.
+ * @param h2               Output hypergraph.
+ * @param out_neighbors    Outgoing adjacency lists.
+ * @param in_neighbors     Incoming adjacency lists.
+ * @param sort             Topological order of vertices.
+ * @param cluster          Clusters.
+ * @param nvp              Number of clusters.
+ *
+ * @return Return a flag.
+ */
+int 
+best_phi_clustering(Hypergraph *h1, 
+                    Hypergraph *h2,
+                    Arch        *a,
+                    List       **neighbors, 
+                    List       **in_neighbors,
+                    INT         *sort, 
+                    INT          umap[],
+                    INT          cluster_size, 
+                    INT          epsilon, 
+                    INT          relax);
+
+int 
+coarsening(Hypergraph   *h1, 
+           Hypergraph   *h2,
+           List        **neighbors, 
+           List        **in_neighbors,
+           unsigned int *map, 
+           unsigned int  k);
+
+/**
+ * @brief Compute a matching (map array) of a red-black hypergraph (h1) vertices according 
+ * to criticality weighting and construct a new contracted 
+ * red-black hypergraph (h2).
+ *        
+ *
+ * @param h1               Input hypergraph.
+ * @param h2               Output hypergraph.
+ * @param out_neighbors    Outgoing adjacency lists.
+ * @param in_neighbors     Incoming adjacency lists.
+ * @param sort             Topological order of vertices.
+ * @param partition        Cluster partition array.
+ * @param D                Delay factor.
+ *
+ * @return Return a flag.
+ */        
+int 
+heavy_edge_matching(Hypergraph *h1, 
+                    Hypergraph *h2,
+                    List      **neighbors, 
+                    List      **in_neighbors,
+                    INT        *map, 
+                    INT         k, 
+                    INT         epsilon);
+
+/**
+ * @brief Sort function (quicksort) of an array of integers.
+ *
+ * @param array       Array of integers.
+ * @param keys        Arrays of integers(keys)
+ * @param low         Lowerbound.
+ * @param high        Upperbound.
+ *
+ * @return Partition position.
+ */
+void 
+quick_sort(int array[], 
+           int keys[], 
+           int low, 
+           int high);
+
+/**
+ * @brief Function to find the partition position for quicksort.
+ *
+ * @param array       Array of integers.
+ * @param keys        Arrays of integers(keys)
+ * @param low         Lowerbound.
+ * @param high        Upperbound.
+ *
+ * @return Partition position.
+ */
+int 
+partition(int array[], 
+          int keys[], 
+          int low, 
+          int high);
+
+/**
+ * @brief Function to swap elements.
+ *
+ * @param a            Pointer.
+ * @param b            Pointer.
+ *
+ * @return void.
+ */
+void 
+swap(int *a, 
+     int *b);
+
+/**
+ * @brief Compute a reduced hypergraph (h2) according to clustering of 
+ * an input red-black hypergraph (h1).
+ *        
+ *
+ * @param h1               Input hypergraph.
+ * @param h2               Output hypergraph.
+ * @param out_neighbors    Outgoing adjacency lists.
+ * @param in_neighbors     Incoming adjacency lists.
+ * @param sort             Topological order of vertices.
+ * @param cluster          Clusters.
+ * @param nvp              Number of clusters.
+ *
+ * @return Return a flag.
+ */
+int 
+compute_hypergraph_kclustering(Hypergraph *h1, 
+                               Hypergraph *h2,
+                               List **neighbors, 
+                               List **in_neighbors,
+                               INT *sort, 
+                               INT *cluster, 
+                               INT nvp);
+
+/**
+ * @brief Compute a reduced hypergraph (h2) according to matching of 
+ * an input red-black hypergraph (h1).
+ * 
+ * @attention This algorithm only work for matching (cluster of size 2 or 1)  
+ *
+ * @param h1               Input hypergraph.
+ * @param h2               Output hypergraph.
+ * @param cluster          Clusters.
+ * @param nvp              Number of clusters.
+ *
+ * @return Return a flag.
+ */
+int 
+compute_hypergraph_clustering(Hypergraph *h1, 
+                              Hypergraph *h2,
+                              INT *cluster, 
+                              INT nvp);
+
+/**
+ * @brief Compute the critical path length of a clustering partition
+ *        in a red-black hypergraph.
+ *
+ * @param h                Input hypergraph.
+ * @param out_neighbors    Outgoing adjacency lists.
+ * @param in_neighbors     Incoming adjacency lists.
+ * @param sort             Topological order of vertices.
+ * @param partition        Cluster partition array.
+ * @param D                Delay factor.
+ *
+ * @return The critical path length (maximum accumulated delay).
+ */
+int 
+compute_clustering_criticality(Hypergraph *h,
+                               List      **neighbors, 
+                               List      **in_neighbors,
+                               INT        *sort, 
+                               INT        *partition, 
+                               INT         D);
+
+int 
+compute_subhypergraph(Hypergraph * h1, 
+                      Hypergraph * h2, 
+                      INT        * cluster, 
+                      INT          nvp);
 
 
-#endif
+#endif /* CRBH_H */

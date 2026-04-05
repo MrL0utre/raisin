@@ -22,47 +22,64 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : matrix.c                                **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are matrix                  **/
-/**                functions definitions.                  **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                                        **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
+/** 
+ * @file matrix.c
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are matrix  
+ *          functions definitions.
+ */
 
-
+/*
+**  The defines and includes.
+*/
 #include "matrix.h"
 
-
-void new_matrix(Matrix * mat, INT m, INT n) {
-  
-  mat->v = (Vector*)malloc(sizeof(Vector)*m);
+/**
+ * @brief Function initializing a matrix of
+ * dimension m x n.  
+ *
+ * @param mat         Matrix.
+ * @param m           Integer (dimension). 
+ * @param n           Integer (dimension).
+ *
+ * @return Void.
+ */
+void 
+new_matrix(Matrix * mat, 
+           INT      m, 
+           INT      n) 
+{  
+  mat->v = (Vector*)malloc(sizeof(Vector) * m);
   MEM_ERROR(mat->v);
-  for (INT i=0; i < m; ++i) {
-    mat->v[i].v = (INT*)malloc(sizeof(INT)*n);
-    MEM_ERROR(mat->v[i].v);
-    mat->v[i].size = n;
-  }
+
+  for(INT i = 0; i < m; ++i) 
+    {
+      mat->v[i].v = (INT*)malloc(sizeof(INT) * n);
+      MEM_ERROR(mat->v[i].v);
+      mat->v[i].size = n;
+    }
 
   mat->m = m;
   mat->n = n;
   return;
 }
 
-void delete_matrix(Matrix * mat) {
-
-  for (INT i=0; i < mat->m; ++i) {
-
-     free(mat->v[i].v);
-
-  }
+/**
+ * @brief This function delete a matrix. 
+ *
+ * @param mat               Matrix.
+ *
+ * @return Void.
+ */
+void 
+delete_matrix(Matrix * mat) 
+{
+  for(INT i = 0; i < mat->m; ++i) 
+    {
+      free(mat->v[i].v);
+    }
+  
   free(mat->v);
   free(mat);
   return;

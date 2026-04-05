@@ -22,25 +22,25 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : list.c                                  **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are list                    **/
-/**                functions definitions.                  **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                                        **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
-
+/** 
+ * @file list.c
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are list functions definitions. 
+ */
 #include "list.h"
 
-void new_list(List * l) {
+/**
+ * @brief Function initializing a list of size 0 and 
+ * value -1. 
+ *
+ * @param l                List.
+ *
+ * @return Void.
+ */
+void 
+new_list(List * l) 
+{
 
     l->i    = -1;
     l->size = 0;
@@ -48,61 +48,120 @@ void new_list(List * l) {
     return;
 }
 
-void add_list(List * la, List * lb){
-    if (la != NULL && lb != NULL) {
+/**
+ * @brief The function add_list concatenate the lists la
+ * and lb. The list lb was pushed after la. 
+ *
+ * @param la                List.
+ * @param la                List.
+ *
+ * @return Void.
+ */
+void
+add_list(List * la, 
+         List * lb)
+{
+    if (la != NULL && lb != NULL) 
+      {
         la->next = lb;
         la->size += lb->size;
-    }
+      }
     return;
 }
 
-void list_add_element(List * la, INT i){
-    if (la != NULL) {
+/**
+ * @brief This function add an element (i) at the 
+ * end of the list la and increase the size of la
+ * plus one. 
+ *
+ * @param la                List.
+ * @param i                 Integer.
+ *
+ * @return Void.
+ */
+void 
+list_add_element(List * la, 
+                 INT    i)
+{
+    if (la != NULL) 
+      {
 
-        if (la->size>0) {
+        if (la->size > 0) 
+          {
             List * lb = (List*)malloc(sizeof(List));
             MEM_ERROR(lb);
+
             new_list(lb);
+
             lb->i = i;
-            lb->size=1;
+            lb->size = 1;
             List * cell = la;
-            while(cell->next != NULL) {
+            
+            while(cell->next != NULL) 
+              {
                 cell = cell->next;
-            }
+              }
+            
             cell->next = lb;
-            la->size +=1;
-        } else {
+            la->size += 1;
+          } 
+        else 
+          {
             la->i = i;
-            la->size+=1;
-        }
-    }
+            la->size += 1;
+          }
+      }
     return;
 }
 
-void list_del_next_element(List * la){
+/**
+ * @brief This function delete the next element of 
+ * a list and decrease its size. 
+ *
+ * @param la                List.
+ * @param i                 Integer.
+ *
+ * @return Void.
+ */
+void 
+list_del_next_element(List *la)
+{
     List * lb = la->next;
-    if (la != NULL && lb != NULL) {
-
-        if (lb->next != NULL) {
+    if (la != NULL && lb != NULL) 
+      {
+        if (lb->next != NULL) 
+          {
             List * lc = lb->next;
             la->next = lc;
+            la->size -= 1;
             free(lb);
-        } else {
+          } 
+        else 
+          {
             free(lb);
             la->next = NULL;
-        }
-    }
+            la->size -= 1;
+          }
+      }
     return;
 }
 
-void delete_list(List * l) {
-
+/**
+ * @brief This function delete a list. 
+ *
+ * @param l                List.
+ *
+ * @return Void.
+ */
+void 
+delete_list(List *l) 
+{
     List * tmp;
-    while (l != NULL) {
-
+    while (l != NULL) 
+      {
         tmp = l->next;
         free(l);
         l   = tmp;
-    }
+      }
     return;
 }

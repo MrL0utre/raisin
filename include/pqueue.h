@@ -22,21 +22,13 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : vector.h                                **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are priority queue          **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
+/** 
+ * @file pqueue.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are priority queue 
+ *         functions declarations.      
+ */
 #ifndef PQUEUE_H
 
 #include <stdlib.h>
@@ -44,17 +36,32 @@
 
 #define PQUEUE_H
 
+void 
+pqueue_sift_up(INT * queue, 
+               INT * queue_w, 
+               INT   i, 
+               INT   n);
 
-void pqueue_siftUp(INT * queue, INT * queue_w, INT i, INT n);
+void 
+pqueue_sift_down(INT * queue, 
+                 INT * queue_w, 
+                 INT   i, 
+                 INT   n);
 
-void pqueue_siftDown(INT * queue, INT * queue_w, INT i, INT n);
+void 
+pqueue_heapify(INT * queue, 
+               INT * queue_w, 
+               INT   n);
 
-void pqueue_heapify(INT * queue, INT * queue_w, INT n) ;
+INT 
+pqueue_dequeue(INT * queue, 
+               INT * queue_w, 
+               INT   n);
 
-INT pqueue_dequeue(INT * queue, INT * queue_w, INT n);
-
-void pqueue_add_element(INT * queue, INT * queue_w, INT i, INT n);
-
-
+void 
+pqueue_add_element(INT * queue, 
+                   INT * queue_w, 
+                   INT   i, 
+                   INT   n);
 
 #endif

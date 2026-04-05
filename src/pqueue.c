@@ -22,103 +22,157 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : vector.h                                **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are priority queue          **/
-/**                functions definitions.                  **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                                        **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
+/** 
+ * @file pqueue.c
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are priority queue    
+ *          functions definitions.
+ */
 
 #include "pqueue.h"
 
-void pqueue_siftUp(
-    INT * queue, 
-    INT * queue_w, 
-    INT i, 
-    INT n) {
-
-    
+/**
+ * @brief Function organizing the heap implementing the
+ * priority queue. This function is utilized when an element
+ * is added to the priority queue.    
+ *
+ * @param queue         Priority queue.
+ * @param queue_w       Array of weight (priority).  
+ * @param i             Integer (node).
+ * @param n             Integer (size)
+ *
+ * @return Void.
+ */
+void 
+pqueue_sift_up(INT * queue, 
+              INT * queue_w, 
+              INT   i, 
+              INT   n)
+{    
     INT i_father = (i - 1) / 2;
     INT tmp;
-    if (queue_w[queue[i]] > queue_w[queue[i_father]]) {
+
+    if(queue_w[queue[i]] > queue_w[queue[i_father]])
+      {
         tmp             = queue[i];
         queue[i]        = queue[i_father];
         queue[i_father] = tmp;
 
-        if (i_father != 0)
-            pqueue_siftUp(queue, queue_w, i_father, n);
-    }
+        if(i_father != 0)
+            pqueue_sift_up(queue, queue_w, i_father, n);
+      }
 }
 
-void pqueue_siftDown(
-    INT * queue, 
-    INT * queue_w, 
-    INT i, 
-    INT n) {
-    
-
+/**
+ * @brief Function   
+ *
+ * @param queue         Priority queue.
+ * @param queue_w       Array of weight (priority).  
+ * @param i             Integer (node).
+ * @param n             Integer (size)
+ *
+ * @return Void.
+ */
+void 
+pqueue_sift_down(INT * queue, 
+                INT * queue_w, 
+                INT   i, 
+                INT   n)
+{    
     INT index_child_left  = i * 2 + 1;
     INT index_child_right = i * 2 + 2;
     INT m = queue_w[queue[i]];
     
-    
-    if (index_child_right < n) {
+    if(index_child_right < n)
+      {
         m = MAX3(queue_w[queue[i]], queue_w[queue[index_child_left]], queue_w[queue[index_child_right]]);
-    } else if (index_child_left < n){
+      } 
+    else if(index_child_left < n)
+      {
         m = MAX(queue_w[queue[i]], queue_w[queue[index_child_left]]);
-    }
+      }
 
     INT i_max;
 
-    if (m > queue_w[queue[i]]) {
+    if(m > queue_w[queue[i]]) 
+      {
         i_max = index_child_left;
-        if (index_child_right < n && queue_w[queue[i_max]] < queue_w[queue[index_child_right]]) {
+        if(index_child_right < n && queue_w[queue[i_max]] < queue_w[queue[index_child_right]])
+          {
             i_max = index_child_right;
-        }
+          }
+        
         INT tmp      = queue[i];
         queue[i]     = queue[i_max];
         queue[i_max] = tmp;
-        if (2*i_max+1 < n) {
-            pqueue_siftDown(queue, queue_w, i_max, n);
-        }
+        
+        if(2 * i_max + 1 < n)
+          {
+            pqueue_sift_down(queue, queue_w, i_max, n);
+          }
     }
 }
 
-void pqueue_heapify(
-    INT * queue, 
-    INT * queue_w, 
-    INT n) {
-
+/**
+ * @brief Function   
+ *
+ * @param queue         Priority queue.
+ * @param queue_w       Array of weight (priority).  
+ * @param i             Integer (node).
+ * @param n             Integer (size)
+ *
+ * @return Void.
+ */
+void 
+pqueue_heapify(INT * queue, 
+               INT * queue_w, 
+               INT   n)
+{
+    ;
 }
 
-INT pqueue_dequeue(
-    INT * queue, 
-    INT * queue_w, 
-    INT n) {
+/**
+ * @brief Function deleting the first element and returning it.
+ *
+ * @param queue         Priority queue.
+ * @param queue_w       Array of weight (priority).  
+ * @param n             Integer (size)
+ *
+ * @return Integer (the dequeued element).
+ */
+INT 
+pqueue_dequeue(INT * queue, 
+               INT * queue_w, 
+               INT n){
 
     INT i = queue[0];
     queue[0] = queue[n-1];
     n--;
-    pqueue_siftDown(queue, queue_w, 0, n);
+    
+    pqueue_sift_down(queue, queue_w, 0, n);
     return i;
 }
 
-void pqueue_add_element(
-    INT * queue, 
-    INT * queue_w, 
-    INT i, 
-    INT n) {
-    
-    
+/**
+ * @brief Function adding an element according to its 
+ * priority by calling pqueue_sift_up function.  
+ *
+ * @param queue         Priority queue.
+ * @param queue_w       Array of weight (priority).  
+ * @param i             Integer (node).
+ * @param n             Integer (size)
+ *
+ * @return Void.
+ */
+void 
+pqueue_add_element(INT * queue, 
+                   INT * queue_w, 
+                   INT   i, 
+                   INT   n)
+{     
     queue[n++] = i;
-    pqueue_siftUp(queue, queue_w, n-1, n);
+
+    pqueue_sift_up(queue, queue_w, n - 1, n);
 }
 

@@ -22,21 +22,15 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : list.h                                  **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are double linked list      **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
+/** 
+ * @file dlist.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  This file is part of the project.    
+ *        It contains declarations of double linked list functions
+ *        for red-black hypergraphs partitioning software (raisin).
+ *      
+ */
 #ifndef DLIST_H
 
 #include <stdlib.h>

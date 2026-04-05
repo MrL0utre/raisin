@@ -22,22 +22,14 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : io.h                                    **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are read and write function **/
-/**                declarations.                           **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 04 feb 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
-
+/** 
+ * @file io.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are read and write function  
+ *        declarations.
+ *      
+ */
 #ifndef IO_H
 
 #define IO_H
@@ -47,8 +39,19 @@
 #include <stdio.h>
 #include "commons.h"
 
-int readLine(FILE * file, char * buffer, int size);
-int loadPartition(INT i_vertices, INT * partition, const char * s_path);
-int writePartition(INT i_vertices, INT * partition, const char * file_path);
+int 
+read_line(FILE * file, 
+          char * buffer, 
+          int size);
+
+int 
+load_partition(INT i_vertices, 
+               INT * partition, 
+               const char * s_path);
+
+int 
+write_partition(INT i_vertices,
+                INT * partition, 
+                const char * file_path);
 
 #endif

@@ -22,28 +22,20 @@
 */
 
 
-/************************************************************/
-/**                                                        **/
-/**   NAME       : matrix.h                                **/
-/**                                                        **/
-/**   AUTHOR     : Julien RODRIGUEZ                        **/
-/**                                                        **/
-/**   FUNCTION   : These lines are matrix                  **/
-/**                functions declarations.                 **/
-/**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
-/**                                                        **/
-/**                                                        **/
-/************************************************************/
-
+/** 
+ * @file matrix.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  These lines are matrix 
+ *         functions declarations.      
+ */
 #ifndef MATRIX_H
 
 #define MATRIX_H
+
 #include <stdlib.h>
 #include "commons.h"
 #include "vector.h"
-
 
 struct matrix{
   Vector * v;
@@ -52,7 +44,10 @@ struct matrix{
 };
 typedef struct matrix Matrix;
 
-void new_matrix(Matrix * mat, INT m, INT n);
+void 
+new_matrix(Matrix * mat, 
+           INT      m, 
+           INT      n);
 
 void delete_matrix(Matrix * mat);
 
