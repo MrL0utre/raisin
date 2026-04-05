@@ -33,11 +33,19 @@
 /**                (Fiduccia & Mattheyses).                **/
 /**                                                        **/
 /**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : xx xxx xxxx     **/
+/**                                 to   : 05 apr 2025     **/
 /**                                                        **/
 /**                                                        **/
 /************************************************************/
 
+/** 
+ * @file fm.h
+ * @author Julien Rodriguez
+ * @date 10 jun 2022 – 13 oct 2023
+ * @brief  FM based refinement algorithms and functions  
+ *        declarations for red-black hypergraph.
+ *      
+ */
 
 #ifndef KFM_H
 
@@ -49,64 +57,75 @@
 #include "dlist.h"
 #include "pqueue.h"
 
-INT compute_partition_criticality(
-Hypergraph * h, 
-Arch * a, 
-List ** neighbors, 
-List ** in_neighbors, 
-INT * sort, 
-INT * partition);
+INT 
+compute_partition_criticality(Hypergraph * h, 
+                              Arch * a, 
+                              List ** neighbors, 
+                              List ** in_neighbors, 
+                              INT * sort, 
+                              PART * partition);
 
 /* compute the local critical path through the vertex (vertex) according to a partition and a target topology (partition) */
-INT compute_local_partition_criticality(
-Hypergraph * h, 
-Arch * a, 
-List ** neighbors, 
-List ** in_neighbors, 
-INT * sort, 
-INT * partition,
-INT vertex);
+INT 
+compute_local_partition_criticality(Hypergraph * h, 
+                                    Arch * a, 
+                                    List ** neighbors, 
+                                    List ** in_neighbors, 
+                                    INT * sort, 
+                                    PART * partition,
+                                    INT vertex);
 
-INT dkfmFast(
-Hypergraph * h,  
-Arch * a, 
-List ** neighbors, 
-List ** in_neighbors, 
-INT * sort, 
-INT * partition, 
-INT perform, 
-INT tolerance,
-INT k);
+INT 
+dkfm_fast(Hypergraph * h,  
+          Arch * a, 
+          List ** neighbors, 
+          List ** in_neighbors, 
+          INT * sort, 
+          PART * partition, 
+          INT perform, 
+          INT tolerance,
+          INT k);
 
-INT dkfm(
-Hypergraph * h,  
-Arch *, 
-List ** neighbors, 
-List ** in_neighbors, 
-INT * sort, 
-INT * partition, 
-INT perform, 
-INT tolerance, 
-INT k);
+INT 
+dkfm(Hypergraph * h,  
+     Arch *, 
+     List ** neighbors, 
+     List ** in_neighbors, 
+     INT * sort, 
+     PART * partition, 
+     INT perform, 
+     INT tolerance, 
+     INT k);
 
-INT kfm(
-Hypergraph * h,  
-Arch * a, 
-List ** neighbors, 
-List ** in_neighbors, 
-INT * sort, 
-INT * partition, 
-INT perform, 
-INT tolerance,
-INT k);
+INT 
+kfm(Hypergraph * h,  
+    Arch * a, 
+    List ** neighbors, 
+    List ** in_neighbors, 
+    INT * sort, 
+    PART * partition, 
+    INT perform, 
+    INT tolerance,
+    INT k);
 
-INT compute_partition_cut(
-Hypergraph * h, 
-Arch * a, 
-List ** neighbors, 
-List ** in_neighbors, 
-INT * sort, 
-INT * partition,
-INT * lambda,
-INT k);
+INT 
+compute_partition_cut(Hypergraph * h, 
+                      Arch * a, 
+                      List ** neighbors, 
+                      List ** in_neighbors, 
+                      INT * sort, 
+                      PART * partition,
+                      INT * lambda,
+                      INT k);
+
+INT
+compute_partition_criticality_with_buf(Hypergraph *h,
+                                       Arch       *a,
+                                       List      **out_neighbors,
+                                       List      **in_neighbors,
+                                       INT        *sort,
+                                       PART * partition,
+                                       INT        *delays,
+                                       bool       *is_red,
+                                       bool       *flag);
 #endif
