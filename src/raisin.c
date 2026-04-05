@@ -93,7 +93,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "partfile")==0 &&  i+1 < argv) {
            
-               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(part_path);
                strcpy(part_path, argc[i+1]);
            
@@ -101,7 +101,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "archfile")==0 && i+1 < argv) {
            
-               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(arch_path);
                strcpy(arch_path, argc[i+1]);
            
@@ -110,11 +110,11 @@ int main(int argv, char ** argc){
        
        }
        
-       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]));
+       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]) + 1);
        MEM_ERROR(graph_path);
        strcpy(graph_path, argc[1]);
        
-       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]));
+       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]) + 1);
        MEM_ERROR(algo);
        strcpy(algo, argc[3]);
        
@@ -152,10 +152,10 @@ int main(int argv, char ** argc){
 
        archLoad(a, arch_path, false);
 
-       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path));
+       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path) + 1);
        MEM_ERROR(h->s_rbh_name);
 
-       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path) + 1);
        MEM_ERROR(a->s_arch_name);
 
        strcpy(h->s_rbh_name,  graph_path);
@@ -367,7 +367,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "partfile")==0 &&  i+1 < argv) {
            
-               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(part_path);
                strcpy(part_path, argc[i+1]);
            
@@ -375,7 +375,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "archfile")==0 &&  i+1 < argv) {
            
-               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(arch_path);
                strcpy(arch_path, argc[i+1]);
            
@@ -384,11 +384,11 @@ int main(int argv, char ** argc){
        
        }
 
-       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]));
+       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]) + 1);
        MEM_ERROR(graph_path);
        strcpy(graph_path, argc[1]);
        
-       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]));
+       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]) + 1);
        MEM_ERROR(algo);
        strcpy(algo, argc[3]);
        
@@ -420,10 +420,10 @@ int main(int argv, char ** argc){
 
        archLoad(a, arch_path, false);
 
-       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path));
+       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path) + 1);
        MEM_ERROR(h->s_rbh_name);
 
-       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path) + 1);
        MEM_ERROR(a->s_arch_name);
 
        strcpy(h->s_rbh_name,  graph_path);
@@ -686,7 +686,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "part_file")==0 &&  i+1 < argv) {
            
-               init_part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               init_part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(init_part_path);
                strcpy(init_part_path, argc[i+1]);
            
@@ -694,7 +694,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "partfile")==0 &&  i+1 < argv) {
            
-               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(part_path);
                strcpy(part_path, argc[i+1]);
            
@@ -702,7 +702,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "archfile")==0 &&  i+1 < argv) {
            
-               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(arch_path);
                strcpy(arch_path, argc[i+1]);
            
@@ -711,11 +711,11 @@ int main(int argv, char ** argc){
        
        }
 
-       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]));
+       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]) + 1);
        MEM_ERROR(graph_path);
        strcpy(graph_path, argc[1]);
        
-       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]));
+       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]) + 1);
        MEM_ERROR(algo);
        strcpy(algo, argc[3]);
        
@@ -747,10 +747,10 @@ int main(int argv, char ** argc){
 
        archLoad(a, arch_path, false);
 
-       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path));
+       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path) + 1);
        MEM_ERROR(h->s_rbh_name);
 
-       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path) + 1);
        MEM_ERROR(a->s_arch_name);
 
        strcpy(h->s_rbh_name,  graph_path);
@@ -920,21 +920,21 @@ int main(int argv, char ** argc){
        
            if (strcmp(argc[i], "cluster")==0 && i+1 < argv) {
 
-               algo_cluster = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               algo_cluster = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(algo_cluster);
                strcpy(algo_cluster, argc[i+1]);
            
            }
            if (strcmp(argc[i], "part")==0 && i+1 < argv) {
 
-               algo_part = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               algo_part = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(algo_part);
                strcpy(algo_part, argc[i+1]);
            
            }
            if (strcmp(argc[i], "refine")==0 && i+1 < argv) {
 
-               algo_refine = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               algo_refine = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(algo_refine);
                strcpy(algo_refine, argc[i+1]);
            
@@ -966,7 +966,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "part_file")==0 &&  i+1 < argv) {
            
-               init_part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               init_part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(init_part_path);
                strcpy(init_part_path, argc[i+1]);
            
@@ -974,7 +974,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "partfile")==0 &&  i+1 < argv) {
            
-               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(part_path);
                strcpy(part_path, argc[i+1]);
            
@@ -982,7 +982,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "archfile")==0 &&  i+1 < argv) {
            
-               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(arch_path);
                strcpy(arch_path, argc[i+1]);
            
@@ -996,7 +996,7 @@ int main(int argv, char ** argc){
            return 0;
        }
 
-       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]));
+       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]) + 1);
        MEM_ERROR(graph_path);
        strcpy(graph_path, argc[1]);
        
@@ -1028,10 +1028,10 @@ int main(int argv, char ** argc){
 
        archLoad(a, arch_path, false);
 
-       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path));
+       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path) + 1);
        MEM_ERROR(h->s_rbh_name);
 
-       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path) + 1);
        MEM_ERROR(a->s_arch_name);
 
        strcpy(h->s_rbh_name,  graph_path);
@@ -1319,7 +1319,7 @@ int main(int argv, char ** argc){
            
            if (strcmp(argc[i], "partfile")==0 &&  i+1 < argv) {
            
-               init_part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               init_part_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(init_part_path);
                strcpy(init_part_path, argc[i+1]);
            
@@ -1327,7 +1327,7 @@ int main(int argv, char ** argc){
 
            if (strcmp(argc[i], "archfile")==0 &&  i+1 < argv) {
            
-               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]));
+               arch_path = (char*)malloc(sizeof(char)*strlen(argc[i+1]) + 1);
                MEM_ERROR(arch_path);
                strcpy(arch_path, argc[i+1]);
            
@@ -1336,11 +1336,11 @@ int main(int argv, char ** argc){
        
        }
 
-       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]));
+       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]) + 1);
        MEM_ERROR(graph_path);
        strcpy(graph_path, argc[1]);
        
-       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]));
+       algo       = (char*)malloc(sizeof(char)*strlen(argc[3]) + 1);
        MEM_ERROR(algo);
        strcpy(algo, argc[3]);
        
@@ -1372,10 +1372,10 @@ int main(int argv, char ** argc){
 
        archLoad(a, arch_path, false);
 
-       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path));
+       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path) + 1);
        MEM_ERROR(h->s_rbh_name);
 
-       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+       a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path) + 1);
        MEM_ERROR(a->s_arch_name);
 
        strcpy(h->s_rbh_name,  graph_path);
@@ -1521,7 +1521,7 @@ int main(int argv, char ** argc){
        
        INT mode = 0;
        
-       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]));
+       graph_path = (char*)malloc(sizeof(char)*strlen(argc[1]) + 1);
        MEM_ERROR(graph_path);
        strcpy(graph_path, argc[1]);
        
@@ -1531,7 +1531,7 @@ int main(int argv, char ** argc){
 
        rbhLoad(h, graph_path, 0, false);
 
-       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path));
+       h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(graph_path) + 1);
        MEM_ERROR(h->s_rbh_name);
 
        strcpy(h->s_rbh_name,  graph_path);
