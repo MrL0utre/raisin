@@ -24,7 +24,7 @@
 
 /************************************************************/
 /**                                                        **/
-/**   NAME       : vector.h                                **/
+/**   NAME       : pqueue.h                                **/
 /**                                                        **/
 /**   AUTHOR     : Julien RODRIGUEZ                        **/
 /**                                                        **/
@@ -39,86 +39,98 @@
 
 #include "pqueue.h"
 
-void pqueue_siftUp(
-    INT * queue, 
-    INT * queue_w, 
-    INT i, 
-    INT n) {
+/* -------------------------------------------------------------------------- */
+/* Internal helpers                                                            */
+/* -------------------------------------------------------------------------- */
 
-    
-    INT i_father = (i - 1) / 2;
-    INT tmp;
-    if (queue_w[queue[i]] > queue_w[queue[i_father]]) {
-        tmp             = queue[i];
-        queue[i]        = queue[i_father];
-        queue[i_father] = tmp;
-
-        if (i_father != 0)
-            pqueue_siftUp(queue, queue_w, i_father, n);
-    }
+static inline void
+_swap(INT *queue, INT i, INT j)
+{
+    INT tmp   = queue[i];
+    queue[i]  = queue[j];
+    queue[j]  = tmp;
 }
 
-void pqueue_siftDown(
-    INT * queue, 
-    INT * queue_w, 
-    INT i, 
-    INT n) {
-    
+/* -------------------------------------------------------------------------- */
+/* Public API                                                                  */
+/* -------------------------------------------------------------------------- */
 
-    INT index_child_left  = i * 2 + 1;
-    INT index_child_right = i * 2 + 2;
-    INT m = queue_w[queue[i]];
-    
-    
-    if (index_child_right < n) {
-        m = MAX3(queue_w[queue[i]], queue_w[queue[index_child_left]], queue_w[queue[index_child_right]]);
-    } else if (index_child_left < n){
-        m = MAX(queue_w[queue[i]], queue_w[queue[index_child_left]]);
-    }
-
-    INT i_max;
-
-    if (m > queue_w[queue[i]]) {
-        i_max = index_child_left;
-        if (index_child_right < n && queue_w[queue[i_max]] < queue_w[queue[index_child_right]]) {
-            i_max = index_child_right;
-        }
-        INT tmp      = queue[i];
-        queue[i]     = queue[i_max];
-        queue[i_max] = tmp;
-        if (2*i_max+1 < n) {
-            pqueue_siftDown(queue, queue_w, i_max, n);
+/**
+ * pqueue_sift_up – iterative (was recursive).
+ * Restores the heap property upward from position i.
+ */
+void
+pqueue_sift_up(INT *queue, INT *queue_w, INT i, INT n)
+{
+    (void)n; /* n unused in sift_up but kept for API compatibility */
+    while (i > 0) {
+        INT parent = (i - 1) / 2;
+        if (queue_w[queue[i]] > queue_w[queue[parent]]) {
+            _swap(queue, i, parent);
+            i = parent;
+        } else {
+            break;
         }
     }
 }
 
-void pqueue_heapify(
-    INT * queue, 
-    INT * queue_w, 
-    INT n) {
+/**
+ * pqueue_sift_down – iterative (was recursive).
+ * Restores the heap property downward from position i.
+ */
+void
+pqueue_sift_down(INT *queue, INT *queue_w, INT i, INT n)
+{
+    while (1) {
+        INT left  = 2 * i + 1;
+        INT right = 2 * i + 2;
+        INT largest = i;
 
+        if (left  < n && queue_w[queue[left]]  > queue_w[queue[largest]])
+            largest = left;
+        if (right < n && queue_w[queue[right]] > queue_w[queue[largest]])
+            largest = right;
+
+        if (largest == i)
+            break;
+
+        _swap(queue, i, largest);
+        i = largest;
+    }
 }
 
-INT pqueue_dequeue(
-    INT * queue, 
-    INT * queue_w, 
-    INT n) {
-
-    INT i = queue[0];
-    queue[0] = queue[n-1];
-    n--;
-    pqueue_siftDown(queue, queue_w, 0, n);
-    return i;
+/**
+ * pqueue_heapify – O(n) bottom-up heap construction (was empty stub).
+ */
+void
+pqueue_heapify(INT *queue, INT *queue_w, INT n)
+{
+    /* Start from the last internal node and sift down each one */
+    for (INT i = n / 2 - 1; i >= 0; i--)
+        pqueue_sift_down(queue, queue_w, i, n);
 }
 
-void pqueue_add_element(
-    INT * queue, 
-    INT * queue_w, 
-    INT i, 
-    INT n) {
-    
-    
-    queue[n++] = i;
-    pqueue_siftUp(queue, queue_w, n-1, n);
+/**
+ * pqueue_dequeue – remove and return the max-priority element.
+ *
+ */
+INT
+pqueue_dequeue(INT *queue, INT *queue_w, INT n)
+{
+    INT top    = queue[0];
+    queue[0]   = queue[n - 1];  /* move last element to root */
+    /* caller must do: size-- */
+    pqueue_sift_down(queue, queue_w, 0, n - 1);
+    return top;
 }
 
+/**
+ * pqueue_add_element – append element and sift up.
+ */
+void
+pqueue_add_element(INT *queue, INT *queue_w, INT i, INT n)
+{
+    queue[n] = i;
+    pqueue_sift_up(queue, queue_w, n, n + 1);
+    /* caller must do: size++ */
+}

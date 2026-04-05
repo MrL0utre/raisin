@@ -38,23 +38,38 @@
 /************************************************************/
 
 #ifndef PQUEUE_H
-
 #include <stdlib.h>
 #include "commons.h"
 
 #define PQUEUE_H
 
+void 
+pqueue_sift_up(INT * queue, 
+               INT * queue_w, 
+               INT   i, 
+               INT   n);
 
-void pqueue_siftUp(INT * queue, INT * queue_w, INT i, INT n);
+void 
+pqueue_sift_down(INT * queue, 
+                 INT * queue_w, 
+                 INT   i, 
+                 INT   n);
 
-void pqueue_siftDown(INT * queue, INT * queue_w, INT i, INT n);
+void 
+pqueue_heapify(INT * queue, 
+               INT * queue_w, 
+               INT   n);
 
-void pqueue_heapify(INT * queue, INT * queue_w, INT n) ;
+INT 
+pqueue_dequeue(INT * queue, 
+               INT * queue_w, 
+               INT   n);
 
-INT pqueue_dequeue(INT * queue, INT * queue_w, INT n);
-
-void pqueue_add_element(INT * queue, INT * queue_w, INT i, INT n);
-
-
+void 
+pqueue_add_element(INT * queue, 
+                   INT * queue_w, 
+                   INT   i, 
+                   INT   n);
 
 #endif
+
