@@ -67,10 +67,13 @@ typedef struct hypergraph{
   INT *             ti_reds;                   /*+ Red vertex.        +*/
   INT *             ti_weights;                /*+ Vertex weight.     +*/
 
-  INT               (* rbhInit)  ();           /*+ Hypergraph init function.    +*/
-  INT               (* rbhFree)  ();           /*+ Hypergraph free function.    +*/
-  INT               (* rbhLoad)  ();           /*+ Hypergraph loading function. +*/
-  INT               (* rbhSave)  ();           /*+ Hypergraph saving function.  +*/
+  bool *            is_red;                    /*+ Static red/black mask.   +*/
+  VtH  *            vth;                       /*+ Vertex→Hyperedge index.  +*/
+
+  INT               (* rbh_init)  ();           /*+ Hypergraph init function.    +*/
+  INT               (* rbh_free)  ();           /*+ Hypergraph free function.    +*/
+  INT               (* rbhLoad)  ();            /*+ Hypergraph loading function. +*/
+  INT               (* rbh_save)  ();           /*+ Hypergraph saving function.  +*/
 
 } Hypergraph;
 
