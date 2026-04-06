@@ -31,7 +31,7 @@
 /**   FUNCTION   : These lines are union-find              **/
 /**                functions definitions.                  **/
 /**                                                        **/
-/**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
+/**   DATES      : # Version 0.0  : from : 05 apr 2025     **/
 /**                                                        **/
 /**                                                        **/
 /**                                                        **/
@@ -39,44 +39,65 @@
 
 #include "uf.h"
 
-Union_find * new_set(INT element) {
-    Union_find * set = (Union_find*)malloc(sizeof(Union_find));
+Union_find *
+new_set(INT element)
+{
+    Union_find *set = (Union_find *)malloc(sizeof(Union_find));
     MEM_ERROR(set);
-    set->value      = element;
-    set->parent     = NULL;
-    set->depth      = 1;
+    set->value  = element;
+    set->parent = NULL;
+    set->depth  = 1;
     return set;
 }
 
-Union_find * find    (Union_find * element) {
-    if(!element) {
+/*
+ * find() with full path compression (two-pass).
+ *
+ * Pass 1: walk to the root.
+ * Pass 2: point every node on the path directly at the root.
+ *
+ */
+Union_find *
+find(Union_find *element)
+{
+    if (!element)
         return NULL;
+
+    /* Pass 1 - locate root */
+    Union_find *root = element;
+    while (root->parent != NULL)
+        root = root->parent;
+
+    /* Pass 2 - flatten all intermediate pointers */
+    while (element->parent != NULL) {
+        Union_find *next = element->parent;
+        element->parent  = root;
+        element          = next;
     }
-    Union_find * base_element = element;
-    while(element->parent != NULL) {
-        element = element->parent;
-    }
-    if (element != base_element->parent && element != base_element) {
-        base_element->parent = element;
-    }
-    return element;
+
+    return root;
 }
 
-Union_find * merge   (Union_find * a, Union_find * b) {
+Union_find *
+merge(Union_find *a,
+      Union_find *b)
+{
+    Union_find *root_a   = find(a);
+    Union_find *root_b   = find(b);
+    Union_find *new_root = root_a;
 
-    Union_find * root_a   = find(a);
-    Union_find * root_b   = find(b);
-    Union_find * new_root = root_a;
+    if (root_a == root_b)
+        return root_a;
 
-    if(root_a != root_b){
-        if(root_a->depth > root_b->depth){
-            root_b->parent = root_a;
+    if (root_a->depth >= root_b->depth) {
+        root_b->parent = root_a;
+        if (root_a->depth == root_b->depth)
             root_a->depth++;
-        }else{
-            root_a->parent = root_b;
-            root_b->depth++;
-            new_root = root_b;
-        }
+    } else {
+        root_a->parent = root_b;
+        root_b->depth++;
+        new_root = root_b;
     }
+
     return new_root;
 }
