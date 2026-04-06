@@ -24,28 +24,55 @@
 
 #include "vector.h"
 
-void new_vector(Vector * v, INT size) {
-
-  v->v = (INT*)malloc(sizeof(INT)*size);
-  MEM_ERROR(v->v);
-  v->size = size;
-  v->i=0;
-  return;
+void
+new_vector(Vector *v, INT size)
+{
+    v->v    = (INT *)malloc(sizeof(INT) * size);
+    MEM_ERROR(v->v);
+    v->size = size;
+    v->i    = 0;
 }
 
-void push_back(Vector * v, INT val) {
-  if(v->i==v->size) {
-    v->size*=2;
-    void * err = realloc(v->v, sizeof(INT)*v->size);
-    if (err == NULL) {
-      /* exception */
+void
+push_back(Vector *v, INT val)
+{
+    if (v->i == v->size) {
+        INT new_size = v->size * 2;
+        void *tmp    = realloc(v->v, sizeof(INT) * new_size);
+        /* Fix: check realloc result and update the pointer */
+        if (tmp == NULL) {
+            printf("vector.c: unable to realloc buffer\n");
+            exit(1);
+        }
+        v->v    = (INT *)tmp;
+        v->size = new_size;
     }
-  }
-  v->v[v->i++]=val;
+    v->v[v->i++] = val;
 }
 
-void delete_vector(Vector * v) {
-  free(v->v);
-  free(v);
-  return;
+/*
+ * delete_vector_data() frees only the inner data buffer.
+ * Use this for Vectors embedded in a Matrix
+ */
+void
+delete_vector_data(Vector *v)
+{
+    if (v && v->v) {
+        free(v->v);
+        v->v    = NULL;
+        v->size = 0;
+        v->i    = 0;
+    }
+}
+
+/*
+ * delete_vector() frees both the data buffer and the Vector struct itself.
+ * Only call this when the Vector was individually heap-allocated via malloc.
+ */
+void
+delete_vector(Vector *v)
+{
+    if (!v) return;
+    free(v->v);
+    free(v);
 }
