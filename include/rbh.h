@@ -49,6 +49,10 @@
 */
 
 
+/* Forward declaration — vth.h includes rbh.h so we break the cycle */
+typedef struct vth_s VtH;
+
+
 /*+ The red-black hypergraph class type. +*/
 
 typedef struct hypergraph{

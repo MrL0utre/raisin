@@ -33,7 +33,7 @@
 /**                hypergraph.                             **/
 /**                                                        **/
 /**   DATES      : # Version 0.0  : from : 10 jun 2022     **/
-/**                                 to   : 13 oct 2023     **/
+/**                                 to   : 05 apr 2025     **/
 /**                                                        **/
 /**                                                        **/
 /************************************************************/
@@ -52,11 +52,55 @@
 #include "math.h"
 #include "uf.h"
 
-derivedBreadthFirstSearchMultilevel(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon);
-int derivedBreadthFirstSearch(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon);
-int derivedDepthFirstSearch(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon);
-int derivedDepthFirstSearchMultilevel(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon);
-int criticalConnectedComponentPartitioning(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon, INT bound);
-criticalConnectedComponentPartitioningMultilevel(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * partition, INT k, INT epsilon, INT bound);
+int
+derived_breadth_first_search_multilevel(Hypergraph * h, 
+                                       List      ** neighbors, 
+                                       List      ** in_neighbors,
+                                       PART * partition, 
+                                       INT          k, 
+                                       INT epsilon);
+
+int 
+derived_breadth_first_search(Hypergraph * h, 
+                             List      ** neighbors, 
+                             List      ** in_neighbors, 
+                             PART  * partition, 
+                             INT          k, 
+                             INT          epsilon);
+
+int 
+derived_depth_first_search(Hypergraph * h, 
+                           List      ** neighbors, 
+                           List      ** in_neighbors, 
+                           PART  * partition, 
+                           INT          k, 
+                           INT          epsilon);
+
+int 
+derived_depth_first_searchMultilevel(Hypergraph * h, 
+                                     List      ** neighbors, 
+                                     List      ** in_neighbors, 
+                                     PART       * partition, 
+                                     INT          k, 
+                                     INT          epsilon);
+
+int 
+critical_connected_component_partitioning(Hypergraph * h,
+                                          List      ** neighbors, 
+                                          List      ** in_neighbors, 
+                                          INT        * umap, 
+                                          INT          k, 
+                                          INT          epsilon, 
+                                          INT          bound);
+
+int 
+critical_connected_component_partitioning_multilevel(Hypergraph * h, 
+                                                     List ** neighbors, 
+                                                     List ** in_neighbors, 
+                                                     INT  * umap,
+                                                     INT k, 
+                                                     INT epsilon, 
+                                                     INT bound);
 
 #endif
+
