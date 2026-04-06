@@ -69,9 +69,9 @@ typedef struct arch{
 **  The function prototypes.
 */
 
-int               archInit   (Arch * this, INT m, INT n);
-int               archFree   (Arch * this);
-int               archLoad   (Arch * this, const char * s_path, bool verbose);
+int               arch_init   (Arch * this, INT m, INT n);
+int               arch_free   (Arch * this);
+int               arch_load   (Arch * this, const char * s_path, bool verbose);
 
 /*
 **  The macro definitions.

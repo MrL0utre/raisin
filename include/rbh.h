@@ -76,7 +76,7 @@ typedef struct hypergraph{
 
   INT               (* rbh_init)  ();           /*+ Hypergraph init function.    +*/
   INT               (* rbh_free)  ();           /*+ Hypergraph free function.    +*/
-  INT               (* rbhLoad)  ();            /*+ Hypergraph loading function. +*/
+  INT               (* rbh_load)  ();            /*+ Hypergraph loading function. +*/
   INT               (* rbh_save)  ();           /*+ Hypergraph saving function.  +*/
 
 } Hypergraph;
@@ -91,31 +91,31 @@ typedef struct {
     bool              b_verbose;          /*+ Verbose. +*/
 } rbhLoad_args;
 
-int               varRbhLoad  (rbhLoad_args);
+int               var_rbh_load  (rbhLoad_args);
 
 /*
 **  The function prototypes.
 */
-int               rbhInit           (Hypergraph * this);
-int               rbhFree           (Hypergraph * this);
-int               rbhLoadBase       (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
-int               rbhSave           (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
-int               computeNeighbors  (Hypergraph * this, Matrix * neighbors);
-int               computeInNeighbors(Hypergraph * this, Matrix * neighbors, Matrix * in_neighbors);
-int               computeListNeighbors  (Hypergraph * this, List ** neighbors);
-int               computeListInNeighbors(Hypergraph * this, List ** neighbors, List ** in_neighbors);
-int               topologicalSort   (Hypergraph * this, List ** neighbors, List ** in_neighbors, INT * sort);
+int               rbh_init           (Hypergraph * this);
+int               rbh_free           (Hypergraph * this);
+int               rbh_load_base       (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
+int               rbh_save           (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
+int               compute_neighbors  (Hypergraph * this, Matrix * neighbors);
+int               compute_in_neighbors(Hypergraph * this, Matrix * neighbors, Matrix * in_neighbors);
+int               compute_list_neighbors  (Hypergraph * this, List ** neighbors);
+int               compute_list_in_neighbors(Hypergraph * this, List ** neighbors, List ** in_neighbors);
+int               topological_sort   (Hypergraph * this, List ** neighbors, List ** in_neighbors, INT * sort);
 int               compute_criticality (Hypergraph * h, List ** neighbors, List **  in_neighbors, INT * sort);
 int               compute_subpmax     (Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, bool * vertices);
-int computeListNeighborsUnalloc(Hypergraph * this, List ** neighbors_list);
+int compute_list_neighbors_unalloc(Hypergraph * this, List ** neighbors_list);
 int compute_path_length(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelmax, INT * lmax, INT * depth, float * avg, float * stdw);
 int compute_pmax(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelpmax, INT * lpmax, float * avg, float * stdw);
 int compute_maxdeg(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelmaxdeg, INT * lmaxdeg, float * avg, float * stdw);
 int compute_maxcon(Hypergraph * h, List ** neighbors, List ** in_neighbors, INT * sort, INT * sizelmaxdeg, INT * lmaxdeg, float * avg, float * stdw);
-int computeListInNeighborsUnalloc(Hypergraph * this, List ** neighbors_list, List ** in_neighbors_list);
-int computeNeighborsUnalloc(Hypergraph * h, Matrix * neighbors);
+int compute_list_in_neighbors_unalloc(Hypergraph * this, List ** neighbors_list, List ** in_neighbors_list);
+int compute_neighbors_unalloc(Hypergraph * h, Matrix * neighbors);
 
-int computeInNeighborsUnalloc(
+int compute_in_neighbors_unalloc(
 Hypergraph * h, 
 Matrix     * neighbors, 
 Matrix     * in_neighbors);
@@ -124,7 +124,7 @@ Matrix     * in_neighbors);
 **  The macro definitions.
 */
 
-#define rbhLoad(...) varRbhLoad((rbhLoad_args){__VA_ARGS__});
+#define rbh_load(...) var_rbh_load((rbhLoad_args){__VA_ARGS__});
 
 
 

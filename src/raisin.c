@@ -152,7 +152,7 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbhLoad(h, graph_path, 0, false);
+       rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
        arch_load(a, arch_path, false);
@@ -442,7 +442,7 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbhLoad(h, graph_path, 0, false);
+       rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
        arch_load(a, arch_path, false);
@@ -793,7 +793,7 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbhLoad(h, graph_path, 0, false);
+       rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
        arch_load(a, arch_path, false);
@@ -1087,7 +1087,7 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbhLoad(h, graph_path, 0, false);
+       rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
        arch_load(a, arch_path, false);
@@ -1439,7 +1439,7 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbhLoad(h, graph_path, 0, false);
+       rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
        arch_load(a, arch_path, false);
@@ -1613,7 +1613,7 @@ int main(int argv, char ** argc){
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
        MEM_ERROR(h);      
 
-       rbhLoad(h, graph_path, 0, false);
+       rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));

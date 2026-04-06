@@ -24,7 +24,7 @@
 
 #include "a.h"
 
-int archInit(Arch * this, INT m, INT n) {
+int arch_init(Arch * this, INT m, INT n) {
 
   this->ti_capacity      = (INT *)calloc(m*n, sizeof(INT));
   MEM_ERROR(this->ti_capacity);
@@ -39,7 +39,7 @@ int archInit(Arch * this, INT m, INT n) {
   return (0);
 }
 
-int archFree(Arch * this) {
+int arch_free(Arch * this) {
 
   free(this->ti_capacity);
   free(this->ti_delay);
@@ -50,7 +50,7 @@ int archFree(Arch * this) {
   return (0);
 }
 
-int archLoad(Arch * this, const char * s_path, bool verbose)
+int arch_load(Arch * this, const char * s_path, bool verbose)
 {
   char * buffer = (char*)malloc(BUFSIZE);
   MEM_ERROR(buffer);
@@ -68,7 +68,7 @@ int archLoad(Arch * this, const char * s_path, bool verbose)
 
   INT i_n, i_m, i_ncon;
 
-  readLine(in, buffer, BUFSIZE);
+  read_line(in, buffer, BUFSIZE);
   
   int n = sscanf(buffer,"%d %d",&i_m,&i_ncon);
   
@@ -82,7 +82,7 @@ int archLoad(Arch * this, const char * s_path, bool verbose)
 
   FATAL(n!=2,"Invalid arch file format");
 
-  archInit(this, i_m, i_n);
+  arch_init(this, i_m, i_n);
 
   INT       capacity   = 0;
   INT       delay      = 0;
@@ -93,7 +93,7 @@ int archLoad(Arch * this, const char * s_path, bool verbose)
 
   for (INT j = 0; j < i_ncon; j++) {
 
-    readLine(in, buffer, BUFSIZE);
+    read_line(in, buffer, BUFSIZE);
     if (verbose) {
       printf("j(%d)\n%s\n", j, buffer);
     }
