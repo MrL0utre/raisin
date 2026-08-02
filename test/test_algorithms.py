@@ -221,24 +221,60 @@ def main() -> int:
             results[name] = run(binary, root, graph, arguments)
             validate_solution(temp / multilevel_outputs[name], 10124, 4)
 
+        failures: list[str] = []
         for name, expected in baseline["cases"].items():
             actual = results[name]
-            assert float(actual["__runtime_seconds"]) <= expected["runtime_seconds_max"], name
+            runtime = float(actual["__runtime_seconds"])
+            if runtime > expected["runtime_seconds_max"]:
+                failures.append(
+                    f"{name}: runtime {runtime} exceeds "
+                    f"{expected['runtime_seconds_max']} seconds"
+                )
             if "__peak_memory_mib" in actual:
-                assert (
-                    float(actual["__peak_memory_mib"])
-                    <= expected["peak_memory_mib_max"]
-                ), name
+                memory = float(actual["__peak_memory_mib"])
+                if memory > expected["peak_memory_mib_max"]:
+                    failures.append(
+                        f"{name}: peak memory {memory} MiB exceeds "
+                        f"{expected['peak_memory_mib_max']} MiB"
+                    )
             if name.startswith("cluster_"):
-                assert objective(actual, "cost") <= expected["cost"], name
-                assert objective(actual, "clusters") == expected["clusters"], name
+                cost = objective(actual, "cost")
+                clusters = objective(actual, "clusters")
+                if cost > expected["cost"]:
+                    failures.append(f"{name}: cost {cost} exceeds {expected['cost']}")
+                if clusters != expected["clusters"]:
+                    failures.append(
+                        f"{name}: clusters {clusters} differs from "
+                        f"{expected['clusters']}"
+                    )
                 continue
-            assert objective(actual, "pmax") <= expected["pmax"], name
-            assert objective(actual, "cut") <= expected["cut"], name
-            assert int(actual["communication signal hops"]) <= expected["signal_hops"], name
-            assert float(actual["balance"]) <= expected["balance_max"], name
-            assert actual["communication feasible"] == "yes", name
-            assert actual["communication repair moves"] == "0", name
+            pmax = objective(actual, "pmax")
+            cut = objective(actual, "cut")
+            signal_hops = int(actual["communication signal hops"])
+            balance = float(actual["balance"])
+            if pmax > expected["pmax"]:
+                failures.append(f"{name}: pmax {pmax} exceeds {expected['pmax']}")
+            if cut > expected["cut"]:
+                failures.append(f"{name}: cut {cut} exceeds {expected['cut']}")
+            if signal_hops > expected["signal_hops"]:
+                failures.append(
+                    f"{name}: signal hops {signal_hops} exceeds "
+                    f"{expected['signal_hops']}"
+                )
+            if balance > expected["balance_max"]:
+                failures.append(
+                    f"{name}: balance {balance} exceeds {expected['balance_max']}"
+                )
+            if actual["communication feasible"] != "yes":
+                failures.append(f"{name}: communication is not feasible")
+            if actual["communication repair moves"] != "0":
+                failures.append(
+                    f"{name}: expected no communication repair moves, got "
+                    f"{actual['communication repair moves']}"
+                )
+
+        if failures:
+            raise AssertionError("\n".join(failures))
 
     print("Algorithm regression checks passed")
     return 0
