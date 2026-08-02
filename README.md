@@ -137,13 +137,14 @@ The repository uses three line-oriented text formats:
 - `.arch` for target architectures;
 - `.sol` for vertex-to-part assignments.
 
-Their normative v1.2 grammar and validation rules are documented in
+Their normative v1.3 grammar and validation rules are documented in
 [`docs/formats.md`](docs/formats.md).
 
 ## Tests and reproducibility
 
-The fast test suite validates graph invariants, golden statistics, malformed
-inputs, partition ranges and deterministic replay:
+The test suite validates graph invariants, hand-checkable path and capacity
+fixtures, malformed inputs, deterministic replay, every supported algorithm and
+the final-v1.2 objective/performance ceilings:
 
 ```sh
 make check
@@ -182,12 +183,13 @@ include/       public C headers
 src/           implementation and CLI
 hypergraphs/   reference circuit inputs
 targets/       reference target architectures
-test/          automated and historical research tests
+test/          automated scientific and regression tests
 ```
 
-The files `test/test_rbh.c`, `test/test_crbh.c`, `test/test_ipart.c`,
-`test/test_fm.c` and `test/test_m.c` are historical exploratory programs. The
-supported automated suites are `test_invariants.c` and `test_cli.py`.
+The active suites are `test_invariants.c`, `test_arch.c`, `test_capacity.c`,
+`test_scientific.c`, `test_cli.py` and `test_algorithms.py`. Historical
+interactive programs were removed after their useful coverage was migrated to
+automated assertions.
 
 ## References
 

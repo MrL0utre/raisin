@@ -1,34 +1,34 @@
-# RaiSin roadmap after v1.2
+# RaiSin roadmap after v1.3
 
-Version 1.2 is a consolidation release: it makes the current implementation
-buildable, deterministic, testable and defensive without changing the research
-model. The following work should be developed on top of that baseline.
+Version 1.3 completes the scientific-validation and target-constraint work
+planned after the v1.2 consolidation baseline. The following API and scalability
+work should be developed on top of this release.
 
-## v1.3 — Scientific validation and target constraints
+## v1.3 — Scientific validation and target constraints (completed 2026-08-02)
 
-1. **Make target capacities effective.** The architecture loader stores a
-   connection-capacity matrix, but the optimization code currently consumes only
-   the delay matrix. Define the capacity semantics from the thesis, enforce them
-   in partitioning/refinement, and report violations as first-class metrics.
-2. **Represent per-part resource capacities.** Match every vertex weight
-   dimension with an explicit capacity for every FPGA part. Replace the current
-   balance-only proxy with feasibility checks, while retaining balance as an
-   optional secondary objective.
-3. **Validate topology semantics.** Distinguish a missing connection from a
-   zero-delay connection, reject or explicitly support disconnected targets, and
-   add non-complete topology fixtures.
-4. **Build hand-checkable algorithm fixtures.** Add small golden cases for HEM,
-   BSC, DBFS, DDFS, CCP, KFM, DKFM and DKFMFAST, including infeasible cases and
-   expected objective values.
-5. **Expand scientific regression coverage.** Add representative circuits and
-   target families, store structured JSON results, and define accepted ranges for
-   `pmax`, cut, cost, balance, runtime and peak memory.
-6. **Modernize historical tests.** Convert useful assertions from the five
-   exploratory `test_*.c` programs into maintained unit tests, then archive the
-   remaining experiment drivers outside the automated-test namespace.
+1. [x] **Make target capacities effective.** Link demand is routed, measured,
+   repaired in partition-producing modes and rejected when infeasible.
+2. [x] **Represent per-part resource capacities.** Every vertex-weight dimension
+   can be matched to an explicit capacity per FPGA, while legacy balance remains
+   available when the matrix is omitted.
+3. [x] **Validate topology semantics.** Missing links are distinct from zero-delay
+   links, shortest routes are deterministic, and disconnected or duplicate
+   topologies are rejected.
+4. [x] **Build hand-checkable fixtures and golden algorithm cases.** Small path,
+   topology, resource and infeasibility cases have exact expected values; HEM,
+   BSC, DBFS, DDFS, CCP, KFM, DKFM and DKFMFAST have deterministic baselines.
+5. [x] **Expand scientific regression coverage.** Structured JSON bounds `pmax`,
+   cut, cost, balance, runtime and peak memory across the reference circuit and
+   the small non-complete-topology fixtures.
+6. [x] **Modernize historical tests.** Useful coverage from the five obsolete
+   exploratory C programs was migrated to maintained assertions, then the stale
+   drivers were removed from the automated-test namespace.
 
 Exit criterion: capacity-feasible solutions and objective metrics are verified
 on multiple circuit/topology pairs and compared against a recorded v1.2 baseline.
+
+Evidence is maintained in `test/test_scientific.c`, `test/test_capacity.c`,
+`test/test_algorithms.py` and `test/baselines/v1.2-b14-arch0.json`.
 
 ## v1.4 — Stable library and versioned data model
 

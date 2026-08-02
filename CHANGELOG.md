@@ -3,15 +3,57 @@
 This project follows semantic versioning for released command-line behavior and
 serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 
-## [1.3.0] - Unreleased
+## [1.3.0] - 2026-08-02
 
-### Planned
+### Added
 
-- Enforce target communication and per-part resource capacities.
-- Validate non-complete and disconnected target topologies.
-- Add hand-checkable fixtures for every supported algorithm.
-- Expand scientific regression coverage across circuits and architectures.
-- Modernize the historical exploratory test programs.
+- Deterministic all-pairs routing for non-complete target architectures.
+- Routed communication-load metrics, overload diagnostics and capacity repair.
+- Optional per-part, per-resource FPGA capacities in `.arch` files.
+- Resource-load metrics, feasibility diagnostics and deterministic overload repair.
+- Hand-checkable topology, capacity and critical-path fixtures.
+- Final-v1.2 JSON baselines covering HEM, BSC, DBFS, DDFS, CCP, KFM, DKFM,
+  DKFMFAST and representative multilevel combinations.
+- Regression ceilings for objectives, balance, runtime and peak resident memory.
+
+### Changed
+
+- Partition-producing modes repair capacity violations before validation and
+  writing; `eval` remains read-only and rejects infeasible inputs.
+- Architecture delays exposed to algorithms are now shortest-route delays rather
+  than zero-filled direct-link matrix entries.
+- Cluster solutions preserve full integer cluster identifiers instead of casting
+  them to the configured placed-partition identifier type.
+- Historical interactive test programs were replaced by maintained automated
+  assertions through the supported CLI.
+
+### Fixed
+
+- Missing architecture links being interpreted as zero-delay links.
+- Disconnected and duplicate target connections being accepted ambiguously.
+- Truncation of clustering identifiers above 255.
+- Incorrect multi-resource total-weight indexing in clustering setup.
+- CCP reporting metrics against contracted adjacency instead of the original graph.
+
+### Compatibility notes
+
+- The legacy two-field `.arch` header remains supported and retains balance-factor
+  behavior. A third field enables explicit FPGA resource capacities.
+- Disconnected architectures and duplicate undirected links are now rejected.
+- Capacity-limited targets can change a generated solution during the repair
+  phase, or fail explicitly when no admissible improving move exists.
+- Cluster `.sol` files may contain identifiers above 255 and therefore cannot be
+  consumed by `refine`/`eval` in a default build unless all values fit `PART`.
+
+### Release checklist
+
+- [x] Warning-free strict C11 build.
+- [x] Topology, capacity, scientific-reference and invariant unit tests.
+- [x] Deterministic CLI regression suite.
+- [x] Ten-scenario algorithm regression against the final v1.2 baseline.
+- [x] Objective, balance, runtime and memory ceilings.
+- [x] GPLv3 licensing, upstream attribution and original CEA/Inria notices retained.
+- [ ] Run the hosted GCC, Clang and sanitizer jobs on the final release commit.
 
 See [`ROADMAP.md`](ROADMAP.md) for the complete objectives and exit criteria.
 
