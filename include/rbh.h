@@ -126,7 +126,7 @@ Matrix     * in_neighbors);
 **  The macro definitions.
 */
 
-#define rbh_load(...) var_rbh_load((rbhLoad_args){__VA_ARGS__});
+#define rbh_load(...) var_rbh_load((rbhLoad_args){__VA_ARGS__})
 
 
 

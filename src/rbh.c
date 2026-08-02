@@ -42,6 +42,7 @@
 */
 #include "rbh.h"
 #include "vth.h"
+#include <errno.h>
 
 /*
 **  The static definitions.
@@ -59,31 +60,42 @@
 int 
 rbh_init(Hypergraph * this)
 {
-  this->ti_hyperedges = (INT*)calloc((2 * this->i_hyperedges + this->i_pins), sizeof(INT));
+  size_t hyperedge_storage = (size_t)2 * (size_t)this->i_hyperedges +
+                             (size_t)this->i_pins;
+  size_t hyperedge_count = this->i_hyperedges > 0 ?
+                           (size_t)this->i_hyperedges : 1U;
+  size_t red_count = this->i_reds > 0 ? (size_t)this->i_reds : 1U;
+
+  if (hyperedge_storage == 0)
+    hyperedge_storage = 1;
+
+  this->s_rbh_name = NULL;
+  this->ti_hyperedges = (INT*)calloc(hyperedge_storage, sizeof(INT));
   
   MEM_ERROR(this->ti_hyperedges);
 
-  this->ti_idx_hyperedges = (INT*)calloc(this->i_hyperedges, sizeof(INT));
+  this->ti_idx_hyperedges = (INT*)calloc(hyperedge_count, sizeof(INT));
     
   MEM_ERROR(this->ti_idx_hyperedges);
 
-  this->ti_delays = (INT*)calloc(this->i_vertices, sizeof(INT));
+  this->ti_delays = (INT*)calloc((size_t)this->i_vertices, sizeof(INT));
     
   MEM_ERROR(this->ti_delays);
 
-  this->ti_criticalities_right = (INT*)calloc(this->i_vertices, sizeof(INT));
+  this->ti_criticalities_right = (INT*)calloc((size_t)this->i_vertices, sizeof(INT));
   
   MEM_ERROR(this->ti_criticalities_right);
 
-  this->ti_criticalities_left = (INT*)calloc(this->i_vertices, sizeof(INT));
+  this->ti_criticalities_left = (INT*)calloc((size_t)this->i_vertices, sizeof(INT));
     
   MEM_ERROR(this->ti_criticalities_left);
 
-  this->ti_reds = (INT*)calloc(this->i_reds, sizeof(INT));
+  this->ti_reds = (INT*)calloc(red_count, sizeof(INT));
 
   MEM_ERROR(this->ti_reds);
 
-  this->ti_weights = (INT*)calloc(this->i_vertices * this->i_weights, sizeof(INT));
+  this->ti_weights = (INT*)calloc((size_t)this->i_vertices *
+                                  (size_t)this->i_weights, sizeof(INT));
     
   MEM_ERROR(this->ti_weights);
 
@@ -318,203 +330,247 @@ rbh_validate(const Hypergraph *h)
 }
 
 
-int 
-rbh_load_base(Hypergraph *       this, 
-            const char * const s_path, 
-            INT                i_baseval, 
-            bool               b_verbose)
+static bool
+rbh_parse_int(const char *token, long minimum, long maximum, INT *value)
 {
+    char *end = NULL;
+    long parsed;
 
-  /*
-  ** Errors.
-  */
-  if(this == NULL) 
-    {
-      return(1);
+    if (token == NULL)
+        return false;
+    errno = 0;
+    parsed = strtol(token, &end, 10);
+    if (errno == ERANGE || end == token || *end != '\0' ||
+        parsed < minimum || parsed > maximum)
+        return false;
+    *value = (INT)parsed;
+    return true;
+}
+
+static bool
+rbh_parse_integral_number(const char *token, INT minimum, INT maximum, INT *value)
+{
+    char *end = NULL;
+    double parsed;
+
+    if (token == NULL)
+        return false;
+    errno = 0;
+    parsed = strtod(token, &end);
+    if (errno == ERANGE || end == token || *end != '\0' ||
+        !isfinite(parsed) || parsed < minimum || parsed > maximum)
+        return false;
+    *value = (INT)parsed;
+    return parsed == (double)*value;
+}
+
+int
+rbh_load_base(Hypergraph *this,
+              const char * const s_path,
+              INT i_baseval,
+              bool b_verbose)
+{
+    char *buffer;
+    FILE *in;
+    INT i_pins, i_vertices, i_hyperedges, i_reds, i_weights;
+    INT idx = 0;
+    INT raw_pins = 0;
+    INT red_count = 0;
+    int status = 0;
+    char extra;
+    const char *delimiters = " \t";
+
+    if (this == NULL)
+        return 1;
+    if (s_path == NULL)
+        return 2;
+    if (i_baseval < 0)
+        return 3;
+
+    memset(this, 0, sizeof(*this));
+    buffer = (char *)malloc(BUFSIZE);
+    MEM_ERROR(buffer);
+    in = fopen(s_path, "r");
+    if (in == NULL) {
+        fprintf(stderr, "Cannot open graph file %s\n", s_path);
+        free(buffer);
+        return 4;
     }
-    
-  if(s_path == NULL) 
-    {
-      return(2);
-    }
-    
-  if(i_baseval < 0) 
-    {
-      return(3);
-    }
-  /*
-  ** End errors.
-  */
-  char * buffer = (char*)malloc(BUFSIZE);
-  
-  MEM_ERROR(buffer);
 
-  FILE * in = NULL;
-  in        = fopen(s_path, "r");
+    if (b_verbose)
+        printf("File : %s\n", s_path);
 
-  if(in == NULL) 
-    {
-      return(1);
+    if (read_line(in, buffer, BUFSIZE) <= 0 ||
+        sscanf(buffer, "%d %d %d %d %d %c", &i_pins, &i_vertices,
+               &i_hyperedges, &i_reds, &i_weights, &extra) != 5 ||
+        i_pins <= 0 || i_vertices <= 0 || i_hyperedges <= 0 ||
+        i_reds < 0 || i_reds > i_vertices || i_weights <= 0 ||
+        i_hyperedges > (INT_MAX - i_pins) / 2 ||
+        (long)i_baseval + i_vertices - 1L > INT_MAX ||
+        i_weights > INT_MAX / i_vertices) {
+        fprintf(stderr, "Invalid hypergraph header in %s\n", s_path);
+        status = 5;
+        goto done;
     }
 
-  if(b_verbose) 
-    {
-      printf("File : %s\n", s_path);
-    }
+    if (b_verbose)
+        printf("#pins : %d\n#vertex : %d\n#edges : %d\n#red : %d\n",
+               i_pins, i_vertices, i_hyperedges, i_reds);
 
-  INT i_pins, i_vertices, i_hyperedges, i_reds, i_weights;
-  
-  read_line(in, buffer, BUFSIZE);
-
-  int n = sscanf(buffer, "%d %d %d %d %d", &i_pins, &i_vertices, &i_hyperedges, &i_reds, &i_weights);
-    
-  if(n < 0) 
-    {
-      return(10);
-    }
-
-  FATAL(n != 5, "Invalid graph format!");
-  
-  assert(n == 5);
-
-  if(b_verbose) 
-    {
-      printf("#pins : %d\n#vertex : %d\n#edges : %d\n#red : %d\n", i_pins, i_vertices, i_hyperedges, i_reds);
-    }
-
-    this->i_vertices       = i_vertices;
-    this->i_hyperedges     = i_hyperedges;
-    this->i_reds           = i_reds;
-    this->i_pins           = i_pins;
-    this->i_weights        = i_weights;
-
+    this->i_vertices = i_vertices;
+    this->i_hyperedges = i_hyperedges;
+    this->i_reds = i_reds;
+    this->i_pins = i_pins;
+    this->i_weights = i_weights;
     rbh_init(this);
 
-    char   token[2];
-    
-    strcpy(token, " ");
-    
-    char * raw;
-    
-    char * buffer2 = (char*)malloc(sizeof(char) * BUFSIZE);
-    
-    MEM_ERROR(buffer2);
+    for (INT edge = 0; edge < i_hyperedges; edge++) {
+        char *raw;
+        INT edge_start = idx;
+        INT edge_size = 0;
+        INT weight;
 
-    INT  idx = 0;
-    INT  len;
-    bool is_in;
-    INT  cur_len;
-    INT  idx_e;
+        if (read_line(in, buffer, BUFSIZE) <= 0) {
+            fprintf(stderr, "Hypergraph %s ends before hyperedge %d\n", s_path, edge);
+            status = 6;
+            goto done;
+        }
+        if (b_verbose)
+            printf("Hyperedges : j(%d)\n%s\n", edge, buffer);
 
-    for(INT j = 0; j < this->i_hyperedges; j++)
-      {
-        this->ti_idx_hyperedges[j] = idx;
-        
-        idx_e                      = idx;
+        raw = strtok(buffer, delimiters);
+        if (!rbh_parse_int(raw, 0, INT_MAX, &weight)) {
+            fprintf(stderr, "Invalid weight for hyperedge %d in %s\n", edge, s_path);
+            status = 7;
+            goto done;
+        }
+        this->ti_idx_hyperedges[edge] = idx;
+        this->ti_hyperedges[idx++] = weight;
+        this->ti_hyperedges[idx++] = 0;
 
-        read_line(in, buffer, BUFSIZE);
+        while ((raw = strtok(NULL, delimiters)) != NULL) {
+            INT external_vertex;
+            INT vertex;
+            bool duplicate = false;
 
-        if(b_verbose)
-          {
-            printf("Hyperedges : j(%d)\n%s\n", j, buffer);
-          }
+            if (raw_pins >= i_pins ||
+                !rbh_parse_int(raw, (long)i_baseval,
+                               (long)i_baseval + i_vertices - 1L,
+                               &external_vertex)) {
+                fprintf(stderr, "Invalid vertex index in hyperedge %d of %s\n",
+                        edge, s_path);
+                status = 8;
+                goto done;
+            }
+            raw_pins++;
+            vertex = external_vertex - i_baseval;
+            for (INT pin = 0; pin < edge_size; pin++) {
+                if (this->ti_hyperedges[edge_start + 2 + pin] == vertex) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                this->ti_hyperedges[idx++] = vertex;
+                edge_size++;
+            }
+        }
+        if (edge_size == 0) {
+            fprintf(stderr, "Hyperedge %d in %s has no vertex\n", edge, s_path);
+            status = 9;
+            goto done;
+        }
+        this->ti_hyperedges[edge_start + 1] = edge_size;
+    }
 
-        strcpy(buffer2, buffer);
+    if (raw_pins != i_pins) {
+        fprintf(stderr, "Hypergraph %s declares %d pins but contains %d\n",
+                s_path, i_pins, raw_pins);
+        status = 10;
+        goto done;
+    }
 
-        raw = strtok(buffer, token);
-        
-        len = 0;
+    for (INT vertex = 0; vertex < i_vertices; vertex++) {
+        char *raw;
+        INT red;
 
-        while(raw != NULL)
-          {
-            /* len count */
-            len++;
-            
-            raw = strtok(NULL, token);
-          }
+        if (read_line(in, buffer, BUFSIZE) <= 0) {
+            fprintf(stderr, "Hypergraph %s ends before vertex %d\n", s_path, vertex);
+            status = 11;
+            goto done;
+        }
+        if (b_verbose)
+            printf("vertex : %d\t %s\n", vertex, buffer);
 
-        raw = strtok(buffer2, token);
-        
-        /*
-        **  weight source sinks
-        */
-        this->ti_hyperedges[idx++] = atoi(raw);                  /* weight */
-        
-        raw = strtok(NULL, token);
-        
-        this->ti_hyperedges[idx++] = len - 1;                    /* hyperedge size */
-        
-        cur_len                    = 0;
-        
-        for(INT i = 0; i < len - 1; i++) 
-          {
-            is_in                      = false;
-            this->ti_hyperedges[idx++] = atoi(raw) - i_baseval;  /* vertex */
-            
-            for(INT ii = 0; ii < cur_len; ii++) 
-              {
-                if(this->ti_hyperedges[idx_e + 2 + ii] == this->ti_hyperedges[idx - 1]) 
-                  {
-                    is_in = true;
-                  }
-              }
-            cur_len++;
+        raw = strtok(buffer, delimiters);
+        if (!rbh_parse_int(raw, 0, 1, &red)) {
+            fprintf(stderr, "Invalid color for vertex %d in %s\n", vertex, s_path);
+            status = 12;
+            goto done;
+        }
+        if (red == 1) {
+            if (red_count >= i_reds) {
+                fprintf(stderr, "Too many red vertices in %s\n", s_path);
+                status = 13;
+                goto done;
+            }
+            this->ti_reds[red_count++] = vertex;
+        }
 
-            if(is_in) 
-              {
-                cur_len--;
-                idx--;
-              }
-            raw = strtok(NULL, token);
-          }
-        this->ti_hyperedges[idx_e + 1] = cur_len;
-      }
-    idx = 0;
+        raw = strtok(NULL, delimiters);
+        if (!rbh_parse_integral_number(raw, 0, INT_MAX,
+                                       &this->ti_delays[vertex])) {
+            fprintf(stderr, "Invalid delay for vertex %d in %s\n", vertex, s_path);
+            status = 14;
+            goto done;
+        }
+        raw = strtok(NULL, delimiters);
+        if (!rbh_parse_int(raw, 0, INT_MAX,
+                           &this->ti_criticalities_right[vertex])) {
+            fprintf(stderr, "Invalid criticality for vertex %d in %s\n", vertex, s_path);
+            status = 15;
+            goto done;
+        }
+        for (INT weight = 0; weight < i_weights; weight++) {
+            raw = strtok(NULL, delimiters);
+            if (!rbh_parse_int(raw, 0, INT_MAX,
+                               &this->ti_weights[vertex * i_weights + weight])) {
+                fprintf(stderr, "Invalid resource weight %d for vertex %d in %s\n",
+                        weight, vertex, s_path);
+                status = 16;
+                goto done;
+            }
+        }
+        if (strtok(NULL, delimiters) != NULL) {
+            fprintf(stderr, "Unexpected data for vertex %d in %s\n", vertex, s_path);
+            status = 17;
+            goto done;
+        }
+    }
 
-    for(INT i = 0; i < this->i_vertices; i++) 
-      {
-        /*
-        ** red (0/1) delay criticality weights
-        */
-        read_line(in, buffer, BUFSIZE);
-        if(b_verbose) 
-          {
-            printf("vertex : %d\t %s\n", i, buffer);
-          }
-        raw = strtok(buffer, token);
-        
-        if(atoi(raw) == 1) 
-          {
-            this->ti_reds[idx++] = i;
-          }
-        raw = strtok(NULL, token);
-        
-        this->ti_delays[i] = atoi(raw);
-        
-        raw = strtok(NULL, token);
-        
-        this->ti_criticalities_right[i] = atoi(raw);
+    if (red_count != i_reds) {
+        fprintf(stderr, "Hypergraph %s declares %d red vertices but contains %d\n",
+                s_path, i_reds, red_count);
+        status = 18;
+        goto done;
+    }
 
-        for(INT iw = 0; iw < this->i_weights; iw ++) 
-          {
-            raw = strtok(NULL, token);
-            this->ti_weights[i * i_weights + iw] = atoi(raw);
-          }
-      }
-
-    free(buffer2);
-    free(buffer);
-    fclose(in);
-
-    this->is_red = (bool *)calloc(this->i_vertices, sizeof(bool));
+    this->is_red = (bool *)calloc((size_t)this->i_vertices, sizeof(bool));
     MEM_ERROR(this->is_red);
-    for (INT _i = 0; _i < this->i_reds; _i++)
-        this->is_red[this->ti_reds[_i]] = true;
+    for (INT red = 0; red < this->i_reds; red++)
+        this->is_red[this->ti_reds[red]] = true;
 
     this->vth = vth_build(this);
     MEM_ERROR(this->vth);
 
-    return(0);
+done:
+    free(buffer);
+    fclose(in);
+    if (status != 0) {
+        rbh_free(this);
+        memset(this, 0, sizeof(*this));
+    }
+    return status;
 }
 
 /**

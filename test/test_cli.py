@@ -120,6 +120,18 @@ def main() -> int:
         assert malformed_architecture.returncode != 0
         assert "Invalid architecture connection" in malformed_architecture.stderr
 
+        invalid_graph = temp / "invalid.rzn2"
+        invalid_graph.write_text(
+            "2 2 1 1 1\n"
+            "1 0 2\n"
+            "1 1 0 1\n"
+            "0 1 0 1\n",
+            encoding="ascii",
+        )
+        malformed_hypergraph = run(binary, root, str(invalid_graph), "stats")
+        assert malformed_hypergraph.returncode != 0
+        assert "Invalid vertex index" in malformed_hypergraph.stderr
+
     print("CLI regression checks passed")
     return 0
 

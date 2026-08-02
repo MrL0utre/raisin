@@ -204,8 +204,9 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbh_load(h, graph_path, 0, false);
-       rbh_validate(h);
+       require_cli(rbh_load(h, graph_path, 0, false) == 0,
+                   "Unable to load hypergraph");
+       require_cli(rbh_validate(h) == 0, "Invalid hypergraph structure");
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
@@ -495,8 +496,9 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbh_load(h, graph_path, 0, false);
-       rbh_validate(h);
+       require_cli(rbh_load(h, graph_path, 0, false) == 0,
+                   "Unable to load hypergraph");
+       require_cli(rbh_validate(h) == 0, "Invalid hypergraph structure");
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
@@ -845,8 +847,9 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbh_load(h, graph_path, 0, false);
-       rbh_validate(h);
+       require_cli(rbh_load(h, graph_path, 0, false) == 0,
+                   "Unable to load hypergraph");
+       require_cli(rbh_validate(h) == 0, "Invalid hypergraph structure");
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
@@ -1147,8 +1150,9 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbh_load(h, graph_path, 0, false);
-       rbh_validate(h);
+       require_cli(rbh_load(h, graph_path, 0, false) == 0,
+                   "Unable to load hypergraph");
+       require_cli(rbh_validate(h) == 0, "Invalid hypergraph structure");
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
@@ -1477,8 +1481,9 @@ int main(int argv, char ** argc){
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
 
-       rbh_load(h, graph_path, 0, false);
-       rbh_validate(h);
+       require_cli(rbh_load(h, graph_path, 0, false) == 0,
+                   "Unable to load hypergraph");
+       require_cli(rbh_validate(h) == 0, "Invalid hypergraph structure");
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
@@ -1640,8 +1645,9 @@ int main(int argv, char ** argc){
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
        MEM_ERROR(h);      
 
-       rbh_load(h, graph_path, 0, false);
-       rbh_validate(h);
+       require_cli(rbh_load(h, graph_path, 0, false) == 0,
+                   "Unable to load hypergraph");
+       require_cli(rbh_validate(h) == 0, "Invalid hypergraph structure");
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
