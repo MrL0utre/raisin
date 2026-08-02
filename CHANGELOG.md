@@ -37,6 +37,12 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - Incorrect multi-resource total-weight indexing in clustering setup.
 - CCP reporting metrics against contracted adjacency instead of the original graph.
 - Release builds disabling C test assertions and skipping their side effects.
+- Clang 18 diagnostics for legacy callback prototypes, unused state and ambiguous
+  negative assignments.
+- Neighbor, clustering, CCP and multilevel temporary allocations reported by
+  LeakSanitizer, plus an uninitialized optional clustering graph.
+- Out-of-range DKFM probe partitions and bucket-queue gains, and multilevel
+  evaluation mixing original-graph data with contracted-graph buffers.
 
 ### Compatibility notes
 
@@ -56,7 +62,7 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - [x] Ten-scenario algorithm regression against the final v1.2 baseline.
 - [x] Objective, balance, runtime and memory ceilings.
 - [x] GPLv3 licensing, upstream attribution and original CEA/Inria notices retained.
-- [ ] Run the hosted GCC, Clang and sanitizer jobs on the final release commit.
+- [x] Hosted GCC, Clang and ASan/UBSan jobs pass on the final release commit.
 
 See [`ROADMAP.md`](ROADMAP.md) for the complete objectives and exit criteria.
 
@@ -121,7 +127,7 @@ See [`ROADMAP.md`](ROADMAP.md) for the complete objectives and exit criteria.
 - [x] File-format and reproducibility documentation.
 - [x] Confirm GPL version 3 licensing, add the canonical `LICENSE` file and
   preserve the complete original CEA/Inria notices in inherited source files.
-- [ ] Run the hosted CI jobs on the final release commit.
+- [x] Hosted GCC, Clang and ASan/UBSan jobs pass on the final release commit.
 - [ ] Record a final v1.1-to-v1.2 comparison report on representative circuits.
 
 ## [1.1.0]
