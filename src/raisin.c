@@ -386,10 +386,8 @@ int main(int argv, char ** argc){
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
        MEM_ERROR(h);
 
-       Hypergraph * h2 = (Hypergraph*)malloc(sizeof(Hypergraph));
+       Hypergraph * h2 = (Hypergraph*)calloc(1, sizeof(Hypergraph));
        MEM_ERROR(h2);
-
-       h2->is_red = NULL; h2->vth = NULL;
 
        Arch * a = (Arch*)malloc(sizeof(Arch));
        MEM_ERROR(a);       
