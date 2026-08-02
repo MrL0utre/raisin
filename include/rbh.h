@@ -98,6 +98,8 @@ int               var_rbh_load  (rbhLoad_args);
 */
 int               rbh_init           (Hypergraph * this);
 int               rbh_free           (Hypergraph * this);
+int               rbh_build_precomputed(Hypergraph * h);
+int               rbh_validate       (const Hypergraph * h);
 int               rbh_load_base       (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
 int               rbh_save           (Hypergraph * this, const char * const s_path, INT i_baseval, bool b_verbose);
 int               compute_neighbors  (Hypergraph * this, Matrix * neighbors);
