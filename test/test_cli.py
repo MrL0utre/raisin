@@ -112,6 +112,7 @@ def main() -> int:
         assignments = [int(line) for line in solution.read_text().splitlines()]
         assert len(assignments) == 10124
         assert all(0 <= part < 4 for part in assignments)
+        assert metrics(partition_run.stdout)["communication feasible"] == "yes"
 
         original = solution.read_bytes()
         replay = run(binary, root, *args)
@@ -191,6 +192,47 @@ def main() -> int:
         )
         assert malformed_architecture.returncode != 0
         assert "Invalid architecture connection" in malformed_architecture.stderr
+
+        too_many_parts = run(
+            binary,
+            root,
+            str(graph),
+            "part",
+            "dbfs",
+            "part_number",
+            "5",
+            "archfile",
+            str(arch),
+        )
+        assert too_many_parts.returncode != 0
+        assert "exceeds architecture size" in too_many_parts.stderr
+
+        zero_capacity_arch = temp / "zero-capacity.arch"
+        zero_capacity_arch.write_text(
+            "4 6\n"
+            "0 1 0 1\n"
+            "0 1 0 2\n"
+            "0 1 0 3\n"
+            "0 1 1 2\n"
+            "0 1 1 3\n"
+            "0 1 2 3\n",
+            encoding="ascii",
+        )
+        rejected_capacity = run(
+            binary,
+            root,
+            str(graph),
+            "eval",
+            "part_number",
+            "4",
+            "partfile",
+            str(solution),
+            "archfile",
+            str(zero_capacity_arch),
+        )
+        assert rejected_capacity.returncode != 0
+        assert "exceeds capacity" in rejected_capacity.stderr
+        assert metrics(rejected_capacity.stdout)["communication feasible"] == "no"
 
         invalid_graph = temp / "invalid.rzn2"
         invalid_graph.write_text(

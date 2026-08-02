@@ -18,6 +18,10 @@ RaiSin also considers cut hyperedges and resource balance. The implementation is
 based on the algorithms described in Julien Rodriguez's 2024 PhD thesis and the
 ICCS 2023/2024 papers listed below.
 
+For placed partitions, RaiSin routes hyperedge signals over the target topology,
+reports physical-link loads, and rejects solutions that exceed a declared link
+capacity.
+
 ## Algorithms
 
 RaiSin provides the following stages:

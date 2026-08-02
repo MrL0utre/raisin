@@ -48,6 +48,7 @@
 #include "../include/fm.h"
 #include "../include/dlist.h"
 #include "../include/m.h"
+#include "../include/capacity.h"
 
 /* Standard library import */
 #include <stdlib.h>
@@ -104,6 +105,56 @@ require_partition_range(INT vertices, const PART *partition, INT part_count)
             exit(EXIT_FAILURE);
         }
     }
+}
+
+static void
+require_architecture_parts(const Arch *arch, INT part_count)
+{
+    if (part_count > arch->i_n) {
+        fprintf(stderr,
+                "part_number %d exceeds architecture size %d\n",
+                part_count, arch->i_n);
+        exit(EXIT_FAILURE);
+    }
+}
+
+static void
+require_communication_feasible(const Hypergraph *hypergraph,
+                               const Arch *arch,
+                               const PART *partition,
+                               INT part_count)
+{
+    CommunicationUsage usage;
+    int status = communication_usage_compute(&usage, hypergraph, arch,
+                                             partition, part_count);
+
+    require_cli(status == 0, "Unable to compute communication capacity usage");
+    printf("communication signal hops;%d\n", usage.i_routed_signal_hops);
+    printf("communication overloaded links;%d\n", usage.i_overloaded_links);
+    printf("communication max overload;%d\n", usage.i_max_overload);
+    printf("communication feasible;%s\n",
+           communication_usage_is_feasible(&usage) ? "yes" : "no");
+
+    if (!communication_usage_is_feasible(&usage)) {
+        for (INT u = 0; u < arch->i_n; u++) {
+            for (INT v = u + 1; v < arch->i_n; v++) {
+                INT load;
+                INT capacity;
+                if (!arch_has_link(arch, u, v))
+                    continue;
+                load = communication_usage_link_load(&usage, u, v);
+                capacity = arch->ti_capacity[u * arch->i_n + v];
+                if (load > capacity) {
+                    fprintf(stderr,
+                            "Communication link %d-%d exceeds capacity: %d > %d\n",
+                            u, v, load, capacity);
+                }
+            }
+        }
+        communication_usage_free(&usage);
+        require_cli(false, "Communication capacity constraints are not satisfied");
+    }
+    communication_usage_free(&usage);
 }
 
 static void
@@ -545,6 +596,7 @@ int main(int argv, char ** argc){
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
+       require_architecture_parts(a, k);
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -701,6 +753,7 @@ int main(int argv, char ** argc){
            free(is_in);
          }
 
+       require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write partition");
        
@@ -753,9 +806,9 @@ int main(int argv, char ** argc){
          }
 
        printf("weight std deviation;%.2f\n", sigma);
-       
+
        printf("balance;%.2f\n", (float)max_dif * 100.0 / (float)h->i_vertices);
-           
+
        /* free section */
        free(size_parts);
        free(sort);
@@ -896,6 +949,7 @@ int main(int argv, char ** argc){
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
+       require_architecture_parts(a, k);
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -976,6 +1030,7 @@ int main(int argv, char ** argc){
            printf("\ndkfm cut;%d\n", cut);
          }
        
+       require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write refined partition");
        
@@ -1200,6 +1255,7 @@ int main(int argv, char ** argc){
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
+       require_architecture_parts(a, k);
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -1419,6 +1475,7 @@ int main(int argv, char ** argc){
        
        printf("balance;%.2f\n", (float)max_dif * 100.0 / (float)h->i_vertices);
        
+       require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write multilevel partition");
        
@@ -1531,6 +1588,7 @@ int main(int argv, char ** argc){
 
        require_cli(arch_load(a, arch_path, false) == 0,
                    "Unable to load target architecture");
+       require_architecture_parts(a, k);
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -1591,6 +1649,7 @@ int main(int argv, char ** argc){
            
        printf("\neval pmax;%d\n", pmax);
        printf("\neval cut;%d\n", cut);
+       require_communication_feasible(h, a, partition, k);
        
        INT * size_parts = (INT*)calloc(k * h->i_weights, sizeof(INT));
        
