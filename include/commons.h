@@ -41,15 +41,18 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include <limits.h>
+#include <stdint.h>
 
 #define INT int
 
 
 #ifndef RAISIN_PART_INT
-#include <stdint.h>
 typedef uint8_t PART;
+#define RAISIN_PART_MAX UINT8_MAX
 #else
 typedef int     PART;
+#define RAISIN_PART_MAX INT_MAX
 #endif
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))

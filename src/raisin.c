@@ -52,6 +52,8 @@
 /* Standard library import */
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
+#include <limits.h>
 
 static char *
 default_partition_path(const char *graph_path)
@@ -63,6 +65,32 @@ default_partition_path(const char *graph_path)
     MEM_ERROR(path);
     snprintf(path, length, "%s%s", graph_path, suffix);
     return path;
+}
+
+static INT
+parse_int_arg(const char *value, const char *name, long minimum, long maximum)
+{
+    char *end = NULL;
+    long parsed;
+
+    errno = 0;
+    parsed = strtol(value, &end, 10);
+    if (errno == ERANGE || end == value || *end != '\0' ||
+        parsed < minimum || parsed > maximum) {
+        fprintf(stderr, "Invalid %s: '%s' (expected %ld..%ld)\n",
+                name, value, minimum, maximum);
+        exit(EXIT_FAILURE);
+    }
+    return (INT)parsed;
+}
+
+static void
+require_cli(bool condition, const char *message)
+{
+    if (!condition) {
+        fprintf(stderr, "%s\n", message);
+        exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -80,7 +108,7 @@ int main(int argv, char ** argc){
       {  
         printf("USAGE : graph_file[replace by file path] \n        mode[replace by \"cluster\", \"part\", \"refine\", \"multilevel\", \"write\"] ...\n\t cluster hem \n\t\tsize integer\n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t cluster bsc \n\t\tsize integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part dbfs \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part ddfs \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part ccp \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t refine kfm \n\t\tpart_file string \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t refine dkfm \n\t\tpart_file string \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t multilevel cluster [hem or bsc] \n\t\tpart [dbfs or ddfs or ccp] \n\t\trefine [kfm or dkfm or all] \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t eval partfile string \n\t\t[archfile string]\n\t write sort\n\t stats\n");
      
-        return 0;
+        return argv < 3 ? EXIT_FAILURE : EXIT_SUCCESS;
       }
 
    if(strcmp(argc[2], "cluster") == 0) 
@@ -89,7 +117,7 @@ int main(int argv, char ** argc){
          {  
            printf("USAGE : graph_file cluster ...\n\t hem size integer [bfactor integer] [partfile string] [archfile string]\n\t cluster bsc size integer [bfactor integer] [partfile string] [archfile string]\n" );  
            
-           return 0;
+           return EXIT_FAILURE;
          }
        
        printf("mode cluster\n");
@@ -108,7 +136,7 @@ int main(int argv, char ** argc){
          {
            if(strcmp(argc[i], "bfactor") == 0 &&  i + 1 < argv) 
              {
-               epsilon = atoi(argc[i + 1]);
+               epsilon = parse_int_arg(argc[i + 1], "bfactor", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "partfile") == 0 &&  i + 1 < argv) 
@@ -133,15 +161,19 @@ int main(int argv, char ** argc){
        algo       = (char*)malloc(sizeof(char) * (strlen(argc[3]) + 1));
        MEM_ERROR(algo);
        strcpy(algo, argc[3]);
-       
-       size = atoi(argc[5]);
+
+       require_cli(strcmp(algo, "hem") == 0 || strcmp(algo, "bsc") == 0,
+                   "Unknown clustering algorithm (expected hem or bsc)");
+       require_cli(strcmp(argc[4], "size") == 0,
+                   "Missing required 'size' option");
+       size = parse_int_arg(argc[5], "size", 1, INT_MAX);
        
        if(arch_path == NULL)
          {
           /* load default architecture */
           arch_path = (char*)malloc(sizeof(char) * 25);
           MEM_ERROR(arch_path);
-          strcpy(arch_path, "../targets/arch0.arch");
+          strcpy(arch_path, "targets/arch0.arch");
          }
        
        if(part_path == NULL)
@@ -366,7 +398,7 @@ int main(int argv, char ** argc){
        free(graph_path);
        free(part_path);
        
-       return 0;       
+       return EXIT_SUCCESS;
       }
     
     if(strcmp(argc[2], "part") == 0) 
@@ -375,7 +407,7 @@ int main(int argv, char ** argc){
        if(argv < 6) 
          {
            printf("USAGE : graph_file part ...\n\t dbfs part_number integer [bfactor integer] [partfile string] [archfile string]\n\t ddfs part_number integer [bfactor integer] [partfile string] [archfile string]\n\t ccp part_number integer [bfactor integer] [partfile string] [archfile string]\n" );
-           return 0;
+           return EXIT_FAILURE;
          }
        
        /* default values */
@@ -392,12 +424,12 @@ int main(int argv, char ** argc){
          {
            if(strcmp(argc[i], "part_number") == 0 && i + 1 < argv) 
              {
-               k = atoi(argc[i + 1]);
+               k = parse_int_arg(argc[i + 1], "part_number", 1, RAISIN_PART_MAX);
              }
        
            if(strcmp(argc[i], "bfactor") == 0 && i + 1 < argv) 
              {
-               epsilon = atoi(argc[i + 1]);
+               epsilon = parse_int_arg(argc[i + 1], "bfactor", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "partfile") == 0 && i + 1 < argv) 
@@ -424,14 +456,19 @@ int main(int argv, char ** argc){
        MEM_ERROR(algo);
        
        strcpy(algo, argc[3]);
-       
+
+       require_cli(k > 0, "Missing required 'part_number' option");
+       require_cli(strcmp(algo, "dbfs") == 0 || strcmp(algo, "ddfs") == 0 ||
+                   strcmp(algo, "ccp") == 0,
+                   "Unknown partitioning algorithm (expected dbfs, ddfs or ccp)");
+
        if(arch_path == NULL) 
          {
           /* load default architecture */
           arch_path = (char*)malloc(sizeof(char) * 25);
           MEM_ERROR(arch_path);
 
-          strcpy(arch_path, "../targets/arch0.arch");
+          strcpy(arch_path, "targets/arch0.arch");
          }
        
        if(part_path == NULL) 
@@ -687,7 +724,7 @@ int main(int argv, char ** argc){
        free(graph_path);
        free(part_path);
        
-       return 0; 
+       return EXIT_SUCCESS;
        
     }
     
@@ -697,7 +734,7 @@ int main(int argv, char ** argc){
           {
             printf("USAGE : graph_file refine ...\n\t kfm part_file string part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n\t dkfm part_file string part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
             
-            return 0;
+            return EXIT_FAILURE;
           }
        
        printf("mode refine\n");
@@ -721,22 +758,22 @@ int main(int argv, char ** argc){
          {
            if(strcmp(argc[i], "part_number") == 0 && i + 1 < argv)
              {
-               k = atoi(argc[i + 1]);
+               k = parse_int_arg(argc[i + 1], "part_number", 1, RAISIN_PART_MAX);
              }
        
            if(strcmp(argc[i], "bfactor") == 0 && i + 1 < argv) 
              {
-               epsilon = atoi(argc[i + 1]);
+               epsilon = parse_int_arg(argc[i + 1], "bfactor", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "perform") == 0 && i + 1 < argv) 
              {
-               perform = atoi(argc[i + 1]);
+               perform = parse_int_arg(argc[i + 1], "perform", 1, INT_MAX);
              }
            
            if(strcmp(argc[i], "tolerance") == 0 && i + 1 < argv) 
              {
-               tolerance = atoi(argc[i + 1]);
+               tolerance = parse_int_arg(argc[i + 1], "tolerance", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "part_file") == 0 && i + 1 < argv) 
@@ -761,7 +798,7 @@ int main(int argv, char ** argc){
 
                strcpy(arch_path, argc[i + 1]);
              }
-         }
+           }
 
        graph_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 1));
        MEM_ERROR(graph_path);
@@ -770,14 +807,19 @@ int main(int argv, char ** argc){
        algo       = (char*)malloc(sizeof(char) * (strlen(argc[3]) + 1));
        MEM_ERROR(algo);
        strcpy(algo, argc[3]);
-       
+
+       require_cli(k > 0, "Missing required 'part_number' option");
+       require_cli(init_part_path != NULL, "Missing required 'part_file' option");
+       require_cli(strcmp(algo, "kfm") == 0 || strcmp(algo, "dkfm") == 0,
+                   "Unknown refinement algorithm (expected kfm or dkfm)");
+
        if(arch_path == NULL) 
          {
           /* load default architecture */
           arch_path = (char*)malloc(sizeof(char) * 25);
           MEM_ERROR(arch_path);
           
-          strcpy(arch_path, "../targets/arch0.arch");
+          strcpy(arch_path, "targets/arch0.arch");
          }
        
        if(part_path == NULL) 
@@ -952,14 +994,15 @@ int main(int argv, char ** argc){
        free(arch_path);
        free(graph_path);
        free(part_path);
-      }
+       return EXIT_SUCCESS;
+       }
     
     if(strcmp(argc[2], "multilevel") == 0) 
       { 
         if(argv < 11) 
           {
             printf("USAGE : graph_file multilevel cluster [hem or bsc] part [dbfs or ddfs or ccp] refine [kfm, dkfm, dkfmfast, or all] part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
-            return 0;
+            return EXIT_FAILURE;
           }
        
        printf("mode multilevel\n");
@@ -1008,22 +1051,22 @@ int main(int argv, char ** argc){
 
            if(strcmp(argc[i], "part_number") == 0 && i + 1 < argv) 
              {
-               k = atoi(argc[i + 1]);
+               k = parse_int_arg(argc[i + 1], "part_number", 1, RAISIN_PART_MAX);
              }
        
            if(strcmp(argc[i], "bfactor") == 0 && i + 1 < argv) 
              {
-               epsilon = atoi(argc[i + 1]);
+               epsilon = parse_int_arg(argc[i + 1], "bfactor", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "perform") == 0 && i + 1 < argv) 
              {
-               perform = atoi(argc[i + 1]);
+               perform = parse_int_arg(argc[i + 1], "perform", 1, INT_MAX);
              }
            
            if(strcmp(argc[i], "tolerance") == 0 && i + 1 < argv) 
              {
-               tolerance = atoi(argc[i + 1]);
+               tolerance = parse_int_arg(argc[i + 1], "tolerance", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "part_file") == 0 && i + 1 < argv) 
@@ -1051,11 +1094,21 @@ int main(int argv, char ** argc){
              }
          }
        
-        if(algo_refine == NULL || algo_cluster == NULL || algo_part == NULL) 
-          {
-            printf("USAGE : graph_file multilevel cluster [hem or bsc] part [dbfs or ddfs or ccp] refine [kfm or dkfm or all] part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
-            return 0;
-          }
+         if(algo_refine == NULL || algo_cluster == NULL || algo_part == NULL) 
+           {
+             printf("USAGE : graph_file multilevel cluster [hem or bsc] part [dbfs or ddfs or ccp] refine [kfm or dkfm or all] part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
+             return EXIT_FAILURE;
+           }
+
+       require_cli(k > 0, "Missing required 'part_number' option");
+       require_cli(strcmp(algo_cluster, "hem") == 0 || strcmp(algo_cluster, "bsc") == 0,
+                   "Unknown clustering algorithm (expected hem or bsc)");
+       require_cli(strcmp(algo_part, "dbfs") == 0 || strcmp(algo_part, "ddfs") == 0 ||
+                   strcmp(algo_part, "ccp") == 0,
+                   "Unknown partitioning algorithm (expected dbfs, ddfs or ccp)");
+       require_cli(strcmp(algo_refine, "kfm") == 0 || strcmp(algo_refine, "dkfm") == 0 ||
+                   strcmp(algo_refine, "dkfmfast") == 0,
+                   "Unknown refinement algorithm (expected kfm, dkfm or dkfmfast)");
 
        graph_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 1));
        MEM_ERROR(graph_path);
@@ -1068,7 +1121,7 @@ int main(int argv, char ** argc){
            arch_path = (char*)malloc(sizeof(char) * 25);
            MEM_ERROR(arch_path);
           
-           strcpy(arch_path, "../targets/arch0.arch");
+           strcpy(arch_path, "targets/arch0.arch");
          }
        
        if(part_path == NULL) 
@@ -1333,14 +1386,15 @@ int main(int argv, char ** argc){
        free(arch_path);
        free(graph_path);
        free(part_path);
-      }
+       return EXIT_SUCCESS;
+       }
 
     if(strcmp(argc[2], "eval") == 0) 
       { 
         if(argv < 7) 
           { 
             printf("USAGE : graph_file eval ...\n\t part_number integer \n\tpartfile string \n\t[archfile string]\n" );
-            return 0;
+            return EXIT_FAILURE;
           }
        
        printf("mode eval\n");
@@ -1364,22 +1418,22 @@ int main(int argv, char ** argc){
          {
            if(strcmp(argc[i], "part_number") == 0 && i + 1 < argv) 
              {
-               k = atoi(argc[i + 1]);
+               k = parse_int_arg(argc[i + 1], "part_number", 1, RAISIN_PART_MAX);
               }
        
            if(strcmp(argc[i], "bfactor") == 0 && i + 1 < argv) 
              {
-               epsilon = atoi(argc[i + 1]);
+               epsilon = parse_int_arg(argc[i + 1], "bfactor", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "perform") == 0 && i + 1 < argv) 
              {
-               perform = atoi(argc[i + 1]);
+               perform = parse_int_arg(argc[i + 1], "perform", 1, INT_MAX);
              }
            
            if(strcmp(argc[i], "tolerance") == 0 && i + 1 < argv) 
              {
-               tolerance = atoi(argc[i + 1]);
+               tolerance = parse_int_arg(argc[i + 1], "tolerance", 0, INT_MAX);
              }
            
            if(strcmp(argc[i], "partfile") == 0 && i + 1 < argv) 
@@ -1397,7 +1451,10 @@ int main(int argv, char ** argc){
 
                strcpy(arch_path, argc[i + 1]);
              }
-          }
+           }
+
+       require_cli(k > 0, "Missing required 'part_number' option");
+       require_cli(init_part_path != NULL, "Missing required 'partfile' option");
 
        graph_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 1));
        MEM_ERROR(graph_path);
@@ -1415,7 +1472,7 @@ int main(int argv, char ** argc){
           arch_path = (char*)malloc(sizeof(char) * 25);
           MEM_ERROR(arch_path);
 
-          strcpy(arch_path, "../targets/arch0.arch");
+          strcpy(arch_path, "targets/arch0.arch");
          }
        
        if(part_path == NULL) 
@@ -1569,14 +1626,15 @@ int main(int argv, char ** argc){
        free(arch_path);
        free(graph_path);
        free(part_path);
-      }
+       return EXIT_SUCCESS;
+       }
     
     if(strcmp(argc[2], "stats") == 0) 
       { 
         if(argv < 3) 
           { 
             printf("USAGE : graph_file stats \n" );
-            return 0; 
+            return EXIT_FAILURE;
           }
        
        printf("mode stats\n");
@@ -1748,7 +1806,9 @@ int main(int argv, char ** argc){
        rbh_free(h);
        free(h);
        free(graph_path);
-    }
+       return EXIT_SUCCESS;
+     }
     
-    return 0;
+    fprintf(stderr, "Unknown mode: %s\n", argc[2]);
+    return EXIT_FAILURE;
 }
