@@ -438,6 +438,11 @@ multilevel_pmax(Hypergraph  * h,
                                              in_neighbors, sort, partition);
 
     /* free section */
+    rbh_free(h2);
+    free(h2);
+    free(map);
+    free(is_in);
+
     for(INT level = 1; level < levels; level++) 
       {  
         rbh_free(hypergraphs[level]);
