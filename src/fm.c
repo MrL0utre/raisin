@@ -528,6 +528,7 @@ compute_partition_criticality_with_buf(Hypergraph *h,
                                        bool       *is_red,
                                        bool       *flag)
 {
+    RAISIN_UNUSED(in_neighbors);
     INT nv    = h->i_vertices;
     bool *isr = h->is_red;   /* precomputed static mask — no malloc */
     (void)is_red; (void)flag;
@@ -591,12 +592,12 @@ compute_partition_cut(Hypergraph * h,
                       INT        * lambda,
                       INT          k)
 {
-  INT nv     = h->i_vertices;    /* number of vertices                        */
+  RAISIN_UNUSED(a);
+  RAISIN_UNUSED(out_neighbors);
+  RAISIN_UNUSED(in_neighbors);
+  RAISIN_UNUSED(sort);
+
   INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-  INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
-  INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   
   INT * hyperedges     = h->ti_hyperedges;     /* array of hyperedges         */
@@ -677,6 +678,7 @@ kfm(Hypergraph * h,
     INT          tolerance,
     INT          k) 
 {
+  RAISIN_UNUSED(tolerance);
   INT nv  = h->i_vertices;
   INT ne  = h->i_hyperedges;
   INT nwv = h->i_weights;

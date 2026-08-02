@@ -75,9 +75,7 @@ derived_breadth_first_search(Hypergraph * h,
 {
 
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
     INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
     INT nwv    = h->i_weights;     /* number of vertices weight                 */
     INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
@@ -139,6 +137,7 @@ derived_breadth_first_search(Hypergraph * h,
       }
     
     INT index = 0, pqueue_start = 0, pqueue_end = 0;
+    RAISIN_UNUSED(pqueue_start);
    
     if(main_pqueue_end == 0) 
       {
@@ -304,9 +303,7 @@ derived_breadth_first_search_multilevel(Hypergraph * h,
 {
 
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
     INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
     INT nwv    = h->i_weights;     /* number of vertices weight                 */
     INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
@@ -372,6 +369,7 @@ derived_breadth_first_search_multilevel(Hypergraph * h,
       }
 
     INT index = 0, pqueue_start = 0, pqueue_end = 0;
+    RAISIN_UNUSED(pqueue_start);
    
     if(main_pqueue_end == 0) 
       {
@@ -843,9 +841,7 @@ derived_depth_first_search(Hypergraph * h,
 {
 
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
     INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
     INT nwv    = h->i_weights;     /* number of vertices weight                 */
     INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
@@ -880,6 +876,7 @@ derived_depth_first_search(Hypergraph * h,
       }
 
     INT index = 0, pqueue_start = 0, pqueue_end = 0;
+    RAISIN_UNUSED(pqueue_start);
     
     for(u = 0; u < nv; u++) 
       {
@@ -1036,9 +1033,7 @@ derived_depth_first_searchMultilevel(Hypergraph * h,
                                   INT          epsilon) 
 {
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
     INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
     INT nwv    = h->i_weights;     /* number of vertices weight                 */
     INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
@@ -1077,6 +1072,7 @@ derived_depth_first_searchMultilevel(Hypergraph * h,
       }
 
     INT index = 0, pqueue_start = 0, pqueue_end = 0;
+    RAISIN_UNUSED(pqueue_start);
     
     for(u = 0; u < nv; u++) 
       {
@@ -1369,9 +1365,7 @@ critical_connected_component_partitioning(Hypergraph * h,
 {
 
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
     INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
     INT nwv    = h->i_weights;     /* number of vertices weight                 */
     INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
@@ -1418,6 +1412,8 @@ critical_connected_component_partitioning(Hypergraph * h,
       }
 
     INT index = 0, pqueue_start = 0, pqueue_end = 0;
+    RAISIN_UNUSED(index);
+    RAISIN_UNUSED(pqueue_start);
     
     for(u = 0; u < nv; u++) 
       {
@@ -1761,8 +1757,6 @@ critical_connected_component_partitioning(Hypergraph * h,
       }
 
     INT cpt = 0;
-    INT max_p = 0;
-    
     for(INT u = 0; u < nv; u++)
       {
         if(is_red[partition[u]]) 
@@ -1827,9 +1821,7 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
 {
 
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
     INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
     INT nwv    = h->i_weights;     /* number of vertices weight                 */
     INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
@@ -1875,6 +1867,8 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
       }
 
     INT index = 0, pqueue_start = 0, pqueue_end = 0;
+    RAISIN_UNUSED(index);
+    RAISIN_UNUSED(pqueue_start);
     for(u = 0; u < nv; u++) 
       {
         if(outdeg[u] == 0 && criticalities[u] > bound) 
@@ -2390,8 +2384,6 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
       }
     
     INT cpt = 0;
-    INT max_p = 0;
-    
     for(INT u = 0; u < nv; u++)
       {
         if(is_red[partition[u]]) 

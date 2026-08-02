@@ -424,7 +424,6 @@ int main(int argv, char ** argc){
        /* default values */
        INT epsilon = 5;
        INT k       = 0;
-       INT size    = 0;
        
        char * arch_path  = NULL;
        char * graph_path = NULL;
@@ -541,8 +540,6 @@ int main(int argv, char ** argc){
        topological_sort(h, neighbors_list, in_neighbors_list, sort);
        
        compute_criticality(h, neighbors_list, in_neighbors_list, sort);
-       
-       INT relax = 999; // relaxation for BSC D cost [constant]
        
        INT * lambda = (INT*)malloc(sizeof(INT) * h->i_hyperedges);
        MEM_ERROR(lambda);
@@ -753,7 +750,6 @@ int main(int argv, char ** argc){
        /* default values */
        INT epsilon   = 5;
        INT k         = 0;
-       INT size      = 0;
        INT perform   = 10;
        INT tolerance = 0;
        
@@ -762,8 +758,6 @@ int main(int argv, char ** argc){
        char * part_path      = NULL;
        char * algo           = NULL;
        char * init_part_path = NULL;
-       
-       INT mode = 0;
        
        for(int i = 2; i < argv; i++) 
          {
@@ -810,6 +804,8 @@ int main(int argv, char ** argc){
                strcpy(arch_path, argc[i + 1]);
              }
            }
+
+       RAISIN_UNUSED(epsilon);
 
        graph_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 1));
        MEM_ERROR(graph_path);
@@ -893,8 +889,6 @@ int main(int argv, char ** argc){
        topological_sort(h, neighbors_list, in_neighbors_list, sort);
        
        compute_criticality(h, neighbors_list, in_neighbors_list, sort);
-       
-       INT relax = 999; // relaxation for BSC D cost [constant]
        
        INT * lambda = (INT*)malloc(sizeof(INT) * h->i_hyperedges);
        
@@ -1021,7 +1015,6 @@ int main(int argv, char ** argc){
        /* default values */
        INT epsilon   = 5;
        INT k         = 0;
-       INT size      = 0;
        INT perform   = 10;
        INT tolerance = 0;
        INT algo_mode = 0;
@@ -1197,8 +1190,6 @@ int main(int argv, char ** argc){
        topological_sort(h, neighbors_list, in_neighbors_list, sort);
        
        compute_criticality(h, neighbors_list, in_neighbors_list, sort);
-       
-       INT relax = 999; // relaxation for BSC D cost [constant]
        
        INT * lambda = (INT*)malloc(sizeof(INT) * h->i_hyperedges);
        
@@ -1411,19 +1402,13 @@ int main(int argv, char ** argc){
        printf("mode eval\n");
        
        /* default values */
-       INT epsilon   = 5;
-       INT k         = 0;
-       INT size      = 0;
-       INT perform   = 20;
-       INT tolerance = 0;
+       INT k = 0;
        
        char * arch_path      = NULL;
        char * graph_path     = NULL;
        char * part_path      = NULL;
        char * algo           = NULL;
        char * init_part_path = NULL;
-       
-       INT mode = 0;
        
        for(int i = 2; i < argv; i++) 
          {
@@ -1432,21 +1417,6 @@ int main(int argv, char ** argc){
                k = parse_int_arg(argc[i + 1], "part_number", 1, RAISIN_PART_MAX);
               }
        
-           if(strcmp(argc[i], "bfactor") == 0 && i + 1 < argv) 
-             {
-               epsilon = parse_int_arg(argc[i + 1], "bfactor", 0, INT_MAX);
-             }
-           
-           if(strcmp(argc[i], "perform") == 0 && i + 1 < argv) 
-             {
-               perform = parse_int_arg(argc[i + 1], "perform", 1, INT_MAX);
-             }
-           
-           if(strcmp(argc[i], "tolerance") == 0 && i + 1 < argv) 
-             {
-               tolerance = parse_int_arg(argc[i + 1], "tolerance", 0, INT_MAX);
-             }
-           
            if(strcmp(argc[i], "partfile") == 0 && i + 1 < argv) 
              {
                init_part_path = (char*)malloc(sizeof(char) * (strlen(argc[i + 1]) + 1));
@@ -1546,8 +1516,6 @@ int main(int argv, char ** argc){
        topological_sort(h, neighbors_list, in_neighbors_list, sort);
        
        compute_criticality(h, neighbors_list, in_neighbors_list, sort);
-       
-       INT relax = 999; // relaxation for BSC D cost [constant]
        
        INT * lambda = (INT*)malloc(sizeof(INT) * h->i_hyperedges);
        
@@ -1651,19 +1619,7 @@ int main(int argv, char ** argc){
        printf("mode stats\n");
        
        /* default values */
-       INT epsilon   = 5;
-       INT k         = 0;
-       INT size      = 0;
-       INT perform   = 20;
-       INT tolerance = 0;
-       
-       char * arch_path      = NULL;
        char * graph_path     = NULL;
-       char * part_path      = NULL;
-       char * algo           = NULL;
-       char * init_part_path = NULL;
-       
-       INT mode = 0;
        
        graph_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 1));
        MEM_ERROR(graph_path);
@@ -1749,8 +1705,6 @@ int main(int argv, char ** argc){
        printf("#vertices;%d\n", h->i_vertices);
        printf("#hyperedges;%d\n", h->i_hyperedges);
        printf("#reds;%d\n", h->i_reds);
-       
-       INT relax = 999; // relaxation for BSC D cost [constant]
        
        /* critical path value */
        INT pmax = compute_pmax(h, neighbors_list, in_neighbors_list, sort, &sizelpmax, lpmax, &avg_pmax, &stdw_pmax);

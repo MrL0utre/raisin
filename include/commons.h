@@ -58,8 +58,9 @@ typedef int     PART;
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
 #define MAX3(X, Y, Z) (MAX(X, MAX(Y, Z)))
-#define MEM_ERROR(x) if (!(x)) { printf(__FILE__ ":%d:unable to allocate buffer `" #x "'\n", __LINE__); exit(1); }
-#define FATAL(cond, s, ...) if (cond) { fprintf(stderr, __FILE__ ":%d:" s "\n", __LINE__, ##__VA_ARGS__); exit(1); }
+#define RAISIN_UNUSED(x) ((void)(x))
+#define MEM_ERROR(x) do { if (!(x)) { fprintf(stderr, __FILE__ ":%d:unable to allocate buffer `" #x "'\n", __LINE__); exit(EXIT_FAILURE); } } while (0)
+#define FATAL(cond, s) do { if (cond) { fprintf(stderr, __FILE__ ":%d:" s "\n", __LINE__); exit(EXIT_FAILURE); } } while (0)
 #define BUFSIZE 16777216
 
 #endif

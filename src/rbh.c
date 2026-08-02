@@ -858,11 +858,6 @@ topological_sort(Hypergraph * this,
 {
   
   INT nv     = this->i_vertices;    /* number of vertices                        */
-  INT ne     = this->i_hyperedges;  /* number of hyperarcs                       */
-  INT nr     = this->i_reds;        /* number of red vertices                    */
-  INT np     = this->i_pins;        /* number of pins                            */
-  INT nwv    = this->i_weights;     /* number of vertices weight                 */
-  INT * reds = this->ti_reds;       /* arrays of red vertices                    */
 
   INT i,u,v;
 
@@ -1212,8 +1207,6 @@ compute_in_neighbors_unalloc(Hypergraph * h,
                           Matrix     * in_neighbors) 
 {   
   INT   nv = h->i_vertices;
-  INT   ne = h->i_hyperedges;
-  
   in_neighbors->m = nv;
   in_neighbors->n = nv;
 
@@ -1274,7 +1267,7 @@ compute_neighbors_unalloc(Hypergraph * h,
       neighbors->v[i].size = 0;
     }
 
-  INT u, v, idx_j, weight, size_j;
+  INT u, v, idx_j, size_j;
 
   /* Fix: O(1) seen[] marker replaces O(deg) linear scan */
   INT *seen    = (INT *)malloc((size_t)nv * sizeof(INT));
@@ -1285,7 +1278,6 @@ compute_neighbors_unalloc(Hypergraph * h,
 
   for(INT j = 0; j < ne; j++) {
       idx_j  = idx_hyperedges[j];
-      weight = hyperedges[idx_j];
       size_j = hyperedges[idx_j + 1];
       u      = hyperedges[idx_j + 2];
       INT n_touched = 0;
@@ -1335,16 +1327,8 @@ compute_criticality(Hypergraph * h,
                     List      ** in_neighbors, 
                     INT        * sort) 
 {
-  bool verbose = false;
-
-  INT nvp    = 0;
-  INT nep    = 0;
   INT nv     = h->i_vertices;    /* number of vertices                        */
   INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-  INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
-  INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   bool *is_red = h->is_red;
 
@@ -1355,8 +1339,6 @@ compute_criticality(Hypergraph * h,
   MEM_ERROR(delays_fwd);
   MEM_ERROR(delays_bwd);
 
-  INT crit_max = 0;
-    
   for(INT i = 0; i < nv; i++) 
     {
       delays_fwd[i] = 0;
@@ -1496,13 +1478,12 @@ compute_maxcon(Hypergraph * h,
                INT        * lmaxcon, 
                float      * avg, 
                float      * stdw) 
-{  
+{
+  RAISIN_UNUSED(neighbors);
+  RAISIN_UNUSED(in_neighbors);
+  RAISIN_UNUSED(sort);
   INT nv     = h->i_vertices;    /* number of vertices                        */
   INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-  INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
-  INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   INT max_con=0;
   
@@ -1575,12 +1556,8 @@ compute_maxdeg(Hypergraph * h,
                float      * avg, 
                float      * stdw) 
 {
+  RAISIN_UNUSED(sort);
   INT nv     = h->i_vertices;    /* number of vertices                        */
-  INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-  INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
-  INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   INT *degrees = (INT*)malloc(nv * sizeof(INT)); MEM_ERROR(degrees);
 
@@ -1646,11 +1623,9 @@ compute_pmax(Hypergraph * h,
              float * avg, 
              float * stdw)  
 {
+  RAISIN_UNUSED(in_neighbors);
   INT nv     = h->i_vertices;    /* number of vertices                        */
-  INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
   INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
   INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   INT  *delays = (INT *)malloc((size_t)nv * sizeof(INT));
@@ -1660,9 +1635,7 @@ compute_pmax(Hypergraph * h,
   MEM_ERROR(is_red);
   MEM_ERROR(flag);
 
-  INT   u, v;
-
-  INT ncuts = 0;
+  INT v;
   INT idx_pmax = 0;
 
   (*avg) = 0;
@@ -1717,8 +1690,6 @@ compute_pmax(Hypergraph * h,
         }
     }
 
-  int max_v = -1;
-  
   int max_delays = 0;
   
   float var = 0;
@@ -1733,7 +1704,6 @@ compute_pmax(Hypergraph * h,
         {
 		  max_delays = delays[v];
 		  
-          max_v = v;
 		}
     }
   
@@ -1787,19 +1757,15 @@ compute_path_length(Hypergraph * h,
                     float      * avg, 
                     float      * stdw) 
 {
+  RAISIN_UNUSED(in_neighbors);
   INT nv     = h->i_vertices;    /* number of vertices                        */
-  INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
   INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
   INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   bool *is_red = (bool *)malloc((size_t)nv * sizeof(bool));
   MEM_ERROR(is_red);
 
-  INT   u, v;
-
-  INT ncuts = 0;
+  INT v;
   INT idx_lmax = 0;
   
   (*avg) = 0;
@@ -1909,12 +1875,10 @@ compute_subpmax(Hypergraph * h,
                 INT        * sort, 
                 bool       * vertices) 
 {
+  RAISIN_UNUSED(in_neighbors);
   
   INT nv     = h->i_vertices;    /* number of vertices                        */
-  INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
   INT nr     = h->i_reds;        /* number of red vertices                    */
-  INT np     = h->i_pins;        /* number of pins                            */
-  INT nwv    = h->i_weights;     /* number of vertices weight                 */
   INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
   INT  *delays = (INT *)malloc((size_t)nv * sizeof(INT));
@@ -1924,9 +1888,7 @@ compute_subpmax(Hypergraph * h,
   MEM_ERROR(is_red);
   MEM_ERROR(flag);
 
-  INT u, v;
-
-  INT ncuts = 0;
+  INT v;
 
   for(INT i = 0; i < nv; i++)
     {
@@ -1988,8 +1950,6 @@ compute_subpmax(Hypergraph * h,
         }
     }
 
-  int max_v = -1;
-  
   int max_delays = 0;
   
   for(INT v = 0; v < nv; v++)
@@ -1998,7 +1958,6 @@ compute_subpmax(Hypergraph * h,
         {
 		  max_delays = delays[v];
 			
-          max_v = v;
 		}
     }
 

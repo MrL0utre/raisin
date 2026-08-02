@@ -76,18 +76,9 @@ multilevel_cut(Hypergraph  * h,
                INT           epsilon,
                INT           algo_cluster) 
 {
-
-    bool verbose = false;
-    
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-    INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
-    INT nwv    = h->i_weights;     /* number of vertices weight                 */
-    INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
     INT relax  = 999;
-    INT div    = nv / 10; 
     INT levels = log(nv); 
     
     if(algo_cluster==10) {
@@ -281,16 +272,9 @@ multilevel_pmax(Hypergraph  * h,
                 INT           epsilon,
                 INT           algo_cluster) 
 {
-    bool verbose = false;
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-    INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
-    INT nwv    = h->i_weights;     /* number of vertices weight                 */
-    INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
     INT relax  = 999;
-    INT div    = nv / 10; 
     INT levels = log(nv);    
     
     if(algo_cluster == 10) 
@@ -503,17 +487,9 @@ multilevel(Hypergraph  * h,
            int (*intialPart)(Hypergraph * h, List ** out_neighbors, List ** in_neighbors, PART * partition, INT k, INT epsilon),
            int (*refinement)(Hypergraph * h, Arch * a, List ** out_neighbors, List ** in_neighbors, INT * sort, PART * partition, INT perform, INT tolerance, INT k)) 
 {
-    bool verbose = false;
-    
     INT nv     = h->i_vertices;    /* number of vertices                        */
-    INT ne     = h->i_hyperedges;  /* number of hyperarcs                       */
-    INT nr     = h->i_reds;        /* number of red vertices                    */
-    INT np     = h->i_pins;        /* number of pins                            */
-    INT nwv    = h->i_weights;     /* number of vertices weight                 */
-    INT * reds = h->ti_reds;       /* arrays of red vertices                    */
     
     INT relax  = 999;
-    INT div    = nv / 10; 
     INT levels = log(nv);   
     
     if(algo_cluster==10) {
