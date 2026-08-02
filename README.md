@@ -1,64 +1,197 @@
-# Raisin project
+# RaiSin
 
-## Short description
+RaiSin is a research partitioner for placing synchronous circuits on multi-FPGA
+architectures. It represents a circuit as a directed red-black hypergraph:
 
-Raisin has been designed to solve the problem of circuit placement onto multi-FPGA architectures. It models the circuit to map as a set of red-black, directed, acyclic hypergraphs (DAHs). Hypergraph vertices can be either red vertices (which represent registers and external I/O ports) or black vertices (which represent internal combinatorial circuits). Vertices bear multiple weights, which define the types of resources needed to map the circuit (e.g., registers, ALUs, etc.). Every hyper-arc comprises a unique source vertex, all other ends of the hyper-arcs being sinks (which models the transmission of signals through circuit wiring). A circuit is consequently represented as set of DAHs that share some of their red vertices.
+- red vertices model registers and external I/O ports;
+- black vertices model combinational logic;
+- directed hyperedges model nets, with one source and one or more sinks;
+- vertex weight vectors model target resource consumption;
+- target architectures define part capacities and inter-part delays.
 
-Target architectures are described by their number of target parts, the maximum resource capacities within each target part, and the connectivity between target parts.
+The primary objective is to reduce the longest red-to-red path after placement.
+RaiSin also considers cut hyperedges and resource balance. The implementation is
+based on the algorithms described in Julien Rodriguez's 2024 PhD thesis and the
+ICCS 2023/2024 papers listed below.
 
-The main metric to minimize is the length of the longest path between two red vertices, that is, the critical path that signals have to traverse
-during a circuit compute cycle, which correlates to the maximum frequency at which the circuit can operate on the given target architecture.
+## Algorithms
 
-Raisin computes a partition in which resource capacity constraints are respected and the critical path length is kept as small as possible, while reducing the number of cut hyper-arcs.
-It produces an assignment list, which describes, for each vertex of the hypergraphs, the part to which the vertex is assigned.
+RaiSin provides the following stages:
 
-## Features
+| Stage | Algorithms |
+| --- | --- |
+| Clustering | HEM (heavy-edge matching), BSC (binary-search clustering) |
+| Initial partitioning | DBFS, DDFS, CCP |
+| Refinement | KFM, DKFM |
+| Multilevel refinement | KFM, DKFM, DKFMFAST |
 
-- Partitioning 
-- Clustering
-- Refinement of a partition
+The `multilevel` mode combines clustering, initial partitioning and refinement.
 
-## Installation
+## Requirements
 
-Run the command ```make``` to create the executable named *raisin* in the folder: *exe*. 
-```sh
-make 
-```
-To create executables for tests, you should run the command ```make``` followed by:
-- **test_rbh**, for testing functions : load, write and convert red-black hypergraph.
-- **test_crbh**, for testing clustering and coarsening algorithms.
-- **test_ipart**, for testing initial partitioning algorithms: *Derived Breadth-First Search*; *Derived Depth-First Search*; *Critical Component Partitioning*.
-- **test_fm**, for testing refinement algorithm taking target topology into account.
-- **test_m**, for testing multilevel scheme (not stable).
+- a C11 compiler (GCC or Clang is tested in CI);
+- GNU Make, or CMake 3.16 or newer;
+- Python 3 for CLI regression tests;
+- a POSIX shell and `timeout` for the extended `run_tests.sh` suite.
 
+## Build
 
-To run clustering algorithm, you should select the *cluster* mode, and specify the algorithm: hem for heavy edge matching, and bsc for binary search clustering [2]. By default, the architecture of the target topology is a fully connected target topology.
-
-```sh
-raisin path_to_graph_file cluster algorithm(hem,bsc) size integer [bfactor integer] [partfile string] [archfile string]
-```
-
-To run partitioning algorithm, you should select the *part* mode, and specify the algorithm: dbfs for derived breadth-first search, ddfs for derived depth-first search and ccp for critical component partitioning [1,3].
+With GNU Make:
 
 ```sh
-raisin path_to_graph_file part algorithm(dbfs,ddfs,ccp) part_number integer [bfactor integer] [partfile string] [archfile string]
+make
+./exe/raisin help
 ```
 
-To run refinement algorithm, you should select the *refine* mode, and specify the algorithm: kfm for the classical K-way Fiduccia-Mattheyses refinement, and dkfm for Delay K-way Fiduccia-Mattheyses [1].
+Useful Make targets are `debug`, `sanitize`, `check` and `clean`. Build products
+are isolated under `build/` and `exe/`.
+
+With CMake:
 
 ```sh
-raisin path_to_graph_file refine algorithm(kfm,dkfm) part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]
+cmake -S . -B build-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+cmake --build build-cmake --parallel
+ctest --test-dir build-cmake --output-on-failure
 ```
 
-## Development
+To enable AddressSanitizer and UndefinedBehaviorSanitizer with GCC or Clang:
 
-Want to contribute? Great!
+```sh
+cmake -S . -B build-sanitize \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DBUILD_TESTING=ON \
+  -DRAISIN_ENABLE_SANITIZERS=ON
+cmake --build build-sanitize --parallel
+ctest --test-dir build-sanitize --output-on-failure
+```
 
+Warnings are treated as errors by default. Set
+`-DRAISIN_WARNINGS_AS_ERRORS=OFF` only for unsupported toolchains.
+
+## Command line
+
+The general form is:
+
+```text
+raisin <graph.rzn2> <mode> <mode arguments> [options]
+```
+
+Run `raisin help` for the complete syntax. Common options are:
+
+- `archfile <path>`: target architecture; defaults to `targets/arch0.arch`;
+- `partfile <prefix>`: output prefix; RaiSin appends `.sol`;
+- `bfactor <n>`: balance factor, default `5`;
+- `seed <n>`: pseudo-random seed, default `1`.
+
+RaiSin uses an 8-bit partition identifier by default, so `part_number` must be
+between 1 and 255. Builds that define `RAISIN_PART_INT` use integer identifiers
+instead.
+
+Examples:
+
+```sh
+# Inspect the reference hypergraph.
+./exe/raisin hypergraphs/b14.rzn2 stats seed 1
+
+# Build a four-part initial partition.
+./exe/raisin hypergraphs/b14.rzn2 part dbfs \
+  part_number 4 archfile targets/arch0.arch \
+  partfile results/b14-dbfs seed 1
+
+# Refine an existing solution.
+./exe/raisin hypergraphs/b14.rzn2 refine dkfm \
+  part_file results/b14-dbfs.sol part_number 4 \
+  archfile targets/arch0.arch partfile results/b14-dkfm \
+  perform 10 tolerance 0 seed 1
+
+# Run the complete multilevel workflow.
+./exe/raisin hypergraphs/b14.rzn2 multilevel \
+  cluster bsc part ddfs refine dkfmfast part_number 4 \
+  archfile targets/arch0.arch partfile results/b14-multilevel \
+  perform 5 seed 1
+
+# Evaluate a solution without changing it.
+./exe/raisin hypergraphs/b14.rzn2 eval \
+  part_number 4 partfile results/b14-multilevel.sol \
+  archfile targets/arch0.arch seed 1
+```
+
+Create the output directory before using a prefix such as `results/b14-dbfs`.
+Without `partfile`, the output is `<graph path>.part.sol`.
+
+## File formats
+
+The repository uses three line-oriented text formats:
+
+- `.rzn2` for directed red-black hypergraphs;
+- `.arch` for target architectures;
+- `.sol` for vertex-to-part assignments.
+
+Their normative v1.2 grammar and validation rules are documented in
+[`docs/formats.md`](docs/formats.md).
+
+## Tests and reproducibility
+
+The fast test suite validates graph invariants, golden statistics, malformed
+inputs, partition ranges and deterministic replay:
+
+```sh
+make check
+```
+
+The extended algorithm smoke suite is:
+
+```sh
+./run_tests.sh
+```
+
+Set `RAISIN_BINARY` to test another executable. The suite writes temporary
+solutions outside the repository and removes them on exit.
+
+For scientific comparisons between two builds:
+
+```sh
+python3 test/compare_versions.py \
+  /path/to/baseline/raisin /path/to/candidate/raisin .
+```
+
+Add `--enforce-objectives` to fail when comparable `pmax`, `cut` or `cost`
+metrics regress. Always record the graph, architecture, command, seed, compiler
+and commit hash with experimental results.
+
+GitHub Actions builds and tests the project with GCC and Clang, then repeats the
+suite under ASan and UBSan.
+
+## Repository layout
+
+```text
+include/       public C headers
+src/           implementation and CLI
+hypergraphs/   reference circuit inputs
+targets/       reference target architectures
+test/          automated and historical research tests
+```
+
+The files `test/test_rbh.c`, `test/test_crbh.c`, `test/test_ipart.c`,
+`test/test_fm.c` and `test/test_m.c` are historical exploratory programs. The
+supported automated suites are `test_invariants.c` and `test_cli.py`.
 
 ## References
-[1] : Julien Rodriguez, François Galea, François Pellegrini et Lilia Zaourar. “A Hypergraph Model and Associated Optimization Strategies for Path Length-Driven Netlist Partitioning”. In : ICCS 2023 - 23rd International Conference on Computational Science. Sous la dir. de Jiří Mikyška, Clélia de Mulatier, Maciej Paszynski, Valeria V. Krzhizhanovskaya, Jack J. Dongarra et Peter M.A. Sloot. T. 10475. Lecture Notes in Computer Science. Prague, Czech Republic : Springer, juill. 2023, p. 652-660. doi : 10.1007/978-3-031-36024-4\_50. url : https://hal.science/hal-04379716.
 
-[2] : Julien Rodriguez, François Galea, François Pellegrini et Lilia Zaourar. “Hypergraph Clustering with Path-Length Awareness”. In : ICCS 2024 - 24th International Conference on Computational Science. T. 14836. Lecture Notes in Computer Science. Malaga, Spain, juill. 2024, p. 90-104. doi : 10.1007/978-3-031-63775-9\_7. url : https://hal.science/hal-04706759.
+1. Julien Rodriguez, François Galea, François Pellegrini and Lilia Zaourar,
+   “A Hypergraph Model and Associated Optimization Strategies for Path
+   Length-Driven Netlist Partitioning,” ICCS 2023,
+   [doi:10.1007/978-3-031-36024-4_50](https://doi.org/10.1007/978-3-031-36024-4_50).
+2. Julien Rodriguez, François Galea, François Pellegrini and Lilia Zaourar,
+   “Hypergraph Clustering with Path-Length Awareness,” ICCS 2024,
+   [doi:10.1007/978-3-031-63775-9_7](https://doi.org/10.1007/978-3-031-63775-9_7).
+3. Julien Rodriguez, *Circuit partitioning for multi-FPGA platforms*, PhD
+   thesis, Université de Bordeaux, 2024,
+   [HAL tel-04731886](https://theses.hal.science/tel-04731886).
 
-[3] : Julien Rodriguez. Circuit partitioning for multi-FPGA platforms. Theses. Université de Bordeaux, sept. 2024. url : https://theses.hal.science/tel-04731886.
+## License
 
+The source headers currently contain both a GNU GPL version 3 notice and a
+permissive license grant. The copyright holders must confirm the intended
+licensing expression before v1.2 is released; see the release checklist in
+[`CHANGELOG.md`](CHANGELOG.md).

@@ -1,0 +1,99 @@
+# RaiSin file formats (v1.2)
+
+All RaiSin data files are UTF-8-compatible, line-oriented text. Numeric fields
+are separated by spaces or tabs. Vertex and part identifiers are zero-based in
+the CLI formats described here.
+
+## Directed red-black hypergraph (`.rzn2`)
+
+The first line contains five integers:
+
+```text
+<pins> <vertices> <hyperedges> <red_vertices> <weight_dimensions>
+```
+
+It is followed by exactly `<hyperedges>` lines. Each line represents one
+directed hyperedge:
+
+```text
+<hyperedge_weight> <source_vertex> <sink_vertex> [<sink_vertex> ...]
+```
+
+The source is the first vertex identifier after the hyperedge weight. Repeated
+vertex identifiers inside one hyperedge are ignored, but still count toward the
+declared raw pin count. All identifiers must be in `0..<vertices>`.
+
+The final `<vertices>` lines describe vertices in identifier order:
+
+```text
+<red> <delay> <right_criticality> <weight_0> ... <weight_n>
+```
+
+- `<red>` is `0` for combinational logic or `1` for a register/external I/O;
+- `<delay>` is a non-negative integral value; forms such as `552.0` are accepted;
+- `<right_criticality>` is a non-negative integer;
+- the number of resource weights must equal `<weight_dimensions>`;
+- all resource weights are non-negative integers.
+
+The loader rejects missing lines, extra vertex fields, out-of-range identifiers,
+inconsistent pin/red counts and invalid numeric fields. After parsing, the CLI
+also validates red masks, incidence data and combinational acyclicity.
+
+Example:
+
+```text
+3 3 1 1 1
+10 0 1 2
+1 100.0 200 1
+0 50.0 100 2
+0 20.0 20 1
+```
+
+## Target architecture (`.arch`)
+
+The first line contains the number of parts and the number of undirected
+connections:
+
+```text
+<parts> <connections>
+```
+
+Each following connection line contains:
+
+```text
+<capacity> <delay> <part_u> <part_v>
+```
+
+Capacities and delays must be non-negative. Part identifiers must be in
+`0..<parts>` and a connection cannot link a part to itself. The loader mirrors
+each connection, so the architecture matrix is symmetric.
+
+Example:
+
+```text
+3 3
+10000 300 0 1
+10000 300 0 2
+10000 300 1 2
+```
+
+## Partition solution (`.sol`)
+
+A solution contains exactly one non-negative part identifier per vertex, in
+vertex order:
+
+```text
+0
+1
+1
+0
+```
+
+The default build stores part identifiers as `uint8_t`, so values are limited to
+`0..255`; a given run additionally expects them to be below `part_number`.
+RaiSin rejects truncated files, malformed values and identifiers outside the
+compiled `PART` range.
+
+The `partfile` CLI option is an output prefix, not the final name: the writer
+appends `.sol`. In `refine` and `eval`, `part_file`/`partfile` name an existing
+solution and are read literally as supplied.
