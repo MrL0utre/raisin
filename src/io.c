@@ -54,15 +54,19 @@ read_line(FILE * file,
           char * buffer, 
           int    size) 
 {
-  int len = 0;
+  int len;
 
-  if(fgets(buffer, size, file)) 
-    {
-      len = strlen(buffer);
-      FATAL(len == 0, "length is zero");
-      FATAL(buffer[len-1] != '\n', "buffer size too small");
-      buffer[--len] = '\0';
-    }
+  if (fgets(buffer, size, file) == NULL)
+    return -1;
+
+  len = (int)strlen(buffer);
+  if (len > 0 && buffer[len - 1] == '\n')
+    buffer[--len] = '\0';
+  else
+    FATAL(!feof(file), "buffer size too small");
+
+  if (len > 0 && buffer[len - 1] == '\r')
+    buffer[--len] = '\0';
   return len;
 }
 
@@ -98,7 +102,7 @@ load_partition(INT          i_vertices,
       char *end = NULL;
       long value;
 
-      if (read_line(in, buffer, BUFSIZE) == 0)
+      if (read_line(in, buffer, BUFSIZE) <= 0)
         {
           fprintf(stderr, "Partition file %s ends before vertex %d\n", s_path, i);
           free(buffer);

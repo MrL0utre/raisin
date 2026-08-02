@@ -93,6 +93,27 @@ def main() -> int:
         assert replay.returncode == 0, replay.stderr
         assert original == solution.read_bytes()
 
+        no_final_newline = temp / "no-final-newline.sol"
+        no_final_newline.write_text(
+            solution.read_text(encoding="ascii").rstrip("\n"),
+            encoding="ascii",
+        )
+        final_line_without_newline = run(
+            binary,
+            root,
+            str(graph),
+            "eval",
+            "part_number",
+            "4",
+            "partfile",
+            str(no_final_newline),
+            "archfile",
+            str(arch),
+        )
+        assert final_line_without_newline.returncode == 0, (
+            final_line_without_newline.stderr
+        )
+
         truncated = temp / "truncated.sol"
         truncated.write_text("0\n1\n", encoding="ascii")
         invalid_partition = run(
