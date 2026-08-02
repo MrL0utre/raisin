@@ -68,6 +68,29 @@ def main() -> int:
         temp = Path(temp_dir)
         temp_graph = temp / graph.name
         shutil.copyfile(graph, temp_graph)
+
+        clustering_args = (
+            str(graph),
+            "cluster",
+            "bsc",
+            "size",
+            "200",
+            "archfile",
+            str(arch),
+            "partfile",
+            str(temp / "bsc"),
+            "seed",
+            "1",
+        )
+        clustering_first = run(binary, root, *clustering_args)
+        assert clustering_first.returncode == 0, clustering_first.stderr
+        clustering_solution = temp / "bsc.sol"
+        clustering_bytes = clustering_solution.read_bytes()
+        clustering_second = run(binary, root, *clustering_args)
+        assert clustering_second.returncode == 0, clustering_second.stderr
+        assert clustering_first.stdout == clustering_second.stdout
+        assert clustering_bytes == clustering_solution.read_bytes()
+
         args = (
             str(temp_graph),
             "part",

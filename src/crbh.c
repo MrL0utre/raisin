@@ -1327,6 +1327,7 @@ best_phi_clustering(Hypergraph  *  h1,
   for (INT i = 0; i < nv; i++) 
     {
       best_map[i] = i;
+      flag[i] = false;
     
       for (INT wi = 0; wi < nwv; wi++) 
         {

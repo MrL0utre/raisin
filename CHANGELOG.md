@@ -36,6 +36,7 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - Unsafe shared scratch buffers that made repeated calls and concurrency fragile.
 - Invalid `free()` of pointers returned by `strtok()` in architecture loading.
 - BSC merge paths that could use an uninitialized predecessor.
+- Non-deterministic BSC results caused by uninitialized feasibility flags.
 - Partition readers accepting truncated, malformed or out-of-range assignments.
 - Architecture readers dereferencing missing tokens or accepting invalid part IDs.
 - Hypergraph readers accepting inconsistent counts, indices and vertex records.
