@@ -5,6 +5,14 @@
   "part_count": 4,
   "seed": 11,
   "cases": {
+    "cluster_hem": {
+      "cost": 29352,
+      "clusters": 2145
+    },
+    "cluster_bsc": {
+      "cost": 6400,
+      "clusters": 497
+    },
     "part_dbfs": {
       "pmax": 23600,
       "cut": 16438656,
