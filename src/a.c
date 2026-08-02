@@ -59,12 +59,8 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
   in = fopen(s_path, "r");
   if (in == NULL) {
     fprintf(stderr, "Cannot open file %s\n", s_path);
-    exit(0);
+    exit(EXIT_FAILURE);
   }
-
-  char ** delimiter = (char**)malloc(sizeof(char*)*1);
-  *(delimiter) = (char*)malloc(sizeof(char)*2);
-  strcpy(*(delimiter), ".");
 
   INT i_n, i_m, i_ncon;
 
@@ -117,7 +113,6 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
   }
   
   free(buffer);
-  free(raw);
   fclose(in);
 
   return (0);
