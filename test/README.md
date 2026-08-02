@@ -22,4 +22,5 @@ overload detection and deterministic two-move repairs.
 executes DBFS, DDFS, CCP, KFM, DKFM, DKFMFAST and representative multilevel
 combinations through the supported CLI, validates every solution, and prevents
 the objectives from exceeding the recorded final-v1.2 ceilings in
-`baselines/v1.2-b14-arch0.json`.
+`baselines/v1.2-b14-arch0.json`. The same baseline bounds balance, elapsed time
+and peak resident memory (when the host exposes process memory counters).

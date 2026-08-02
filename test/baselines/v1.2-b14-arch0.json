@@ -7,51 +7,79 @@
   "cases": {
     "cluster_hem": {
       "cost": 29352,
-      "clusters": 2145
+      "clusters": 2145,
+      "runtime_seconds_max": 10,
+      "peak_memory_mib_max": 512
     },
     "cluster_bsc": {
       "cost": 6400,
-      "clusters": 497
+      "clusters": 497,
+      "runtime_seconds_max": 10,
+      "peak_memory_mib_max": 512
     },
     "part_dbfs": {
       "pmax": 23600,
       "cut": 16438656,
-      "signal_hops": 5031
+      "signal_hops": 5031,
+      "balance_max": 1.25,
+      "runtime_seconds_max": 10,
+      "peak_memory_mib_max": 512
     },
     "part_ddfs": {
       "pmax": 23600,
       "cut": 16424656,
-      "signal_hops": 5026
+      "signal_hops": 5026,
+      "balance_max": 1.26,
+      "runtime_seconds_max": 10,
+      "peak_memory_mib_max": 512
     },
     "part_ccp": {
       "pmax": 23000,
       "cut": 9240750,
-      "signal_hops": 3430
+      "signal_hops": 3430,
+      "balance_max": 1.30,
+      "runtime_seconds_max": 10,
+      "peak_memory_mib_max": 512
     },
     "refine_kfm": {
       "pmax": 23600,
       "cut": 14516000,
-      "signal_hops": 4502
+      "signal_hops": 4502,
+      "balance_max": 1.26,
+      "runtime_seconds_max": 15,
+      "peak_memory_mib_max": 512
     },
     "refine_dkfm": {
       "pmax": 23300,
       "cut": 16418656,
-      "signal_hops": 5031
+      "signal_hops": 5031,
+      "balance_max": 1.25,
+      "runtime_seconds_max": 60,
+      "peak_memory_mib_max": 512
     },
     "multilevel_kfm": {
       "pmax": 23000,
       "cut": 7816383,
-      "signal_hops": 2825
+      "signal_hops": 2825,
+      "balance_max": 1.59,
+      "runtime_seconds_max": 30,
+      "peak_memory_mib_max": 512
     },
     "multilevel_dkfm": {
       "pmax": 23600,
       "cut": 10997451,
-      "signal_hops": 4000
+      "signal_hops": 4000,
+      "balance_max": 1.31,
+      "runtime_seconds_max": 60,
+      "peak_memory_mib_max": 512
     },
     "multilevel_dkfmfast": {
       "pmax": 23900,
       "cut": 8230652,
-      "signal_hops": 2767
+      "signal_hops": 2767,
+      "balance_max": 1.28,
+      "runtime_seconds_max": 60,
+      "peak_memory_mib_max": 512
     }
   }
 }

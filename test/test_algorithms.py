@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -15,19 +16,73 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 
+def resident_memory_bytes(process_id: int) -> int | None:
+    if sys.platform.startswith("linux"):
+        try:
+            status = Path(f"/proc/{process_id}/status").read_text(encoding="ascii")
+        except (FileNotFoundError, PermissionError):
+            return None
+        for line in status.splitlines():
+            if line.startswith("VmRSS:"):
+                return int(line.split()[1]) * 1024
+        return None
+    if sys.platform == "win32":
+        import ctypes
+        from ctypes import wintypes
+
+        class ProcessMemoryCounters(ctypes.Structure):
+            _fields_ = [
+                ("cb", wintypes.DWORD),
+                ("PageFaultCount", wintypes.DWORD),
+                ("PeakWorkingSetSize", ctypes.c_size_t),
+                ("WorkingSetSize", ctypes.c_size_t),
+                ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                ("PagefileUsage", ctypes.c_size_t),
+                ("PeakPagefileUsage", ctypes.c_size_t),
+            ]
+
+        query = 0x0400
+        read = 0x0010
+        handle = ctypes.windll.kernel32.OpenProcess(query | read, False, process_id)
+        if not handle:
+            return None
+        counters = ProcessMemoryCounters()
+        counters.cb = ctypes.sizeof(counters)
+        ok = ctypes.windll.psapi.GetProcessMemoryInfo(
+            handle, ctypes.byref(counters), counters.cb
+        )
+        ctypes.windll.kernel32.CloseHandle(handle)
+        return int(counters.WorkingSetSize) if ok else None
+    return None
+
+
 def run(binary: Path, root: Path, graph: Path, arguments: list[str]) -> dict[str, str]:
     with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stdout_file, (
         tempfile.TemporaryFile(mode="w+", encoding="utf-8")
     ) as stderr_file:
-        process = subprocess.run(
+        started = time.perf_counter()
+        process = subprocess.Popen(
             [str(binary), str(graph), *arguments],
             cwd=root,
             text=True,
             stdout=stdout_file,
             stderr=stderr_file,
-            timeout=60,
-            check=False,
         )
+        peak_memory = 0
+        deadline = started + 60
+        while process.poll() is None:
+            sample = resident_memory_bytes(process.pid)
+            if sample is not None:
+                peak_memory = max(peak_memory, sample)
+            if time.perf_counter() >= deadline:
+                process.kill()
+                process.wait()
+                raise subprocess.TimeoutExpired(process.args, 60)
+            time.sleep(0.01)
+        elapsed = time.perf_counter() - started
         stdout_file.seek(0)
         stderr_file.seek(0)
         stdout = stdout_file.read()
@@ -38,6 +93,9 @@ def run(binary: Path, root: Path, graph: Path, arguments: list[str]) -> dict[str
         if ";" in line:
             key, value = line.split(";", 1)
             metrics[key.strip()] = value.strip()
+    metrics["__runtime_seconds"] = f"{elapsed:.6f}"
+    if peak_memory > 0:
+        metrics["__peak_memory_mib"] = f"{peak_memory / (1024 * 1024):.3f}"
     return metrics
 
 
@@ -165,6 +223,12 @@ def main() -> int:
 
         for name, expected in baseline["cases"].items():
             actual = results[name]
+            assert float(actual["__runtime_seconds"]) <= expected["runtime_seconds_max"], name
+            if "__peak_memory_mib" in actual:
+                assert (
+                    float(actual["__peak_memory_mib"])
+                    <= expected["peak_memory_mib_max"]
+                ), name
             if name.startswith("cluster_"):
                 assert objective(actual, "cost") <= expected["cost"], name
                 assert objective(actual, "clusters") == expected["clusters"], name
@@ -172,6 +236,7 @@ def main() -> int:
             assert objective(actual, "pmax") <= expected["pmax"], name
             assert objective(actual, "cut") <= expected["cut"], name
             assert int(actual["communication signal hops"]) <= expected["signal_hops"], name
+            assert float(actual["balance"]) <= expected["balance_max"], name
             assert actual["communication feasible"] == "yes", name
             assert actual["communication repair moves"] == "0", name
 
