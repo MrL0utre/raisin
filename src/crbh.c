@@ -137,6 +137,7 @@ compute_clustering_criticality(Hypergraph  * h,
                                INT         * partition, 
                                INT           D) 
 {
+  RAISIN_UNUSED(in_neighbors);
   INT nv     = h->i_vertices; /* number of vertices */
   INT nr     = h->i_reds;     /* number of red vertices */
   INT * reds = h->ti_reds;    /* array of red vertices */
@@ -817,6 +818,9 @@ compute_hypergraph_kclustering(Hypergraph * h1,
                               INT         * cluster, 
                               INT           nvp) 
 {
+  RAISIN_UNUSED(out_neighbors);
+  RAISIN_UNUSED(in_neighbors);
+  RAISIN_UNUSED(sort);
 
   INT nep    = 0;
   INT nrp    = 0;
@@ -1219,6 +1223,8 @@ best_phi_clustering(Hypergraph  *  h1,
                     INT           epsilon, 
                     INT           relax) 
 {
+  RAISIN_UNUSED(sort);
+  RAISIN_UNUSED(epsilon);
   
   bool verbose = false;
 
@@ -1276,6 +1282,7 @@ best_phi_clustering(Hypergraph  *  h1,
   
   INT phi;
   INT best_phi = ne * D;
+  RAISIN_UNUSED(best_phi);
 
   INT * map = (INT *)malloc(sizeof(INT) * nv);
   MEM_ERROR(map);
@@ -1556,6 +1563,7 @@ best_phi_clustering(Hypergraph  *  h1,
         {
           u   = subqueue[s++];
           r_v = -1;
+          v   = -1;
           
           List * cell = in_neighbors[u];
           for (INT o = 0; o < in_neighbors[u]->size; o++) {
@@ -1563,6 +1571,9 @@ best_phi_clustering(Hypergraph  *  h1,
               if (rs_val > r_v) { v = cell->i; r_v = rs_val; }
               cell = cell->next;
           }
+
+          if (v < 0)
+            continue;
 
           if (flag[u] && flag[v]) 
             {
