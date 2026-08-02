@@ -98,6 +98,7 @@ if(BUILD_TESTING)
     NAME communication_capacity
     COMMAND test_capacity
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_path.arch"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_resources.arch"
   )
 
   find_package(Python3 COMPONENTS Interpreter)

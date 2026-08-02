@@ -53,7 +53,7 @@ $(CAPACITY_TEST_TARGET): $(BUILD_DIR)/test_capacity.o $(CORE_OBJECTS)
 check: raisin $(TEST_TARGET) $(ARCH_TEST_TARGET) $(CAPACITY_TEST_TARGET)
 	$(TEST_TARGET) hypergraphs/b14.rzn2
 	$(ARCH_TEST_TARGET) test/fixtures/arch_path.arch test/fixtures/arch_disconnected.arch test/fixtures/arch_duplicate.arch test/fixtures/arch_resources.arch test/fixtures/arch_bad_resources.arch
-	$(CAPACITY_TEST_TARGET) test/fixtures/arch_path.arch
+	$(CAPACITY_TEST_TARGET) test/fixtures/arch_path.arch test/fixtures/arch_resources.arch
 	$(PYTHON) test/test_cli.py $(TARGET) .
 
 $(BUILD_DIR) $(BIN_DIR):

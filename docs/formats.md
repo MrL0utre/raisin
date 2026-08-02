@@ -88,6 +88,10 @@ dimension must also match the vertex-weight dimension of the `.rzn2` circuit
 when the architecture is used for partitioning or evaluation. Omitting the third
 header field preserves the legacy balance-factor behavior.
 
+For an explicit matrix, RaiSin computes each part/resource load as the sum of
+the corresponding vertex weights and requires it to be less than or equal to the
+declared capacity. This is constraint 5.2f of the thesis.
+
 Example:
 
 ```text

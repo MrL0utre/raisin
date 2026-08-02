@@ -14,6 +14,15 @@ typedef struct communication_usage {
   INT  i_max_overload;
 } CommunicationUsage;
 
+typedef struct resource_usage {
+  INT *ti_part_load;
+  INT  i_parts;
+  INT  i_resources;
+  INT  i_overloaded_dimensions;
+  INT  i_overloaded_parts;
+  INT  i_max_overload;
+} ResourceUsage;
+
 int  communication_usage_compute(CommunicationUsage *usage,
                                  const Hypergraph *hypergraph,
                                  const Arch *arch,
@@ -24,5 +33,16 @@ bool communication_usage_is_feasible(const CommunicationUsage *usage);
 INT  communication_usage_link_load(const CommunicationUsage *usage,
                                    INT u,
                                    INT v);
+
+int  resource_usage_compute(ResourceUsage *usage,
+                            const Hypergraph *hypergraph,
+                            const Arch *arch,
+                            const PART *partition,
+                            INT part_count);
+void resource_usage_free(ResourceUsage *usage);
+bool resource_usage_is_feasible(const ResourceUsage *usage);
+INT  resource_usage_part_load(const ResourceUsage *usage,
+                              INT part,
+                              INT resource);
 
 #endif
