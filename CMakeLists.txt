@@ -124,5 +124,11 @@ if(BUILD_TESTING)
       COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test/test_cli.py"
               "$<TARGET_FILE:raisin>" "${CMAKE_CURRENT_SOURCE_DIR}"
     )
+    add_test(
+      NAME algorithm_regression
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test/test_algorithms.py"
+              "$<TARGET_FILE:raisin>" "${CMAKE_CURRENT_SOURCE_DIR}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/test/baselines/v1.2-b14-arch0.json"
+    )
   endif()
 endif()

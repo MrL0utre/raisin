@@ -1,0 +1,49 @@
+{
+  "architecture": "targets/arch0.arch",
+  "circuit": "hypergraphs/b14.rzn2",
+  "description": "Scientific objective ceiling recorded from the final v1.2 implementation.",
+  "part_count": 4,
+  "seed": 11,
+  "cases": {
+    "part_dbfs": {
+      "pmax": 23600,
+      "cut": 16438656,
+      "signal_hops": 5031
+    },
+    "part_ddfs": {
+      "pmax": 23600,
+      "cut": 16424656,
+      "signal_hops": 5026
+    },
+    "part_ccp": {
+      "pmax": 23000,
+      "cut": 9240750,
+      "signal_hops": 3430
+    },
+    "refine_kfm": {
+      "pmax": 23600,
+      "cut": 14516000,
+      "signal_hops": 4502
+    },
+    "refine_dkfm": {
+      "pmax": 23300,
+      "cut": 16418656,
+      "signal_hops": 5031
+    },
+    "multilevel_kfm": {
+      "pmax": 23000,
+      "cut": 7816383,
+      "signal_hops": 2825
+    },
+    "multilevel_dkfm": {
+      "pmax": 23600,
+      "cut": 10997451,
+      "signal_hops": 4000
+    },
+    "multilevel_dkfmfast": {
+      "pmax": 23900,
+      "cut": 8230652,
+      "signal_hops": 2767
+    }
+  }
+}

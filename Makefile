@@ -63,6 +63,7 @@ check: raisin $(TEST_TARGET) $(ARCH_TEST_TARGET) $(CAPACITY_TEST_TARGET) $(SCIEN
 	$(CAPACITY_TEST_TARGET) test/fixtures/arch_path.arch test/fixtures/arch_resources.arch
 	$(SCIENTIFIC_TEST_TARGET) test/fixtures/chain.rzn2 test/fixtures/arch_path.arch
 	$(PYTHON) test/test_cli.py $(TARGET) .
+	$(PYTHON) test/test_algorithms.py $(TARGET) . test/baselines/v1.2-b14-arch0.json
 
 $(BUILD_DIR) $(BIN_DIR):
 	mkdir -p $@
