@@ -64,6 +64,11 @@ Each following connection line contains:
 <capacity> <delay> <part_u> <part_v>
 ```
 
+`capacity` is the maximum number of distinct hyperedge signals that may use the
+physical link. RaiSin routes every source-to-sink connection over a deterministic
+lowest-delay path. A multi-sink hyperedge consumes one unit on every link in the
+union of its routes, even when several sinks share a route prefix.
+
 Capacities and delays must be non-negative. Part identifiers must be in
 `0..<parts>` and a connection cannot link a part to itself. The loader mirrors
 each connection, so the architecture matrix is symmetric. Missing connections

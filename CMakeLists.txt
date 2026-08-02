@@ -83,6 +83,21 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_duplicate.arch"
   )
 
+  add_executable(test_capacity "${CMAKE_CURRENT_SOURCE_DIR}/test/test_capacity.c")
+  target_link_libraries(test_capacity PRIVATE raisin_core)
+  if(RAISIN_ENABLE_SANITIZERS AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(test_capacity PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(test_capacity PRIVATE -fsanitize=address,undefined)
+  endif()
+  set_target_properties(test_capacity PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+  )
+  add_test(
+    NAME communication_capacity
+    COMMAND test_capacity
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_path.arch"
+  )
+
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
     add_test(
