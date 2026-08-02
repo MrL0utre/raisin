@@ -23,6 +23,7 @@
 
 
 #include "a.h"
+#include <errno.h>
 #include <limits.h>
 
 static void
@@ -32,12 +33,53 @@ arch_release_arrays(Arch *this)
   free(this->ti_link_delay);
   free(this->ti_delay);
   free(this->ti_next_hop);
+  free(this->ti_part_capacity);
   this->ti_capacity = NULL;
   this->ti_link_delay = NULL;
   this->ti_delay = NULL;
   this->ti_next_hop = NULL;
+  this->ti_part_capacity = NULL;
+  this->i_resources = 0;
   this->i_m = 0;
   this->i_n = 0;
+}
+
+static bool
+arch_parse_nonnegative(const char *token, INT *value)
+{
+  char *end = NULL;
+  long parsed;
+
+  if (token == NULL)
+    return false;
+  errno = 0;
+  parsed = strtol(token, &end, 10);
+  if (errno == ERANGE || end == token || *end != '\0' ||
+      parsed < 0 || parsed > INT_MAX)
+    return false;
+  *value = (INT)parsed;
+  return true;
+}
+
+static bool
+arch_parse_part_capacity(char *buffer,
+                         INT expected_part,
+                         INT resource_count,
+                         INT *capacities)
+{
+  static const char delimiters[] = " \t";
+  INT part;
+  char *token = strtok(buffer, delimiters);
+
+  if (!arch_parse_nonnegative(token, &part) || part != expected_part)
+    return false;
+  for (INT resource = 0; resource < resource_count; resource++) {
+    token = strtok(NULL, delimiters);
+    if (!arch_parse_nonnegative(token,
+                                &capacities[part * resource_count + resource]))
+      return false;
+  }
+  return strtok(NULL, delimiters) == NULL;
 }
 
 static int
@@ -107,6 +149,9 @@ int arch_init(Arch * this, INT m, INT n) {
   this->ti_next_hop      = (INT *)malloc((size_t)m * (size_t)n * sizeof(INT));
   MEM_ERROR(this->ti_next_hop);
 
+  this->ti_part_capacity = NULL;
+  this->i_resources      = 0;
+
   for (INT i = 0; i < m * n; i++) {
     this->ti_link_delay[i] = -1;
     this->ti_next_hop[i] = -1;
@@ -139,6 +184,8 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
   this->ti_link_delay = NULL;
   this->ti_delay = NULL;
   this->ti_next_hop = NULL;
+  this->ti_part_capacity = NULL;
+  this->i_resources = 0;
   this->i_m = 0;
   this->i_n = 0;
 
@@ -150,7 +197,7 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
     return 1;
   }
 
-  INT i_n, i_m, i_ncon;
+  INT i_n, i_m, i_ncon, i_resources = 0;
   char extra;
 
   if (read_line(in, buffer, BUFSIZE) <= 0) {
@@ -160,14 +207,20 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
     return 2;
   }
   
-  int n = sscanf(buffer, "%d %d %c", &i_m, &i_ncon, &extra);
+  int n = sscanf(buffer, "%d %d %d %c",
+                 &i_m, &i_ncon, &i_resources, &extra);
+  int legacy_n = n == 2
+                     ? sscanf(buffer, "%d %d %c", &i_m, &i_ncon, &extra)
+                     : 2;
   
   i_n = i_m;
   if (verbose) {
     printf("%d %d\n", i_m, i_n); 
   }
 
-  if (n != 2 || i_m <= 0 || i_ncon < 0) {
+  if ((n != 2 && n != 3) || legacy_n != 2 ||
+      i_m <= 0 || i_m > RAISIN_PART_MAX ||
+      i_ncon < 0 || i_resources < 0) {
     fprintf(stderr, "Invalid architecture header in %s\n", s_path);
     free(buffer);
     fclose(in);
@@ -175,6 +228,7 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
   }
 
   arch_init(this, i_m, i_n);
+  this->i_resources = n == 3 ? i_resources : 0;
 
   INT       capacity   = 0;
   INT       delay      = 0;
@@ -218,6 +272,34 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
     this->ti_link_delay[v*i_n+u] = delay;
 
   }
+
+  if (this->i_resources > 0) {
+    size_t capacity_count =
+        (size_t)this->i_n * (size_t)this->i_resources;
+    this->ti_part_capacity = (INT *)calloc(capacity_count, sizeof(INT));
+    MEM_ERROR(this->ti_part_capacity);
+
+    for (INT part = 0; part < this->i_n; part++) {
+      if (read_line(in, buffer, BUFSIZE) <= 0) {
+        fprintf(stderr,
+                "Architecture file %s ends before resource capacities for part %d\n",
+                s_path, part);
+        arch_release_arrays(this);
+        free(buffer);
+        fclose(in);
+        return 8;
+      }
+      if (!arch_parse_part_capacity(buffer, part, this->i_resources,
+                                    this->ti_part_capacity)) {
+        fprintf(stderr, "Invalid resource capacities for part %d in %s\n",
+                part, s_path);
+        arch_release_arrays(this);
+        free(buffer);
+        fclose(in);
+        return 9;
+      }
+    }
+  }
   
   if (arch_compute_routes(this, s_path) != 0) {
     arch_release_arrays(this);
@@ -248,4 +330,21 @@ arch_next_hop(const Arch *this, INT u, INT v)
       u < 0 || v < 0 || u >= this->i_m || v >= this->i_n)
     return -1;
   return this->ti_next_hop[u * this->i_n + v];
+}
+
+bool
+arch_has_part_capacities(const Arch *this, INT resource_count)
+{
+  return this != NULL && this->ti_part_capacity != NULL &&
+         resource_count > 0 && this->i_resources == resource_count;
+}
+
+INT
+arch_part_capacity(const Arch *this, INT part, INT resource)
+{
+  if (this == NULL || this->ti_part_capacity == NULL ||
+      part < 0 || resource < 0 || part >= this->i_n ||
+      resource >= this->i_resources)
+    return -1;
+  return this->ti_part_capacity[part * this->i_resources + resource];
 }

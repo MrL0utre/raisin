@@ -63,6 +63,8 @@ typedef struct arch{
   INT  *            ti_link_delay;        /*+ Direct-link delays (-1 absent). +*/
   INT  *            ti_delay;             /*+ All-pairs shortest delays.      +*/
   INT  *            ti_next_hop;          /*+ First hop on a shortest route.  +*/
+  INT  *            ti_part_capacity;     /*+ Part/resource capacities.       +*/
+  INT               i_resources;          /*+ Resource dimensions, or zero.   +*/
   INT               i_m;                  /*+ Dimension of architecture.      +*/
   INT               i_n;                  /*+ Dimension of architecture.      +*/
 } Arch;
@@ -76,6 +78,9 @@ int               arch_free   (Arch * this);
 int               arch_load   (Arch * this, const char * s_path, bool verbose);
 bool              arch_has_link(const Arch * this, INT u, INT v);
 INT               arch_next_hop(const Arch * this, INT u, INT v);
+bool              arch_has_part_capacities(const Arch * this,
+                                           INT resource_count);
+INT               arch_part_capacity(const Arch * this, INT part, INT resource);
 
 /*
 **  The macro definitions.

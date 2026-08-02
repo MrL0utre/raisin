@@ -1,4 +1,4 @@
-# RaiSin file formats (v1.2)
+# RaiSin file formats (v1.3)
 
 All RaiSin data files are UTF-8-compatible, line-oriented text. Numeric fields
 are separated by spaces or tabs. Vertex and part identifiers are zero-based in
@@ -51,11 +51,11 @@ Example:
 
 ## Target architecture (`.arch`)
 
-The first line contains the number of parts and the number of undirected
-connections:
+The first line contains the number of parts, the number of undirected
+connections and, optionally, the number of resource dimensions:
 
 ```text
-<parts> <connections>
+<parts> <connections> [<resource_dimensions>]
 ```
 
 Each following connection line contains:
@@ -75,6 +75,18 @@ each connection, so the architecture matrix is symmetric. Missing connections
 are routed over the lowest-delay path and remain distinct from explicitly
 declared zero-delay connections. Architectures must be connected; duplicate
 connections and disconnected topologies are rejected.
+
+When `<resource_dimensions>` is present and greater than zero, the connection
+lines are followed by exactly one capacity row per part, ordered by part ID:
+
+```text
+<part_id> <capacity_0> ... <capacity_n>
+```
+
+The number of capacities on every row must equal `<resource_dimensions>`. This
+dimension must also match the vertex-weight dimension of the `.rzn2` circuit
+when the architecture is used for partitioning or evaluation. Omitting the third
+header field preserves the legacy balance-factor behavior.
 
 Example:
 

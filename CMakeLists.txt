@@ -81,6 +81,8 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_path.arch"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_disconnected.arch"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_duplicate.arch"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_resources.arch"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_bad_resources.arch"
   )
 
   add_executable(test_capacity "${CMAKE_CURRENT_SOURCE_DIR}/test/test_capacity.c")

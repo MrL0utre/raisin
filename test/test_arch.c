@@ -18,7 +18,7 @@ main(int argc, char **argv)
 {
     Arch *arch;
 
-    assert(argc == 4);
+    assert(argc == 6);
 
     arch = new_arch();
     assert(arch_load(arch, argv[1], false) == 0);
@@ -40,6 +40,21 @@ main(int argc, char **argv)
     arch = new_arch();
     assert(arch_load(arch, argv[3], false) == 6);
     assert(arch->ti_delay == NULL);
+    arch_free(arch);
+
+    arch = new_arch();
+    assert(arch_load(arch, argv[4], false) == 0);
+    assert(arch_has_part_capacities(arch, 2));
+    assert(!arch_has_part_capacities(arch, 1));
+    assert(arch_part_capacity(arch, 0, 0) == 4);
+    assert(arch_part_capacity(arch, 1, 1) == 6);
+    assert(arch_part_capacity(arch, 2, 0) == 7);
+    assert(arch_part_capacity(arch, 3, 0) == -1);
+    arch_free(arch);
+
+    arch = new_arch();
+    assert(arch_load(arch, argv[5], false) == 9);
+    assert(arch->ti_part_capacity == NULL);
     arch_free(arch);
 
     return EXIT_SUCCESS;
