@@ -20,7 +20,9 @@ ICCS 2023/2024 papers listed below.
 
 For placed partitions, RaiSin routes hyperedge signals over the target topology,
 reports physical-link loads, and rejects solutions that exceed a declared link
-capacity.
+capacity. Architectures may also declare heterogeneous capacities for every
+FPGA and resource dimension; these are checked against the circuit's vertex
+weight vectors.
 
 ## Algorithms
 

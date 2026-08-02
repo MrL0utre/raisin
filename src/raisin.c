@@ -158,6 +158,55 @@ require_communication_feasible(const Hypergraph *hypergraph,
 }
 
 static void
+require_resource_feasible(const Hypergraph *hypergraph,
+                          const Arch *arch,
+                          const PART *partition,
+                          INT part_count)
+{
+    ResourceUsage usage;
+    int status;
+
+    if (arch->i_resources == 0) {
+        printf("resource capacity mode;legacy-balance\n");
+        return;
+    }
+    if (arch->i_resources != hypergraph->i_weights) {
+        fprintf(stderr,
+                "Architecture has %d resource dimensions but circuit has %d\n",
+                arch->i_resources, hypergraph->i_weights);
+        exit(EXIT_FAILURE);
+    }
+
+    status = resource_usage_compute(&usage, hypergraph, arch,
+                                    partition, part_count);
+    require_cli(status == 0, "Unable to compute resource capacity usage");
+    printf("resource capacity mode;explicit\n");
+    printf("resource overloaded dimensions;%d\n",
+           usage.i_overloaded_dimensions);
+    printf("resource overloaded parts;%d\n", usage.i_overloaded_parts);
+    printf("resource max overload;%d\n", usage.i_max_overload);
+    printf("resource feasible;%s\n",
+           resource_usage_is_feasible(&usage) ? "yes" : "no");
+
+    if (!resource_usage_is_feasible(&usage)) {
+        for (INT part = 0; part < part_count; part++) {
+            for (INT resource = 0; resource < arch->i_resources; resource++) {
+                INT load = resource_usage_part_load(&usage, part, resource);
+                INT capacity = arch_part_capacity(arch, part, resource);
+                if (load > capacity) {
+                    fprintf(stderr,
+                            "Part %d resource %d exceeds capacity: %d > %d\n",
+                            part, resource, load, capacity);
+                }
+            }
+        }
+        resource_usage_free(&usage);
+        require_cli(false, "Resource capacity constraints are not satisfied");
+    }
+    resource_usage_free(&usage);
+}
+
+static void
 print_usage(FILE *stream)
 {
     fprintf(stream,
@@ -753,6 +802,7 @@ int main(int argv, char ** argc){
            free(is_in);
          }
 
+       require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write partition");
@@ -1030,6 +1080,7 @@ int main(int argv, char ** argc){
            printf("\ndkfm cut;%d\n", cut);
          }
        
+       require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write refined partition");
@@ -1475,6 +1526,7 @@ int main(int argv, char ** argc){
        
        printf("balance;%.2f\n", (float)max_dif * 100.0 / (float)h->i_vertices);
        
+       require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write multilevel partition");
@@ -1649,6 +1701,7 @@ int main(int argv, char ** argc){
            
        printf("\neval pmax;%d\n", pmax);
        printf("\neval cut;%d\n", cut);
+       require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        
        INT * size_parts = (INT*)calloc(k * h->i_weights, sizeof(INT));

@@ -113,6 +113,10 @@ def main() -> int:
         assert len(assignments) == 10124
         assert all(0 <= part < 4 for part in assignments)
         assert metrics(partition_run.stdout)["communication feasible"] == "yes"
+        assert (
+            metrics(partition_run.stdout)["resource capacity mode"]
+            == "legacy-balance"
+        )
 
         original = solution.read_bytes()
         replay = run(binary, root, *args)
@@ -233,6 +237,67 @@ def main() -> int:
         assert rejected_capacity.returncode != 0
         assert "exceeds capacity" in rejected_capacity.stderr
         assert metrics(rejected_capacity.stdout)["communication feasible"] == "no"
+
+        zero_resource_arch = temp / "zero-resource.arch"
+        zero_resource_arch.write_text(
+            "4 6 1\n"
+            "10000 1 0 1\n"
+            "10000 1 0 2\n"
+            "10000 1 0 3\n"
+            "10000 1 1 2\n"
+            "10000 1 1 3\n"
+            "10000 1 2 3\n"
+            "0 0\n"
+            "1 0\n"
+            "2 0\n"
+            "3 0\n",
+            encoding="ascii",
+        )
+        rejected_resource = run(
+            binary,
+            root,
+            str(graph),
+            "eval",
+            "part_number",
+            "4",
+            "partfile",
+            str(solution),
+            "archfile",
+            str(zero_resource_arch),
+        )
+        assert rejected_resource.returncode != 0
+        assert "resource 0 exceeds capacity" in rejected_resource.stderr
+        assert metrics(rejected_resource.stdout)["resource feasible"] == "no"
+
+        mismatched_resource_arch = temp / "mismatched-resource.arch"
+        mismatched_resource_arch.write_text(
+            "4 6 2\n"
+            "10000 1 0 1\n"
+            "10000 1 0 2\n"
+            "10000 1 0 3\n"
+            "10000 1 1 2\n"
+            "10000 1 1 3\n"
+            "10000 1 2 3\n"
+            "0 20000 20000\n"
+            "1 20000 20000\n"
+            "2 20000 20000\n"
+            "3 20000 20000\n",
+            encoding="ascii",
+        )
+        mismatched_resources = run(
+            binary,
+            root,
+            str(graph),
+            "eval",
+            "part_number",
+            "4",
+            "partfile",
+            str(solution),
+            "archfile",
+            str(mismatched_resource_arch),
+        )
+        assert mismatched_resources.returncode != 0
+        assert "resource dimensions" in mismatched_resources.stderr
 
         invalid_graph = temp / "invalid.rzn2"
         invalid_graph.write_text(
