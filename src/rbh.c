@@ -700,14 +700,10 @@ compute_list_in_neighbors(Hypergraph * this,
 {
     INT nv = this->i_vertices;
 
-    static INT *seen_t = NULL, *touched_t = NULL, cap_t = 0;
-    if (nv > cap_t) {
-        seen_t    = (INT *)realloc(seen_t,    nv * sizeof(INT));
-        touched_t = (INT *)realloc(touched_t, nv * sizeof(INT));
-        cap_t     = nv;
-    }
-    INT *seen    = seen_t;
-    INT *touched = touched_t;
+    INT *seen    = (INT *)malloc((size_t)nv * sizeof(INT));
+    INT *touched = (INT *)malloc((size_t)nv * sizeof(INT));
+    MEM_ERROR(seen);
+    MEM_ERROR(touched);
     for(INT i = 0; i < nv; i++) seen[i] = -1;
 
     for(INT v = 0; v < nv; v++) {
@@ -725,6 +721,8 @@ compute_list_in_neighbors(Hypergraph * this,
         for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
     }
     
+    free(touched);
+    free(seen);
     return(0);
 }
 
@@ -753,16 +751,10 @@ compute_neighbors(Hypergraph * this,
   for(INT i = 0; i < nv; i++)
       neighbors->v[i].size = 0;
 
-  static INT *seen_r    = NULL;
-  static INT *touched_r = NULL;
-  static INT  cap_r     = 0;
-  if (nv > cap_r) {
-      seen_r    = (INT *)realloc(seen_r,    nv * sizeof(INT));
-      touched_r = (INT *)realloc(touched_r, nv * sizeof(INT));
-      cap_r     = nv;
-  }
-  INT *seen    = seen_r;
-  INT *touched = touched_r;
+  INT *seen    = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT *touched = (INT *)malloc((size_t)nv * sizeof(INT));
+  MEM_ERROR(seen);
+  MEM_ERROR(touched);
   for(INT i = 0; i < nv; i++) seen[i] = -1;
 
   for(INT j = 0; j < ne; j++) {
@@ -781,7 +773,7 @@ compute_neighbors(Hypergraph * this,
                   INT new_n = neighbors->n * 2;
                   for(INT x = 0; x < neighbors->m; x++) {
                       void *tmp = realloc(neighbors->v[x].v, sizeof(INT) * new_n);
-                      if(!tmp) { /* seen/touched persistent */ return(2); }
+                      if(!tmp) { free(touched); free(seen); return(2); }
                       neighbors->v[x].v = (INT *)tmp;
                   }
                   neighbors->n = new_n;
@@ -792,6 +784,8 @@ compute_neighbors(Hypergraph * this,
       for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
   }
 
+  free(touched);
+  free(seen);
   return(0);
 }
 
@@ -819,14 +813,10 @@ compute_in_neighbors(Hypergraph * this,
       in_neighbors->v[v].size = 0;
 
   /* Fix: O(1) seen[] marker replaces O(in_deg) linear scan */
-  static INT *seen_0 = NULL, *touched_0 = NULL, cap_st0 = 0;
-  if (nv > cap_st0) {
-      seen_0 = (INT*)realloc(seen_0, nv * sizeof(INT));
-      touched_0 = (INT*)realloc(touched_0, nv * sizeof(INT));
-      cap_st0 = nv;
-  }
-  INT *seen    = seen_0;
-  INT *touched = touched_0;
+  INT *seen    = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT *touched = (INT *)malloc((size_t)nv * sizeof(INT));
+  MEM_ERROR(seen);
+  MEM_ERROR(touched);
   for(INT i = 0; i < nv; i++) seen[i] = -1;
 
   for(INT v = 0; v < nv; v++) {
@@ -841,6 +831,8 @@ compute_in_neighbors(Hypergraph * this,
       }
       for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
   }
+  free(touched);
+  free(seen);
   return(0);
 }
 
@@ -874,20 +866,14 @@ topological_sort(Hypergraph * this,
 
   INT i,u,v;
 
-  static INT  *queue_s = NULL, *main_queue_s = NULL, *indeg_s = NULL;
-  static bool *flag_s  = NULL;
-  static INT   topo_cap = 0;
-  if (nv > topo_cap) {
-      queue_s      = (INT *)realloc(queue_s,      nv * sizeof(INT));
-      main_queue_s = (INT *)realloc(main_queue_s, nv * sizeof(INT));
-      indeg_s      = (INT *)realloc(indeg_s,      nv * sizeof(INT));
-      flag_s       = (bool*)realloc(flag_s,       nv * sizeof(bool));
-      topo_cap     = nv;
-  }
-  INT  *queue      = queue_s;
-  INT  *main_queue = main_queue_s;
-  INT  *indeg      = indeg_s;
-  bool *flag       = flag_s;
+  INT  *queue      = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT  *main_queue = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT  *indeg      = (INT *)malloc((size_t)nv * sizeof(INT));
+  bool *flag       = (bool *)malloc((size_t)nv * sizeof(bool));
+  MEM_ERROR(queue);
+  MEM_ERROR(main_queue);
+  MEM_ERROR(indeg);
+  MEM_ERROR(flag);
 
   bool *is_red = this->is_red;
 
@@ -1063,6 +1049,10 @@ topological_sort(Hypergraph * this,
 
     assert(index == nv);
 
+    free(flag);
+    free(indeg);
+    free(main_queue);
+    free(queue);
     return(0);
 }
 
@@ -1109,16 +1099,10 @@ compute_list_neighbors_unalloc(Hypergraph * this,
       }
   }
   
-  static INT *seen_p    = NULL;
-  static INT *touched_p = NULL;
-  static INT  cap_p     = 0;
-  if (seen_size > cap_p) {
-      seen_p    = (INT *)realloc(seen_p,    seen_size * sizeof(INT));
-      touched_p = (INT *)realloc(touched_p, seen_size * sizeof(INT));
-      cap_p     = seen_size;
-  }
-  INT *seen    = seen_p;
-  INT *touched = touched_p;
+  INT *seen    = (INT *)malloc((size_t)seen_size * sizeof(INT));
+  INT *touched = (INT *)malloc((size_t)seen_size * sizeof(INT));
+  MEM_ERROR(seen);
+  MEM_ERROR(touched);
   for(INT i = 0; i < seen_size; i++) seen[i] = -1;
 
   INT idx_j, size_j, u, v;
@@ -1140,6 +1124,8 @@ compute_list_neighbors_unalloc(Hypergraph * this,
       for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
   }
 
+  free(touched);
+  free(seen);
   return(0);
 }
 
@@ -1179,16 +1165,10 @@ compute_list_in_neighbors_unalloc(Hypergraph * this,
       }
   }
   
-  static INT *seen_q    = NULL;
-  static INT *touched_q = NULL;
-  static INT  cap_q     = 0;
-  if (seen_size > cap_q) {
-      seen_q    = (INT *)realloc(seen_q,    seen_size * sizeof(INT));
-      touched_q = (INT *)realloc(touched_q, seen_size * sizeof(INT));
-      cap_q     = seen_size;
-  }
-  INT *seen    = seen_q;
-  INT *touched = touched_q;
+  INT *seen    = (INT *)malloc((size_t)seen_size * sizeof(INT));
+  INT *touched = (INT *)malloc((size_t)seen_size * sizeof(INT));
+  MEM_ERROR(seen);
+  MEM_ERROR(touched);
   for(INT i = 0; i < seen_size; i++) seen[i] = -1;
 
   for(INT v = 0; v < nv; v++) {
@@ -1208,6 +1188,8 @@ compute_list_in_neighbors_unalloc(Hypergraph * this,
       for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
   }
 
+  free(touched);
+  free(seen);
   return(0);
 }
 
@@ -1239,14 +1221,10 @@ compute_in_neighbors_unalloc(Hypergraph * h,
       in_neighbors->v[v].size = 0;
 
   /* Fix: O(1) seen[] marker replaces O(in_deg) linear scan */
-  static INT *seen_1 = NULL, *touched_1 = NULL, cap_st1 = 0;
-  if (nv > cap_st1) {
-      seen_1 = (INT*)realloc(seen_1, nv * sizeof(INT));
-      touched_1 = (INT*)realloc(touched_1, nv * sizeof(INT));
-      cap_st1 = nv;
-  }
-  INT *seen    = seen_1;
-  INT *touched = touched_1;
+  INT *seen    = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT *touched = (INT *)malloc((size_t)nv * sizeof(INT));
+  MEM_ERROR(seen);
+  MEM_ERROR(touched);
   for(INT i = 0; i < nv; i++) seen[i] = -1;
 
   for(INT v = 0; v < nv; v++) {
@@ -1261,6 +1239,8 @@ compute_in_neighbors_unalloc(Hypergraph * h,
       }
       for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
   }
+  free(touched);
+  free(seen);
   return 0;
 }
 
@@ -1297,14 +1277,10 @@ compute_neighbors_unalloc(Hypergraph * h,
   INT u, v, idx_j, weight, size_j;
 
   /* Fix: O(1) seen[] marker replaces O(deg) linear scan */
-  static INT *seen_2 = NULL, *touched_2 = NULL, cap_st2 = 0;
-  if (nv > cap_st2) {
-      seen_2 = (INT*)realloc(seen_2, nv * sizeof(INT));
-      touched_2 = (INT*)realloc(touched_2, nv * sizeof(INT));
-      cap_st2 = nv;
-  }
-  INT *seen    = seen_2;
-  INT *touched = touched_2;
+  INT *seen    = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT *touched = (INT *)malloc((size_t)nv * sizeof(INT));
+  MEM_ERROR(seen);
+  MEM_ERROR(touched);
   for(INT i = 0; i < nv; i++) seen[i] = -1;
 
   for(INT j = 0; j < ne; j++) {
@@ -1323,7 +1299,7 @@ compute_neighbors_unalloc(Hypergraph * h,
                   INT new_n = neighbors->n * 2;
                   for(int x = 0; x < neighbors->m; x++) {
                       void *tmp = realloc(neighbors->v[x].v, sizeof(INT) * new_n);
-                      if(!tmp) { /* seen/touched persistent */ return(2); }
+                       if(!tmp) { free(touched); free(seen); return(2); }
                       neighbors->v[x].v = (INT *)tmp;
                   }
                   neighbors->n = new_n;
@@ -1333,6 +1309,8 @@ compute_neighbors_unalloc(Hypergraph * h,
       }
       for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
   }
+  free(touched);
+  free(seen);
   return 0;
 }
 
@@ -1370,17 +1348,12 @@ compute_criticality(Hypergraph * h,
 
   bool *is_red = h->is_red;
 
-  static bool *flag_c = NULL, *dfwd_bool = NULL;
-  static INT  *dfwd_c = NULL, *dbwd_c = NULL, crit_cap = 0;
-  if (nv > crit_cap) {
-      flag_c   = (bool*)realloc(flag_c, nv * sizeof(bool));
-      dfwd_c   = (INT *)realloc(dfwd_c, nv * sizeof(INT));
-      dbwd_c   = (INT *)realloc(dbwd_c, nv * sizeof(INT));
-      crit_cap = nv;
-  }
-  bool *flag       = flag_c;
-  INT  *delays_fwd = dfwd_c;
-  INT  *delays_bwd = dbwd_c;
+  bool *flag       = (bool *)malloc((size_t)nv * sizeof(bool));
+  INT  *delays_fwd = (INT *)malloc((size_t)nv * sizeof(INT));
+  INT  *delays_bwd = (INT *)malloc((size_t)nv * sizeof(INT));
+  MEM_ERROR(flag);
+  MEM_ERROR(delays_fwd);
+  MEM_ERROR(delays_bwd);
 
   INT crit_max = 0;
     
@@ -1492,6 +1465,9 @@ compute_criticality(Hypergraph * h,
 
       
   
+    free(delays_bwd);
+    free(delays_fwd);
+    free(flag);
     return 0;
 }
 
@@ -1679,18 +1655,12 @@ compute_pmax(Hypergraph * h,
   INT nwv    = h->i_weights;     /* number of vertices weight                 */
   INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
-  static INT  *delays_pm = NULL;
-  static bool *is_red_pm = NULL, *flag_pm = NULL;
-  static INT   pmax_cap = 0;
-  if (nv > pmax_cap) {
-      delays_pm  = (INT *)realloc(delays_pm,  nv * sizeof(INT));
-      is_red_pm  = (bool*)realloc(is_red_pm,  nv * sizeof(bool));
-      flag_pm    = (bool*)realloc(flag_pm,    nv * sizeof(bool));
-      pmax_cap   = nv;
-  }
-  INT  *delays = delays_pm;
-  bool *is_red = is_red_pm;
-  bool *flag   = flag_pm;
+  INT  *delays = (INT *)malloc((size_t)nv * sizeof(INT));
+  bool *is_red = (bool *)malloc((size_t)nv * sizeof(bool));
+  bool *flag   = (bool *)malloc((size_t)nv * sizeof(bool));
+  MEM_ERROR(delays);
+  MEM_ERROR(is_red);
+  MEM_ERROR(flag);
 
   INT   u, v;
 
@@ -1784,6 +1754,9 @@ compute_pmax(Hypergraph * h,
   (*sizelpmax) = idx_pmax;
 
 
+  free(flag);
+  free(is_red);
+  free(delays);
   return max_delays;
 }
 
@@ -1823,12 +1796,8 @@ compute_path_length(Hypergraph * h,
   INT nwv    = h->i_weights;     /* number of vertices weight                 */
   INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
-  static bool *is_red_pl = NULL; static INT is_red_pl_cap = 0;
-  if (nv > is_red_pl_cap) {
-      is_red_pl = (bool*)realloc(is_red_pl, nv * sizeof(bool));
-      is_red_pl_cap = nv;
-  }
-  bool *is_red = is_red_pl;
+  bool *is_red = (bool *)malloc((size_t)nv * sizeof(bool));
+  MEM_ERROR(is_red);
 
   INT   u, v;
 
@@ -1915,6 +1884,7 @@ compute_path_length(Hypergraph * h,
   (*sizelmax) = idx_lmax;
   
    
+  free(is_red);
   return max_length;
 }
 
@@ -1949,18 +1919,12 @@ compute_subpmax(Hypergraph * h,
   INT nwv    = h->i_weights;     /* number of vertices weight                 */
   INT * reds = h->ti_reds;       /* arrays of red vertices                    */
 
-  static INT  *delays_sp = NULL;
-  static bool *is_red_sp = NULL, *flag_sp = NULL;
-  static INT   sub_cap = 0;
-  if (nv > sub_cap) {
-      delays_sp = (INT *)realloc(delays_sp, nv * sizeof(INT));
-      is_red_sp = (bool*)realloc(is_red_sp, nv * sizeof(bool));
-      flag_sp   = (bool*)realloc(flag_sp,   nv * sizeof(bool));
-      sub_cap   = nv;
-  }
-  INT  *delays = delays_sp;
-  bool *is_red = is_red_sp;
-  bool *flag   = flag_sp;
+  INT  *delays = (INT *)malloc((size_t)nv * sizeof(INT));
+  bool *is_red = (bool *)malloc((size_t)nv * sizeof(bool));
+  bool *flag   = (bool *)malloc((size_t)nv * sizeof(bool));
+  MEM_ERROR(delays);
+  MEM_ERROR(is_red);
+  MEM_ERROR(flag);
 
   INT u, v;
 
@@ -2041,5 +2005,8 @@ compute_subpmax(Hypergraph * h,
     }
 
 
+  free(flag);
+  free(is_red);
+  free(delays);
   return max_delays;
 }

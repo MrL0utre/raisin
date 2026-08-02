@@ -49,15 +49,8 @@ vth_build(const Hypergraph *h)
     MEM_ERROR(vth);
     vth->nv = nv;
 
-    /* Persistent buffer to avoid use-after-free when vth_build is called in loops */
-    static INT *deg_p = NULL;
-    static INT  deg_cap = 0;
-    if (nv > deg_cap) {
-        deg_p = (INT *)realloc(deg_p, nv * sizeof(INT));
-        deg_cap = nv;
-    }
-    memset(deg_p, 0, nv * sizeof(INT));
-    INT *deg = deg_p;
+    INT *deg = (INT *)calloc((size_t)nv, sizeof(INT));
+    MEM_ERROR(deg);
 
     /* Pass 1 – count how many hyperedges touch each vertex */
     for (INT j = 0; j < ne; j++) {
@@ -89,6 +82,7 @@ vth_build(const Hypergraph *h)
         }
     }
 
+    free(deg);
     return vth;
 }
 
