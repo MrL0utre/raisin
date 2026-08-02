@@ -1,7 +1,7 @@
 CC ?= cc
 
 CPPFLAGS ?= -Iinclude
-CFLAGS ?= -O2 -std=c11 -Wall -Wextra -Wpedantic
+CFLAGS ?= -O2 -std=c11 -Wall -Wextra -Wpedantic -Werror
 LDLIBS ?= -lm
 
 SRC_DIR := src
@@ -41,10 +41,10 @@ check: raisin $(TEST_TARGET)
 $(BUILD_DIR) $(BIN_DIR):
 	mkdir -p $@
 
-debug: CFLAGS := -O0 -g3 -std=c11 -Wall -Wextra -Wpedantic
+debug: CFLAGS := -O0 -g3 -std=c11 -Wall -Wextra -Wpedantic -Werror
 debug: clean raisin
 
-sanitize: CFLAGS := -O1 -g3 -std=c11 -Wall -Wextra -Wpedantic \
+sanitize: CFLAGS := -O1 -g3 -std=c11 -Wall -Wextra -Wpedantic -Werror \
 	-fsanitize=address,undefined -fno-omit-frame-pointer
 sanitize: LDFLAGS := -fsanitize=address,undefined
 sanitize: clean raisin
