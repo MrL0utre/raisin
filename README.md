@@ -198,6 +198,7 @@ supported automated suites are `test_invariants.c` and `test_cli.py`.
 
 ## License
 
-RaiSin is licensed under the GNU General Public License version 3 only
-(`GPL-3.0-only`). See [`LICENSE`](LICENSE) for the complete terms. This fork
-retains the copyright and contributor attribution inherited from CEA-LIST.
+RaiSin is distributed under the GNU General Public License version 3. See
+[`LICENSE`](LICENSE) for the complete GPLv3 text. This fork preserves verbatim
+the original CEA/Inria copyright, license and warranty notices present in the
+inherited source files, without replacing or reinterpreting their wording.

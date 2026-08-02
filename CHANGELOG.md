@@ -15,7 +15,8 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - GCC, Clang, ASan and UBSan GitHub Actions jobs.
 - Normative documentation for `.rzn2`, `.arch` and `.sol` files.
 - Repository-wide UTF-8 and line-ending policy.
-- Canonical GPLv3 license text, SPDX identifiers and upstream fork attribution.
+- Canonical GPLv3 license text and upstream fork attribution, while preserving
+  the original CEA/Inria source headers verbatim.
 
 ### Changed
 
@@ -61,8 +62,8 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - [x] Invariant and CLI regression suites.
 - [x] ASan/UBSan CI configuration.
 - [x] File-format and reproducibility documentation.
-- [x] Confirm GPL version 3 licensing, add the canonical `LICENSE` file and use
-  consistent `GPL-3.0-only` SPDX identifiers.
+- [x] Confirm GPL version 3 licensing, add the canonical `LICENSE` file and
+  preserve the complete original CEA/Inria notices in inherited source files.
 - [ ] Run the hosted CI jobs on the final release commit.
 - [ ] Record a final v1.1-to-v1.2 comparison report on representative circuits.
 

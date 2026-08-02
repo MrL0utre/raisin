@@ -65,8 +65,9 @@ benchmarks with measured scaling and resumable experiments.
 
 ## Release governance
 
-The fork must retain its CEA-LIST upstream attribution, original copyright
-notices and `GPL-3.0-only` licensing. Every later release should also publish:
+The fork must retain its CEA-LIST upstream attribution, the complete original
+CEA/Inria source notices and GPL version 3 licensing. Every later release should
+also publish:
 
 - a completed changelog and migration notes;
 - hosted CI and sanitizer results;
