@@ -51,8 +51,17 @@ set_target_properties(raisin PROPERTIES
 
 include(CTest)
 if(BUILD_TESTING)
+  function(raisin_enable_test_assertions target)
+    if(MSVC)
+      target_compile_options(${target} PRIVATE /UNDEBUG)
+    else()
+      target_compile_options(${target} PRIVATE -UNDEBUG)
+    endif()
+  endfunction()
+
   add_executable(test_invariants "${CMAKE_CURRENT_SOURCE_DIR}/test/test_invariants.c")
   target_link_libraries(test_invariants PRIVATE raisin_core)
+  raisin_enable_test_assertions(test_invariants)
   if(RAISIN_ENABLE_SANITIZERS AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(test_invariants PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
     target_link_options(test_invariants PRIVATE -fsanitize=address,undefined)
