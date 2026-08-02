@@ -93,6 +93,34 @@ require_cli(bool condition, const char *message)
     }
 }
 
+static void
+print_usage(FILE *stream)
+{
+    fprintf(stream,
+        "Usage:\n"
+        "  raisin <graph.rzn2> cluster <hem|bsc> size <n> [options]\n"
+        "  raisin <graph.rzn2> part <dbfs|ddfs|ccp> part_number <1..%d> [options]\n"
+        "  raisin <graph.rzn2> refine <kfm|dkfm> part_file <file.sol> "
+        "part_number <1..%d> [options]\n"
+        "  raisin <graph.rzn2> multilevel cluster <hem|bsc> "
+        "part <dbfs|ddfs|ccp> refine <kfm|dkfm|dkfmfast> "
+        "part_number <1..%d> [options]\n"
+        "  raisin <graph.rzn2> eval part_number <1..%d> "
+        "partfile <file.sol> [options]\n"
+        "  raisin <graph.rzn2> stats [seed <n>]\n"
+        "\n"
+        "Common options:\n"
+        "  bfactor <n>    balance factor (default: 5)\n"
+        "  partfile <p>   output prefix; RaiSin appends .sol\n"
+        "  archfile <p>   target architecture (default: targets/arch0.arch)\n"
+        "  seed <n>       random seed (default: 1)\n"
+        "\n"
+        "Refinement options:\n"
+        "  perform <n>    number of refinement passes (default: 10)\n"
+        "  tolerance <n>  refinement tolerance (default: 0)\n",
+        RAISIN_PART_MAX, RAISIN_PART_MAX, RAISIN_PART_MAX, RAISIN_PART_MAX);
+}
+
 
 /**
  * @brief Function launching application.  
@@ -106,12 +134,14 @@ int main(int argv, char ** argc){
 
     INT seed = 1;
 
-    if(argv < 3 || strcmp(argc[1], "help") == 0)
-      {  
-        printf("USAGE : graph_file[replace by file path] \n        mode[replace by \"cluster\", \"part\", \"refine\", \"multilevel\", \"write\"] ...\n\t cluster hem \n\t\tsize integer\n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t cluster bsc \n\t\tsize integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part dbfs \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part ddfs \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part ccp \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t refine kfm \n\t\tpart_file string \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t refine dkfm \n\t\tpart_file string \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t multilevel cluster [hem or bsc] \n\t\tpart [dbfs or ddfs or ccp] \n\t\trefine [kfm or dkfm or all] \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t eval partfile string \n\t\t[archfile string]\n\t write sort\n\t stats\n");
-     
-        return argv < 3 ? EXIT_FAILURE : EXIT_SUCCESS;
-      }
+    if (argv < 3 || strcmp(argc[1], "help") == 0 ||
+        strcmp(argc[1], "--help") == 0) {
+        bool explicit_help = argv >= 2 &&
+                             (strcmp(argc[1], "help") == 0 ||
+                              strcmp(argc[1], "--help") == 0);
+        print_usage(explicit_help ? stdout : stderr);
+        return explicit_help ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
 
     for (int i = 3; i < argv; i++) {
         if (strcmp(argc[i], "seed") == 0) {
@@ -126,7 +156,7 @@ int main(int argv, char ** argc){
      {  
        if(argv < 6)
          {  
-           printf("USAGE : graph_file cluster ...\n\t hem size integer [bfactor integer] [partfile string] [archfile string]\n\t cluster bsc size integer [bfactor integer] [partfile string] [archfile string]\n" );  
+           print_usage(stderr);
            
            return EXIT_FAILURE;
          }
@@ -420,7 +450,7 @@ int main(int argv, char ** argc){
        
        if(argv < 6) 
          {
-           printf("USAGE : graph_file part ...\n\t dbfs part_number integer [bfactor integer] [partfile string] [archfile string]\n\t ddfs part_number integer [bfactor integer] [partfile string] [archfile string]\n\t ccp part_number integer [bfactor integer] [partfile string] [archfile string]\n" );
+           print_usage(stderr);
            return EXIT_FAILURE;
          }
        
@@ -746,7 +776,7 @@ int main(int argv, char ** argc){
       {
         if(argv < 8) 
           {
-            printf("USAGE : graph_file refine ...\n\t kfm part_file string part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n\t dkfm part_file string part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
+            print_usage(stderr);
             
             return EXIT_FAILURE;
           }
@@ -1016,7 +1046,7 @@ int main(int argv, char ** argc){
       { 
         if(argv < 11) 
           {
-            printf("USAGE : graph_file multilevel cluster [hem or bsc] part [dbfs or ddfs or ccp] refine [kfm, dkfm, dkfmfast, or all] part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
+            print_usage(stderr);
             return EXIT_FAILURE;
           }
        
@@ -1110,7 +1140,7 @@ int main(int argv, char ** argc){
        
          if(algo_refine == NULL || algo_cluster == NULL || algo_part == NULL) 
            {
-             printf("USAGE : graph_file multilevel cluster [hem or bsc] part [dbfs or ddfs or ccp] refine [kfm or dkfm or all] part_number integer [bfactor integer] [perform integer] [tolerance integer] [partfile string] [archfile string]\n" );
+              print_usage(stderr);
              return EXIT_FAILURE;
            }
 
@@ -1408,7 +1438,7 @@ int main(int argv, char ** argc){
       { 
         if(argv < 7) 
           { 
-            printf("USAGE : graph_file eval ...\n\t part_number integer \n\tpartfile string \n\t[archfile string]\n" );
+             print_usage(stderr);
             return EXIT_FAILURE;
           }
        
@@ -1628,7 +1658,7 @@ int main(int argv, char ** argc){
       { 
         if(argv < 3) 
           { 
-            printf("USAGE : graph_file stats \n" );
+             print_usage(stderr);
             return EXIT_FAILURE;
           }
        

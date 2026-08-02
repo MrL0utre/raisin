@@ -58,6 +58,12 @@ def main() -> int:
     assert unknown.returncode != 0
     assert "Unknown mode" in unknown.stderr
 
+    help_result = run(binary, root, "help")
+    assert help_result.returncode == 0
+    assert "dkfmfast" in help_result.stdout
+    assert "1..255" in help_result.stdout
+    assert "write" not in help_result.stdout
+
     with tempfile.TemporaryDirectory(prefix="raisin-test-") as temp_dir:
         temp = Path(temp_dir)
         temp_graph = temp / graph.name
