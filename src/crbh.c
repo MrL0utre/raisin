@@ -38,6 +38,7 @@
 
 #include "crbh.h"
 #include "vth.h"
+#include "rng.h"
 
 /**
  * @brief Function to swap elements.
@@ -384,7 +385,7 @@ heavy_edge_matching(Hypergraph  * h1,
               for(INT wi=0;wi<nwv;wi++)
                 if(weights[nvp*nwv+wi]+h1->ti_weights[v*nwv+wi]>=limit_weight[wi]) correct_size=false;
               if(!locked[v]&&correct_size&&r_v>crit_candidate){crit_candidate=r_v;candidate=v;}
-              else if(!locked[v]&&correct_size&&r_v>=crit_candidate&&(rand()%2)>=1){crit_candidate=r_v;candidate=v;}
+              else if(!locked[v]&&correct_size&&r_v>=crit_candidate&&raisin_rng_bounded(2)>=1){crit_candidate=r_v;candidate=v;}
               mc=mc->next;
             }
 
@@ -411,7 +412,9 @@ heavy_edge_matching(Hypergraph  * h1,
                         crit_candidate = h1->ti_criticalities_right[v];
                         candidate      = v;
                       } 
-                    else if (!locked[v] && correct_size && h1->ti_criticalities_right[v] >= crit_candidate && (rand() % 2) >= 1 ) 
+                    else if (!locked[v] && correct_size &&
+                             h1->ti_criticalities_right[v] >= crit_candidate &&
+                             raisin_rng_bounded(2) >= 1)
                       {
                         crit_candidate = h1->ti_criticalities_right[v];
                         candidate      = v;

@@ -39,6 +39,7 @@
 #include "fm.h"
 #include "vth.h"
 #include "bqueue.h"
+#include "rng.h"
 
 /**
  * @brief Function implementing the DKFM algorithm defined and 
@@ -376,7 +377,7 @@ dkfm_fast(Hypergraph * h,
     /* Initial gain computation — randomly sample halo vertices */
     INT N_INIT = (INT)ceil((float)halo_size * (1.0f / (float)perform));
     for (INT ii = 0; ii < N_INIT && halo_size > 0; ii++) {
-        INT idx = rand() % halo_size;
+        INT idx = raisin_rng_bounded(halo_size);
         INT i   = halo[idx];
         /* Remove from halo (swap-with-last) */
         halo[idx] = halo[--halo_size];

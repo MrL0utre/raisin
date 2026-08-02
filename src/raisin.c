@@ -49,6 +49,7 @@
 #include "../include/dlist.h"
 #include "../include/m.h"
 #include "../include/capacity.h"
+#include "../include/rng.h"
 
 /* Standard library import */
 #include <stdlib.h>
@@ -308,7 +309,7 @@ int main(int argv, char ** argc){
             seed = parse_int_arg(argc[i + 1], "seed", 0, INT_MAX);
         }
     }
-    srand((unsigned int)seed);
+    raisin_rng_seed((uint32_t)seed);
     printf("seed;%d\n", seed);
 
    if(strcmp(argc[2], "cluster") == 0) 

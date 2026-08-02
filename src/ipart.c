@@ -48,6 +48,7 @@
  *         hypergraph structure. 
  */
 #include "ipart.h"
+#include "rng.h"
 
 /**
  * @brief Function implementing the derived breadth first search 
@@ -143,7 +144,7 @@ derived_breadth_first_search(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         pqueue_add_element(main_pqueue, 
@@ -375,7 +376,7 @@ derived_breadth_first_search_multilevel(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         pqueue_add_element(main_pqueue, 
@@ -894,7 +895,7 @@ derived_depth_first_search(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         pqueue_add_element(pqueue, criticalities, u, pqueue_end);
@@ -1090,7 +1091,7 @@ derived_depth_first_searchMultilevel(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         pqueue_add_element(pqueue, criticalities, u, pqueue_end);
@@ -1430,12 +1431,12 @@ critical_connected_component_partitioning(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         while(criticalities[u] < bound && size_r_candidates > 0)
           {
-            i_start       = rand() % size_r_candidates;
+            i_start       = raisin_rng_bounded(size_r_candidates);
             u             = r_candidates[i_start];
           }
         
@@ -1575,7 +1576,7 @@ critical_connected_component_partitioning(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         pqueue_add_element(pqueue, criticalities, u, pqueue_end);
@@ -1884,12 +1885,12 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
         
         while(criticalities[u] < bound && size_r_candidates > 0) 
           {
-            i_start       = rand() % size_r_candidates;
+            i_start       = raisin_rng_bounded(size_r_candidates);
             u             = r_candidates[i_start];
           }
         
@@ -2028,7 +2029,7 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
         pqueue_add_element(pqueue, criticalities, u, pqueue_end);
         pqueue_end++;
@@ -2116,7 +2117,7 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
 
         pqueue_add_element(pqueue, criticalities, u, pqueue_end);
@@ -2204,7 +2205,7 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
       {
         /* Thorus form red-black hypergraph.     */
         /* Select a random red vertex.           */ 
-        INT i_start       = rand() % nr;
+        INT i_start       = raisin_rng_bounded(nr);
         u                 = reds[i_start];
         
         pqueue_add_element(pqueue, criticalities, u, pqueue_end);
