@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(raisin VERSION 1.2 LANGUAGES C)
+project(raisin VERSION 1.3 LANGUAGES C)
 
 option(RAISIN_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 option(RAISIN_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)

@@ -3,7 +3,19 @@
 This project follows semantic versioning for released command-line behavior and
 serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 
-## [1.2.0] - Unreleased
+## [1.3.0] - Unreleased
+
+### Planned
+
+- Enforce target communication and per-part resource capacities.
+- Validate non-complete and disconnected target topologies.
+- Add hand-checkable fixtures for every supported algorithm.
+- Expand scientific regression coverage across circuits and architectures.
+- Modernize the historical exploratory test programs.
+
+See [`ROADMAP.md`](ROADMAP.md) for the complete objectives and exit criteria.
+
+## [1.2.0] - 2026-08-02
 
 ### Added
 
