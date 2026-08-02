@@ -141,8 +141,6 @@ compute_clustering_criticality(Hypergraph  * h,
   INT nv     = h->i_vertices; /* number of vertices */
   INT nr     = h->i_reds;     /* number of red vertices */
   INT * reds = h->ti_reds;    /* array of red vertices */
-  INT ncuts  = 0;
-
   /* Allocate memory for delays */
   INT  * delays = (INT *) malloc(sizeof(INT) * nv);
   MEM_ERROR(delays);
@@ -181,7 +179,6 @@ compute_clustering_criticality(Hypergraph  * h,
               
               if (partition[u] != partition[v])
                 {
-                  ncuts++;
                   delays[u] = MAX(delays[u], h->ti_delays[v] + h->ti_delays[u] + D);
                 }
                 
@@ -197,7 +194,6 @@ compute_clustering_criticality(Hypergraph  * h,
                 INT u = cell_neighbors->i;
                 if (partition[u] != partition[v])
                   {
-                    ncuts++;
                     delays[u] = MAX(delays[u], delays[v] + h->ti_delays[u] + D);
                   }
                 
