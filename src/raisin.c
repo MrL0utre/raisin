@@ -94,6 +94,19 @@ require_cli(bool condition, const char *message)
 }
 
 static void
+require_partition_range(INT vertices, const PART *partition, INT part_count)
+{
+    for (INT vertex = 0; vertex < vertices; vertex++) {
+        if ((INT)partition[vertex] >= part_count) {
+            fprintf(stderr,
+                    "Partition value %d for vertex %d is outside 0..%d\n",
+                    (INT)partition[vertex], vertex, part_count - 1);
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+static void
 print_usage(FILE *stream)
 {
     fprintf(stream,
@@ -935,6 +948,7 @@ int main(int argv, char ** argc){
        
        require_cli(load_partition(h->i_vertices, partition, init_part_path) == 0,
                    "Unable to load initial partition");
+       require_partition_range(h->i_vertices, partition, k);
 
        if(strcmp(algo, "kfm") == 0) 
          {
@@ -1569,6 +1583,7 @@ int main(int argv, char ** argc){
        
        require_cli(load_partition(h->i_vertices, partition, init_part_path) == 0,
                    "Unable to load partition for evaluation");
+       require_partition_range(h->i_vertices, partition, k);
 
        INT pmax = compute_partition_criticality(h, a, neighbors_list, in_neighbors_list, sort, partition); 
        

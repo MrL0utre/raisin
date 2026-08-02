@@ -110,6 +110,26 @@ def main() -> int:
         assert invalid_partition.returncode != 0
         assert "ends before vertex" in invalid_partition.stderr
 
+        out_of_range = temp / "out-of-range.sol"
+        out_of_range.write_text(
+            "4\n" + "0\n" * 10123,
+            encoding="ascii",
+        )
+        invalid_assignment = run(
+            binary,
+            root,
+            str(graph),
+            "eval",
+            "part_number",
+            "4",
+            "partfile",
+            str(out_of_range),
+            "archfile",
+            str(arch),
+        )
+        assert invalid_assignment.returncode != 0
+        assert "outside 0..3" in invalid_assignment.stderr
+
         invalid_arch = temp / "invalid.arch"
         invalid_arch.write_text("4 1\n100 30 0\n", encoding="ascii")
         malformed_architecture = run(
