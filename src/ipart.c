@@ -110,8 +110,8 @@ derived_breadth_first_search(Hypergraph * h,
         indeg[i]       = in_neighbors[i]->size;
         flag[i]        = false;
         is_red[i]      = false;
-        pqueue[i]      =- 1;
-        main_pqueue[i] =- 1;
+        pqueue[i]      = -1;
+        main_pqueue[i] = -1;
       }
     
     for(i = 0; i < nr; i++) 
@@ -341,9 +341,9 @@ derived_breadth_first_search_multilevel(Hypergraph * h,
         indeg[i]       = in_neighbors[i]->size;
         flag[i]        = false;
         is_red[i]      = false;
-        pqueue[i]      =- 1;
-        main_pqueue[i] =- 1;
-        partition[i]   =- 1;
+        pqueue[i]      = -1;
+        main_pqueue[i] = -1;
+        partition[i]   = -1;
       }
 
     for(i = 0; i < nr; i++) 
@@ -867,7 +867,7 @@ derived_depth_first_search(Hypergraph * h,
         indeg[i]      = in_neighbors[i]->size;
         flag[i]       = false;
         is_red[i]     = false;
-        pqueue[i]     =- 1;
+        pqueue[i]     = -1;
       }
 
     for(i = 0; i < nr; i++)
@@ -1398,7 +1398,7 @@ critical_connected_component_partitioning(Hypergraph * h,
         outdeg[i]     = out_neighbors[i]->size;
         flag[i]       = false;
         is_red[i]     = false;
-        pqueue[i]     =-1;
+        pqueue[i]     = -1;
       }
     
     for(i = 0; i < nr; i++) 
@@ -1854,7 +1854,7 @@ critical_connected_component_partitioning_multilevel(Hypergraph * h,
         outdeg[i]     = out_neighbors[i]->size;
         flag[i]       = false;
         is_red[i]     = false;
-        pqueue[i]     =-1;
+        pqueue[i]     = -1;
       }
     
     for(i = 0; i < nr; i++)
