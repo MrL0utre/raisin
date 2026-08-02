@@ -1,0 +1,12 @@
+* text=auto
+
+*.c       text eol=lf
+*.h       text eol=lf
+*.py      text eol=lf
+*.sh      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.md      text eol=lf
+*.rzn2    text eol=lf
+*.arch    text eol=lf
+Makefile  text eol=lf
