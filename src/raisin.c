@@ -844,6 +844,7 @@ int main(int argv, char ** argc){
            
            rbh_free(h2);
            free(h2);
+           free(partitionp);
            free(map);
            free(is_in);
          }
