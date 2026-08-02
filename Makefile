@@ -1,76 +1,42 @@
-CC      = gcc
-CFLAGS  = -W -Wall -ansi -pedantic -std=c11 -g
-INC     = -I include/
-SRC     = src/
-TST     = test/
-EXE     = exe/
-LIBS    = -lm
+CC ?= cc
 
+CPPFLAGS ?= -Iinclude
+CFLAGS ?= -O2 -std=c11 -Wall -Wextra -Wpedantic
+LDLIBS ?= -lm
 
-NEW = $(SRC)vth.o $(SRC)adj.o
+SRC_DIR := src
+BUILD_DIR := build
+BIN_DIR := exe
+TARGET := $(BIN_DIR)/raisin
 
-OBJ = $(SRC)raisin.o $(SRC)m.o $(SRC)fm.o $(SRC)dlist.o $(SRC)uf.o \
-      $(SRC)rbh.o $(SRC)crbh.o $(SRC)ipart.o $(SRC)io.o $(SRC)a.o \
-      $(SRC)matrix.o $(SRC)vector.o $(SRC)pqueue.o $(SRC)list.o \
-      $(NEW)
+SOURCES := $(wildcard $(SRC_DIR)/*.c)
+OBJECTS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SOURCES))
+DEPS := $(OBJECTS:.o=.d)
 
-OBJTST = $(TST)test_rbh.o \
-         $(SRC)rbh.o $(SRC)crbh.o $(SRC)io.o $(SRC)a.o \
-         $(SRC)matrix.o $(SRC)vector.o $(SRC)pqueue.o $(SRC)list.o \
-         $(NEW)
+.PHONY: all raisin debug sanitize clean
 
-OBJTSTC = $(TST)test_crbh.o \
-          $(SRC)rbh.o $(SRC)crbh.o $(SRC)io.o $(SRC)a.o \
-          $(SRC)matrix.o $(SRC)vector.o $(SRC)pqueue.o $(SRC)list.o \
-          $(NEW)
+all: raisin
 
-OBJTSTP = $(TST)test_ipart.o \
-          $(SRC)uf.o $(SRC)rbh.o $(SRC)crbh.o $(SRC)ipart.o \
-          $(SRC)io.o $(SRC)a.o $(SRC)matrix.o $(SRC)vector.o \
-          $(SRC)pqueue.o $(SRC)list.o $(NEW)
+raisin: $(TARGET)
 
-OBJTSTFM = $(TST)test_fm.o \
-           $(SRC)fm.o $(SRC)dlist.o $(SRC)uf.o \
-           $(SRC)rbh.o $(SRC)crbh.o $(SRC)ipart.o \
-           $(SRC)io.o $(SRC)a.o $(SRC)matrix.o $(SRC)vector.o \
-           $(SRC)pqueue.o $(SRC)list.o $(NEW)
+$(TARGET): $(OBJECTS) | $(BIN_DIR)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 
-OBJTSTM = $(TST)test_m.o \
-          $(SRC)m.o $(SRC)fm.o $(SRC)dlist.o $(SRC)uf.o \
-          $(SRC)rbh.o $(SRC)crbh.o $(SRC)ipart.o \
-          $(SRC)io.o $(SRC)a.o $(SRC)matrix.o $(SRC)vector.o \
-          $(SRC)pqueue.o $(SRC)list.o $(NEW)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
 
-EXEC = raisin
-TEST = test_rbh
+$(BUILD_DIR) $(BIN_DIR):
+	mkdir -p $@
 
-.PHONY: all clean
+debug: CFLAGS := -O0 -g3 -std=c11 -Wall -Wextra -Wpedantic
+debug: clean raisin
 
-all: $(EXEC)
-
-test_m: $(OBJTSTM)
-	$(CC) $(INC) -o $(EXE)$@ $^ $(CFLAGS) $(LIBS)
-
-test_fm: $(OBJTSTFM)
-	$(CC) $(INC) -o $(EXE)$@ $^ $(CFLAGS) $(LIBS)
-
-test_ipart: $(OBJTSTP)
-	$(CC) $(INC) -o $(EXE)$@ $^ $(CFLAGS) $(LIBS)
-
-test_crbh: $(OBJTSTC)
-	$(CC) $(INC) -o $(EXE)$@ $^ $(CFLAGS)
-
-test_rbh: $(OBJTST)
-	$(CC) $(INC) -o $(EXE)$@ $^ $(CFLAGS)
-
-raisin: $(OBJ)
-	$(CC) $(INC) -o $(EXE)$@ $^ $(CFLAGS) $(LIBS)
-
-$(SRC)%.o : $(SRC)%.c
-	$(CC) $(INC) -o $@ -c $< $(CFLAGS)
-
-$(TST)%.o : $(TST)%.c
-	$(CC) $(INC) -o $@ -c $< $(CFLAGS)
+sanitize: CFLAGS := -O1 -g3 -std=c11 -Wall -Wextra -Wpedantic \
+	-fsanitize=address,undefined -fno-omit-frame-pointer
+sanitize: LDFLAGS := -fsanitize=address,undefined
+sanitize: clean raisin
 
 clean:
-	rm -rf $(SRC)*.o $(TST)*.o $(EXE)/*
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
+
+-include $(DEPS)
