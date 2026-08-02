@@ -113,6 +113,7 @@ def main() -> int:
         assert len(assignments) == 10124
         assert all(0 <= part < 4 for part in assignments)
         assert metrics(partition_run.stdout)["communication feasible"] == "yes"
+        assert metrics(partition_run.stdout)["communication repair moves"] == "0"
         assert (
             metrics(partition_run.stdout)["resource capacity mode"]
             == "legacy-balance"

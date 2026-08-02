@@ -234,6 +234,25 @@ repair_resource_partition(const Hypergraph *hypergraph,
 }
 
 static void
+repair_communication_partition(const Hypergraph *hypergraph,
+                               const Arch *arch,
+                               PART *partition,
+                               INT part_count)
+{
+    INT moves = 0;
+    int status = communication_partition_repair(
+        hypergraph, arch, partition, part_count, &moves);
+
+    if (status != 0) {
+        fprintf(stderr,
+                "Unable to repair communication capacities (status %d)\n",
+                status);
+        exit(EXIT_FAILURE);
+    }
+    printf("communication repair moves;%d\n", moves);
+}
+
+static void
 print_usage(FILE *stream)
 {
     fprintf(stream,
@@ -831,6 +850,7 @@ int main(int argv, char ** argc){
 
        repair_resource_partition(h, a, partition, k);
        require_resource_feasible(h, a, partition, k);
+       repair_communication_partition(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write partition");
@@ -1110,6 +1130,7 @@ int main(int argv, char ** argc){
        
        repair_resource_partition(h, a, partition, k);
        require_resource_feasible(h, a, partition, k);
+       repair_communication_partition(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write refined partition");
@@ -1557,6 +1578,7 @@ int main(int argv, char ** argc){
        
        repair_resource_partition(h, a, partition, k);
        require_resource_feasible(h, a, partition, k);
+       repair_communication_partition(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
                    "Unable to write multilevel partition");

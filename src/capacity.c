@@ -383,3 +383,186 @@ resource_partition_repair(const Hypergraph *hypergraph,
     *move_count = moves;
   return 0;
 }
+
+static long long
+communication_total_overload(const CommunicationUsage *usage,
+                             const Arch *arch)
+{
+  long long total = 0;
+
+  for (INT u = 0; u < arch->i_n; u++) {
+    for (INT v = u + 1; v < arch->i_n; v++) {
+      INT excess;
+      if (!arch_has_link(arch, u, v))
+        continue;
+      excess = communication_usage_link_load(usage, u, v) -
+               arch->ti_capacity[u * arch->i_n + v];
+      if (excess > 0)
+        total += excess;
+    }
+  }
+  return total;
+}
+
+static bool
+communication_move_fits_resources(const Hypergraph *hypergraph,
+                                  const Arch *arch,
+                                  const INT *part_load,
+                                  const INT *part_limit,
+                                  INT vertex,
+                                  INT target)
+{
+  for (INT resource = 0; resource < hypergraph->i_weights; resource++) {
+    INT load = part_load[target * hypergraph->i_weights + resource];
+    INT weight = hypergraph->ti_weights[
+        vertex * hypergraph->i_weights + resource];
+    INT limit = arch->i_resources > 0
+                    ? arch_part_capacity(arch, target, resource)
+                    : part_limit[resource];
+    if (weight > limit - load)
+      return false;
+  }
+  return true;
+}
+
+int
+communication_partition_repair(const Hypergraph *hypergraph,
+                               const Arch *arch,
+                               PART *partition,
+                               INT part_count,
+                               INT *move_count)
+{
+  CommunicationUsage current;
+  INT *part_load;
+  INT *part_limit;
+  INT moves = 0;
+  size_t load_count;
+  int status;
+
+  if (move_count != NULL)
+    *move_count = 0;
+  if (hypergraph == NULL || arch == NULL || partition == NULL ||
+      part_count <= 0 || part_count > arch->i_n)
+    return 1;
+  if (arch->i_resources > 0 &&
+      !arch_has_part_capacities(arch, hypergraph->i_weights))
+    return 2;
+
+  status = communication_usage_compute(&current, hypergraph, arch,
+                                       partition, part_count);
+  if (status != 0)
+    return 3;
+  if (communication_usage_is_feasible(&current)) {
+    communication_usage_free(&current);
+    return 0;
+  }
+
+  load_count = (size_t)part_count * (size_t)hypergraph->i_weights;
+  part_load = (INT *)calloc(load_count, sizeof(INT));
+  MEM_ERROR(part_load);
+  part_limit = (INT *)calloc((size_t)hypergraph->i_weights, sizeof(INT));
+  MEM_ERROR(part_limit);
+
+  for (INT vertex = 0; vertex < hypergraph->i_vertices; vertex++) {
+    INT part = partition[vertex];
+    for (INT resource = 0; resource < hypergraph->i_weights; resource++)
+      part_load[part * hypergraph->i_weights + resource] +=
+          hypergraph->ti_weights[vertex * hypergraph->i_weights + resource];
+  }
+  if (arch->i_resources == 0) {
+    for (INT resource = 0; resource < hypergraph->i_weights; resource++) {
+      for (INT part = 0; part < part_count; part++)
+        part_limit[resource] = MAX(
+            part_limit[resource],
+            part_load[part * hypergraph->i_weights + resource]);
+    }
+  }
+
+  while (!communication_usage_is_feasible(&current)) {
+    long long current_overload = communication_total_overload(&current, arch);
+    long long best_overload = current_overload;
+    INT best_overloaded_links = current.i_overloaded_links;
+    INT best_max_overload = current.i_max_overload;
+    INT best_signal_hops = current.i_routed_signal_hops;
+    INT best_vertex = -1;
+    INT best_target = -1;
+
+    for (INT vertex = 0; vertex < hypergraph->i_vertices; vertex++) {
+      INT source = partition[vertex];
+      for (INT target = 0; target < part_count; target++) {
+        CommunicationUsage candidate;
+        long long candidate_overload;
+        bool better;
+
+        if (target == source ||
+            !communication_move_fits_resources(
+                hypergraph, arch, part_load, part_limit, vertex, target))
+          continue;
+
+        partition[vertex] = (PART)target;
+        status = communication_usage_compute(&candidate, hypergraph, arch,
+                                             partition, part_count);
+        partition[vertex] = (PART)source;
+        if (status != 0) {
+          communication_usage_free(&current);
+          free(part_load);
+          free(part_limit);
+          return 4;
+        }
+
+        candidate_overload = communication_total_overload(&candidate, arch);
+        better = candidate_overload < best_overload ||
+                 (candidate_overload == best_overload &&
+                  candidate.i_overloaded_links < best_overloaded_links) ||
+                 (candidate_overload == best_overload &&
+                  candidate.i_overloaded_links == best_overloaded_links &&
+                  candidate.i_max_overload < best_max_overload) ||
+                 (candidate_overload == best_overload &&
+                  candidate.i_overloaded_links == best_overloaded_links &&
+                  candidate.i_max_overload == best_max_overload &&
+                  candidate.i_routed_signal_hops < best_signal_hops);
+        if (better) {
+          best_overload = candidate_overload;
+          best_overloaded_links = candidate.i_overloaded_links;
+          best_max_overload = candidate.i_max_overload;
+          best_signal_hops = candidate.i_routed_signal_hops;
+          best_vertex = vertex;
+          best_target = target;
+        }
+        communication_usage_free(&candidate);
+      }
+    }
+
+    if (best_vertex < 0) {
+      communication_usage_free(&current);
+      free(part_load);
+      free(part_limit);
+      return 5;
+    }
+
+    INT source = partition[best_vertex];
+    for (INT resource = 0; resource < hypergraph->i_weights; resource++) {
+      INT weight = hypergraph->ti_weights[
+          best_vertex * hypergraph->i_weights + resource];
+      part_load[source * hypergraph->i_weights + resource] -= weight;
+      part_load[best_target * hypergraph->i_weights + resource] += weight;
+    }
+    partition[best_vertex] = (PART)best_target;
+    communication_usage_free(&current);
+    status = communication_usage_compute(&current, hypergraph, arch,
+                                         partition, part_count);
+    if (status != 0) {
+      free(part_load);
+      free(part_limit);
+      return 6;
+    }
+    moves++;
+  }
+
+  communication_usage_free(&current);
+  free(part_load);
+  free(part_limit);
+  if (move_count != NULL)
+    *move_count = moves;
+  return 0;
+}

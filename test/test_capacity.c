@@ -77,5 +77,20 @@ main(int argc, char **argv)
     assert(resource_usage_is_feasible(&resource_usage));
     resource_usage_free(&resource_usage);
     arch_free(arch);
+
+    PART communication_partition[] = {0, 2, 2, 0, 2};
+    INT communication_moves = 0;
+    arch = (Arch *)calloc(1, sizeof(Arch));
+    assert(arch != NULL);
+    assert(arch_load(arch, argv[1], false) == 0);
+    assert(communication_partition_repair(
+               &hypergraph, arch, communication_partition, 3,
+               &communication_moves) == 0);
+    assert(communication_moves == 2);
+    assert(communication_usage_compute(&usage, &hypergraph, arch,
+                                       communication_partition, 3) == 0);
+    assert(communication_usage_is_feasible(&usage));
+    communication_usage_free(&usage);
+    arch_free(arch);
     return EXIT_SUCCESS;
 }

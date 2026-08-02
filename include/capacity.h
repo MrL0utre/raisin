@@ -49,5 +49,10 @@ int  resource_partition_repair(const Hypergraph *hypergraph,
                                PART *partition,
                                INT part_count,
                                INT *move_count);
+int  communication_partition_repair(const Hypergraph *hypergraph,
+                                    const Arch *arch,
+                                    PART *partition,
+                                    INT part_count,
+                                    INT *move_count);
 
 #endif

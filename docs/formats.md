@@ -69,6 +69,11 @@ physical link. RaiSin routes every source-to-sink connection over a deterministi
 lowest-delay path. A multi-sink hyperedge consumes one unit on every link in the
 union of its routes, even when several sinks share a route prefix.
 
+Partition-producing modes attempt deterministic capacity repair before writing
+a solution. Communication repair strictly reduces routed overload while
+preserving explicit resource capacities, or the existing peak resource load in
+legacy balance mode. `eval` never changes its input and rejects violations.
+
 Capacities and delays must be non-negative. Part identifiers must be in
 `0..<parts>` and a connection cannot link a part to itself. The loader mirrors
 each connection, so the architecture matrix is symmetric. Missing connections
