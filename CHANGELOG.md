@@ -39,6 +39,7 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - Partition readers accepting truncated, malformed or out-of-range assignments.
 - Architecture readers dereferencing missing tokens or accepting invalid part IDs.
 - Hypergraph readers accepting inconsistent counts, indices and vertex records.
+- Readers rejecting a valid final record when the file had no trailing newline.
 - Shell tests aborting before they could count and report failures.
 
 ### Compatibility notes

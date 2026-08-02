@@ -162,6 +162,9 @@ and commit hash with experimental results.
 GitHub Actions builds and tests the project with GCC and Clang, then repeats the
 suite under ASan and UBSan.
 
+Planned scientific-model, API and scalability work is tracked in
+[`ROADMAP.md`](ROADMAP.md).
+
 ## Repository layout
 
 ```text
