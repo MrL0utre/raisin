@@ -823,17 +823,17 @@ int main(int argv, char ** argc){
            
            derived_breadth_first_search_multilevel(h2, neighbors_list, in_neighbors_list, partitionp, k, epsilon);
            
-            for(INT i = 0; i < h->i_vertices; i++) 
+            for(INT i = 0; i < h->i_vertices; i++)
               {
                 partition[i] = partitionp[map[i]];
-              }  
+              }
 
             compute_list_neighbors_unalloc(h, neighbors_list);
             compute_list_in_neighbors_unalloc(h, neighbors_list,
                                                in_neighbors_list);
             topological_sort(h, neighbors_list, in_neighbors_list, sort);
-            
-            INT pmax = compute_partition_criticality(h, a, neighbors_list, in_neighbors_list, sort, partition); 
+
+            INT pmax = compute_partition_criticality(h, a, neighbors_list, in_neighbors_list, sort, partition);
            
            INT cut = compute_partition_cut(h, a, neighbors_list, in_neighbors_list, sort, partition, lambda, k);
            
