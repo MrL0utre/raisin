@@ -398,8 +398,6 @@ multilevel_pmax(Hypergraph  * h,
     
     topological_sort(hypergraphs[levels - 1], out_neighbors, in_neighbors, sort);
     
-    INT pmax = compute_partition_criticality(h, a, out_neighbors, in_neighbors, sort, partition);
-    
     if(algo_cluster == 11 || algo_cluster == 10) 
       {
         dkfm_fast(hypergraphs[levels - 1], a, out_neighbors, in_neighbors, sort, partition, perform, tolerance, k);
@@ -435,6 +433,9 @@ multilevel_pmax(Hypergraph  * h,
             partition[u] = partitionp[u];
           } 
       }
+
+    INT pmax = compute_partition_criticality(h, a, out_neighbors,
+                                             in_neighbors, sort, partition);
 
     /* free section */
     for(INT level = 1; level < levels; level++) 
