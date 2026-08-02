@@ -70,4 +70,9 @@ write_partition(INT i_vertices,
                 PART * partition, 
                 const char * file_path);
 
+int
+write_int_partition(INT i_vertices,
+                    const INT *partition,
+                    const char *file_path);
+
 #endif

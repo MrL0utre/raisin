@@ -417,7 +417,7 @@ int main(int argv, char ** argc){
          {  
            for(INT wi = 0; wi < h->i_weights; wi++) 
              {
-               total_weight[wi] += h->ti_weights[wi];
+                total_weight[wi] += h->ti_weights[i * h->i_weights + wi];
              }
          }
        
@@ -540,15 +540,8 @@ int main(int argv, char ** argc){
        
        printf("%s cost;%d\n", algo, pmax);
        
-       /* Convert INT* map to PART* for write_partition */
-       {
-         PART *_part_tmp = (PART*)malloc(sizeof(PART) * h->i_vertices);
-         MEM_ERROR(_part_tmp);
-         for(INT _i=0; _i<h->i_vertices; _i++) _part_tmp[_i] = (PART)map[_i];
-         require_cli(write_partition(h->i_vertices, _part_tmp, part_path) == 0,
-                     "Unable to write clustering partition");
-         free(_part_tmp);
-       }
+       require_cli(write_int_partition(h->i_vertices, map, part_path) == 0,
+                   "Unable to write clustering partition");
        
        bool * is_cluster = (bool*)malloc(h->i_vertices * sizeof(bool));
        MEM_ERROR(is_cluster);

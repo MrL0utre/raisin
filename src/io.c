@@ -139,7 +139,7 @@ load_partition(INT          i_vertices,
  * @return Integer.
  */
 int 
-write_partition(INT          i_vertices, 
+write_partition(INT          i_vertices,
                 PART       * partition, 
                 const char * file_path)
 {
@@ -168,4 +168,30 @@ write_partition(INT          i_vertices,
   free(file_name);
   
   return (0);
+}
+
+int
+write_int_partition(INT i_vertices,
+                    const INT *partition,
+                    const char *file_path)
+{
+  static const char suffix[] = ".sol";
+  size_t file_name_size = strlen(file_path) + sizeof(suffix);
+  char *file_name = (char *)malloc(file_name_size);
+  FILE *out;
+
+  MEM_ERROR(file_name);
+  snprintf(file_name, file_name_size, "%s%s", file_path, suffix);
+  out = fopen(file_name, "w+");
+  if (out == NULL) {
+    fprintf(stderr, "Cannot open file %s\n", file_name);
+    free(file_name);
+    return 1;
+  }
+  for (INT vertex = 0; vertex < i_vertices; vertex++)
+    fprintf(out, "%d\n", partition[vertex]);
+
+  fclose(out);
+  free(file_name);
+  return 0;
 }

@@ -88,6 +88,14 @@ def main() -> int:
         assert clustering_first.returncode == 0, clustering_first.stderr
         clustering_solution = temp / "bsc.sol"
         clustering_bytes = clustering_solution.read_bytes()
+        clustering_assignments = [
+            int(line) for line in clustering_solution.read_text().splitlines()
+        ]
+        assert len(clustering_assignments) == 10124
+        assert min(clustering_assignments) == 0
+        assert max(clustering_assignments) + 1 == int(
+            metrics(clustering_first.stdout)["bsc clusters"]
+        )
         clustering_second = run(binary, root, *clustering_args)
         assert clustering_second.returncode == 0, clustering_second.stderr
         assert clustering_first.stdout == clustering_second.stdout

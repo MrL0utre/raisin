@@ -123,6 +123,11 @@ The default build stores part identifiers as `uint8_t`, so values are limited to
 RaiSin rejects truncated files, malformed values and identifiers outside the
 compiled `PART` range.
 
+The `cluster` mode writes integer cluster identifiers without truncation, because
+intermediate cluster counts may exceed the placed-partition limit. Such a file is
+loadable by `refine` or `eval` only when every identifier is within the compiled
+`PART` range and below the requested `part_number`.
+
 The `partfile` CLI option is an output prefix, not the final name: the writer
 appends `.sol`. In `refine` and `eval`, `part_file`/`partfile` name an existing
 solution and are read literally as supplied.
