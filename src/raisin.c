@@ -524,7 +524,10 @@ int main(int argv, char ** argc){
                    
                    free(maps[level - 1]);
                  }
-            }else{
+
+               free(maps);
+               free(hypergraphs);
+             }else{
                 heavy_edge_matching(h, h2, neighbors_list, in_neighbors_list, map, k, epsilon);
             rbh_build_precomputed(h2);
             }
