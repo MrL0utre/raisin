@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 cmake_minimum_required(VERSION 3.16)
 
 project(raisin VERSION 1.2 LANGUAGES C)

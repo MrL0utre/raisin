@@ -1,5 +1,9 @@
 # RaiSin
 
+This repository is a maintained fork of the original
+[CEA-LIST/raisin](https://github.com/CEA-LIST/raisin) project. It preserves the
+CEA/Inria copyright notices and records the CEA-LIST repository as `upstream`.
+
 RaiSin is a research partitioner for placing synchronous circuits on multi-FPGA
 architectures. It represents a circuit as a directed red-black hypergraph:
 
@@ -194,7 +198,6 @@ supported automated suites are `test_invariants.c` and `test_cli.py`.
 
 ## License
 
-The source headers currently contain both a GNU GPL version 3 notice and a
-permissive license grant. The copyright holders must confirm the intended
-licensing expression before v1.2 is released; see the release checklist in
-[`CHANGELOG.md`](CHANGELOG.md).
+RaiSin is licensed under the GNU General Public License version 3 only
+(`GPL-3.0-only`). See [`LICENSE`](LICENSE) for the complete terms. This fork
+retains the copyright and contributor attribution inherited from CEA-LIST.

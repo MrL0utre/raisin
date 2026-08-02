@@ -65,8 +65,8 @@ benchmarks with measured scaling and resumable experiments.
 
 ## Release governance
 
-Before tagging v1.2, the copyright holders must resolve the conflicting license
-notices described in `CHANGELOG.md`. Every later release should also publish:
+The fork must retain its CEA-LIST upstream attribution, original copyright
+notices and `GPL-3.0-only` licensing. Every later release should also publish:
 
 - a completed changelog and migration notes;
 - hosted CI and sanitizer results;

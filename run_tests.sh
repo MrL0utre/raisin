@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
 # Test suite for the RaiSin red-black hypergraph partitioner.
 # Usage: ./run_tests.sh [hypergraph] [architecture]
 
