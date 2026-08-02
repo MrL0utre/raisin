@@ -67,6 +67,15 @@ main(int argc, char **argv)
     assert(resource_usage.i_max_overload == 1);
     assert(!resource_usage_is_feasible(&resource_usage));
     resource_usage_free(&resource_usage);
+
+    INT repair_moves = 0;
+    assert(resource_partition_repair(&hypergraph, arch, partition, 3,
+                                     &repair_moves) == 0);
+    assert(repair_moves == 2);
+    assert(resource_usage_compute(&resource_usage, &hypergraph, arch,
+                                  partition, 3) == 0);
+    assert(resource_usage_is_feasible(&resource_usage));
+    resource_usage_free(&resource_usage);
     arch_free(arch);
     return EXIT_SUCCESS;
 }

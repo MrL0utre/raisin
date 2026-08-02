@@ -207,6 +207,33 @@ require_resource_feasible(const Hypergraph *hypergraph,
 }
 
 static void
+repair_resource_partition(const Hypergraph *hypergraph,
+                          const Arch *arch,
+                          PART *partition,
+                          INT part_count)
+{
+    INT moves = 0;
+    int status;
+
+    if (arch->i_resources == 0)
+        return;
+    if (arch->i_resources != hypergraph->i_weights) {
+        fprintf(stderr,
+                "Architecture has %d resource dimensions but circuit has %d\n",
+                arch->i_resources, hypergraph->i_weights);
+        exit(EXIT_FAILURE);
+    }
+    status = resource_partition_repair(hypergraph, arch, partition,
+                                       part_count, &moves);
+    if (status != 0) {
+        fprintf(stderr, "Unable to repair resource capacities (status %d)\n",
+                status);
+        exit(EXIT_FAILURE);
+    }
+    printf("resource repair moves;%d\n", moves);
+}
+
+static void
 print_usage(FILE *stream)
 {
     fprintf(stream,
@@ -802,6 +829,7 @@ int main(int argv, char ** argc){
            free(is_in);
          }
 
+       repair_resource_partition(h, a, partition, k);
        require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
@@ -1080,6 +1108,7 @@ int main(int argv, char ** argc){
            printf("\ndkfm cut;%d\n", cut);
          }
        
+       repair_resource_partition(h, a, partition, k);
        require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
@@ -1526,6 +1555,7 @@ int main(int argv, char ** argc){
        
        printf("balance;%.2f\n", (float)max_dif * 100.0 / (float)h->i_vertices);
        
+       repair_resource_partition(h, a, partition, k);
        require_resource_feasible(h, a, partition, k);
        require_communication_feasible(h, a, partition, k);
        require_cli(write_partition(h->i_vertices, partition, part_path) == 0,

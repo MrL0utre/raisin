@@ -118,6 +118,42 @@ def main() -> int:
             == "legacy-balance"
         )
 
+        high_resource_arch = temp / "high-resource.arch"
+        high_resource_arch.write_text(
+            "4 6 1\n"
+            "10000 1 0 1\n"
+            "10000 1 0 2\n"
+            "10000 1 0 3\n"
+            "10000 1 1 2\n"
+            "10000 1 1 3\n"
+            "10000 1 2 3\n"
+            "0 2000000000\n"
+            "1 2000000000\n"
+            "2 2000000000\n"
+            "3 2000000000\n",
+            encoding="ascii",
+        )
+        explicit_partition = run(
+            binary,
+            root,
+            str(graph),
+            "part",
+            "dbfs",
+            "part_number",
+            "4",
+            "archfile",
+            str(high_resource_arch),
+            "partfile",
+            str(temp / "explicit"),
+            "seed",
+            "11",
+        )
+        assert explicit_partition.returncode == 0, explicit_partition.stderr
+        explicit_metrics = metrics(explicit_partition.stdout)
+        assert explicit_metrics["resource capacity mode"] == "explicit"
+        assert explicit_metrics["resource repair moves"] == "0"
+        assert explicit_metrics["resource feasible"] == "yes"
+
         original = solution.read_bytes()
         replay = run(binary, root, *args)
         assert replay.returncode == 0, replay.stderr

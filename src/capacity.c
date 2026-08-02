@@ -234,3 +234,152 @@ resource_usage_part_load(const ResourceUsage *usage, INT part, INT resource)
     return -1;
   return usage->ti_part_load[part * usage->i_resources + resource];
 }
+
+static long long
+resource_part_overload(const Arch *arch,
+                       const INT *part_load,
+                       INT part,
+                       INT resource_count)
+{
+  long long overload = 0;
+
+  for (INT resource = 0; resource < resource_count; resource++) {
+    INT excess = part_load[part * resource_count + resource] -
+                 arch_part_capacity(arch, part, resource);
+    if (excess > 0)
+      overload += excess;
+  }
+  return overload;
+}
+
+int
+resource_partition_repair(const Hypergraph *hypergraph,
+                          const Arch *arch,
+                          PART *partition,
+                          INT part_count,
+                          INT *move_count)
+{
+  ResourceUsage usage;
+  INT moves = 0;
+  int status;
+
+  if (move_count != NULL)
+    *move_count = 0;
+  if (hypergraph == NULL || arch == NULL || partition == NULL ||
+      part_count <= 0 || part_count > arch->i_n)
+    return 1;
+  if (arch->i_resources == 0)
+    return 0;
+  if (!arch_has_part_capacities(arch, hypergraph->i_weights))
+    return 2;
+
+  status = resource_usage_compute(&usage, hypergraph, arch,
+                                  partition, part_count);
+  if (status != 0)
+    return 3;
+
+  for (INT resource = 0; resource < hypergraph->i_weights; resource++) {
+    long long total_weight = 0;
+    long long total_capacity = 0;
+    for (INT vertex = 0; vertex < hypergraph->i_vertices; vertex++)
+      total_weight += hypergraph->ti_weights[
+          vertex * hypergraph->i_weights + resource];
+    for (INT part = 0; part < part_count; part++)
+      total_capacity += arch_part_capacity(arch, part, resource);
+    if (total_weight > total_capacity) {
+      resource_usage_free(&usage);
+      return 4;
+    }
+  }
+
+  while (!resource_usage_is_feasible(&usage)) {
+    INT best_vertex = -1;
+    INT best_target = -1;
+    long long best_reduction = 0;
+
+    for (INT vertex = 0; vertex < hypergraph->i_vertices; vertex++) {
+      INT source = partition[vertex];
+      long long before = resource_part_overload(
+          arch, usage.ti_part_load, source, usage.i_resources);
+      if (before == 0)
+        continue;
+
+      for (INT target = 0; target < part_count; target++) {
+        bool fits = true;
+        long long after;
+        long long reduction;
+
+        if (target == source)
+          continue;
+        for (INT resource = 0; resource < usage.i_resources; resource++) {
+          INT weight = hypergraph->ti_weights[
+              vertex * usage.i_resources + resource];
+          INT load = usage.ti_part_load[target * usage.i_resources + resource];
+          INT capacity = arch_part_capacity(arch, target, resource);
+          if (weight > capacity - load) {
+            fits = false;
+            break;
+          }
+        }
+        if (!fits)
+          continue;
+
+        after = 0;
+        for (INT resource = 0; resource < usage.i_resources; resource++) {
+          INT weight = hypergraph->ti_weights[
+              vertex * usage.i_resources + resource];
+          INT excess = usage.ti_part_load[
+                           source * usage.i_resources + resource] -
+                       weight - arch_part_capacity(arch, source, resource);
+          if (excess > 0)
+            after += excess;
+        }
+        reduction = before - after;
+        if (reduction > best_reduction) {
+          best_reduction = reduction;
+          best_vertex = vertex;
+          best_target = target;
+        }
+      }
+    }
+
+    if (best_vertex < 0) {
+      resource_usage_free(&usage);
+      return 5;
+    }
+
+    INT source = partition[best_vertex];
+    for (INT resource = 0; resource < usage.i_resources; resource++) {
+      INT weight = hypergraph->ti_weights[
+          best_vertex * usage.i_resources + resource];
+      usage.ti_part_load[source * usage.i_resources + resource] -= weight;
+      usage.ti_part_load[best_target * usage.i_resources + resource] += weight;
+    }
+    partition[best_vertex] = (PART)best_target;
+    moves++;
+
+    usage.i_overloaded_dimensions = 0;
+    usage.i_overloaded_parts = 0;
+    usage.i_max_overload = 0;
+    for (INT part = 0; part < part_count; part++) {
+      bool overloaded = false;
+      for (INT resource = 0; resource < usage.i_resources; resource++) {
+        INT excess = usage.ti_part_load[
+                         part * usage.i_resources + resource] -
+                     arch_part_capacity(arch, part, resource);
+        if (excess > 0) {
+          usage.i_overloaded_dimensions++;
+          usage.i_max_overload = MAX(usage.i_max_overload, excess);
+          overloaded = true;
+        }
+      }
+      if (overloaded)
+        usage.i_overloaded_parts++;
+    }
+  }
+
+  resource_usage_free(&usage);
+  if (move_count != NULL)
+    *move_count = moves;
+  return 0;
+}

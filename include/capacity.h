@@ -44,5 +44,10 @@ bool resource_usage_is_feasible(const ResourceUsage *usage);
 INT  resource_usage_part_load(const ResourceUsage *usage,
                               INT part,
                               INT resource);
+int  resource_partition_repair(const Hypergraph *hypergraph,
+                               const Arch *arch,
+                               PART *partition,
+                               INT part_count,
+                               INT *move_count);
 
 #endif
