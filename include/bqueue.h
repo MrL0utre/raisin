@@ -151,6 +151,11 @@ bq_free(BQueue *bq)
 static inline void
 bq_insert(BQueue *bq, INT v, INT g)
 {
+    INT min_gain = -bq->offset;
+    INT max_gain = bq->range - 1 - bq->offset;
+    if (g < min_gain) g = min_gain;
+    if (g > max_gain) g = max_gain;
+
     INT b = g + bq->offset;
     bq->gval[v]  = g;
     bq->prv[v]   = BQ_NONE;
