@@ -91,7 +91,7 @@ Run `raisin help` for the complete syntax. Common options are:
 - `archfile <path>`: target architecture; defaults to `targets/arch0.arch`;
 - `partfile <prefix>`: output prefix; RaiSin appends `.sol`;
 - `bfactor <n>`: balance factor, default `5`;
-- `seed <n>`: pseudo-random seed, default `1`.
+- `seed <n>`: cross-platform deterministic pseudo-random seed, default `1`.
 
 RaiSin uses an 8-bit partition identifier by default, so `part_number` must be
 between 1 and 255. Builds that define `RAISIN_PART_INT` use integer identifiers

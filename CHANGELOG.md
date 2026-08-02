@@ -26,6 +26,8 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
   them to the configured placed-partition identifier type.
 - Historical interactive test programs were replaced by maintained automated
   assertions through the supported CLI.
+- Seeded algorithm choices now use RaiSin's platform-independent generator, so
+  a given seed produces the same pseudo-random sequence on supported systems.
 
 ### Fixed
 
@@ -34,6 +36,7 @@ serialized formats. Dates use the ISO `YYYY-MM-DD` form.
 - Truncation of clustering identifiers above 255.
 - Incorrect multi-resource total-weight indexing in clustering setup.
 - CCP reporting metrics against contracted adjacency instead of the original graph.
+- Release builds disabling C test assertions and skipping their side effects.
 
 ### Compatibility notes
 
