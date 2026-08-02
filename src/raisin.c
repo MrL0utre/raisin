@@ -104,12 +104,23 @@ require_cli(bool condition, const char *message)
  */
 int main(int argv, char ** argc){
 
+    INT seed = 1;
+
     if(argv < 3 || strcmp(argc[1], "help") == 0)
       {  
         printf("USAGE : graph_file[replace by file path] \n        mode[replace by \"cluster\", \"part\", \"refine\", \"multilevel\", \"write\"] ...\n\t cluster hem \n\t\tsize integer\n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t cluster bsc \n\t\tsize integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part dbfs \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part ddfs \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t part ccp \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t refine kfm \n\t\tpart_file string \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t refine dkfm \n\t\tpart_file string \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t multilevel cluster [hem or bsc] \n\t\tpart [dbfs or ddfs or ccp] \n\t\trefine [kfm or dkfm or all] \n\t\tpart_number integer \n\t\t[bfactor integer] \n\t\t[perform integer] \n\t\t[tolerance integer] \n\t\t[partfile string] \n\t\t[archfile string]\n\t eval partfile string \n\t\t[archfile string]\n\t write sort\n\t stats\n");
      
         return argv < 3 ? EXIT_FAILURE : EXIT_SUCCESS;
       }
+
+    for (int i = 3; i < argv; i++) {
+        if (strcmp(argc[i], "seed") == 0) {
+            require_cli(i + 1 < argv, "Missing value after 'seed'");
+            seed = parse_int_arg(argc[i + 1], "seed", 0, INT_MAX);
+        }
+    }
+    srand((unsigned int)seed);
+    printf("seed;%d\n", seed);
 
    if(strcmp(argc[2], "cluster") == 0) 
      {  
