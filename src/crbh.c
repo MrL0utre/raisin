@@ -217,6 +217,7 @@ compute_clustering_criticality(Hypergraph  * h,
 
   free(delays);
   free(flag);
+  free(is_red);
 
   return max_delays;
 
