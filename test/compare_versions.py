@@ -6,21 +6,26 @@ import tempfile
 from pathlib import Path
 
 
-def execute(binary: Path, root: Path, arguments: list[str]) -> dict[str, object]:
-    process = subprocess.run(
-        [str(binary), *arguments],
-        cwd=root,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        timeout=180,
-        check=False,
-    )
-    if process.returncode != 0:
-        raise RuntimeError(
-            f"{binary.name} failed ({process.returncode}): {process.stderr.strip()}"
+def execute(
+    binary: Path, root: Path, arguments: list[str], timeout: int
+) -> dict[str, object]:
+    try:
+        process = subprocess.run(
+            [str(binary), *arguments],
+            cwd=root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,
         )
-
+    except subprocess.TimeoutExpired as error:
+        return {
+            "returncode": 124,
+            "metrics": {},
+            "stdout": error.stdout or "",
+            "stderr": f"timed out after {timeout} seconds",
+        }
     values: dict[str, int | float | str] = {}
     for line in process.stdout.splitlines():
         if ";" not in line:
@@ -35,7 +40,12 @@ def execute(binary: Path, root: Path, arguments: list[str]) -> dict[str, object]
             except ValueError:
                 value = raw_value
         values[key.strip()] = value
-    return {"metrics": values, "stdout": process.stdout}
+    return {
+        "returncode": process.returncode,
+        "metrics": values,
+        "stdout": process.stdout,
+        "stderr": process.stderr,
+    }
 
 
 def objective(metrics: dict[str, object], suffix: str) -> object | None:
@@ -65,6 +75,7 @@ def main() -> int:
         action="store_true",
         help="fail when candidate pmax/cut/cost is worse than the baseline",
     )
+    parser.add_argument("--timeout", type=int, default=180, help="timeout per scenario")
     arguments = parser.parse_args()
 
     baseline = arguments.baseline.resolve()
@@ -97,9 +108,15 @@ def main() -> int:
             results: dict[str, dict[str, object]] = {}
             for version, binary in (("baseline", baseline), ("candidate", candidate)):
                 command = [item.format(version=version) for item in template]
-                results[version] = execute(binary, root, command)
+                results[version] = execute(binary, root, command, arguments.timeout)
 
-                if name in {"part_dbfs", "multilevel"}:
+                if version == "candidate" and results[version]["returncode"] != 0:
+                    raise RuntimeError(
+                        f"candidate failed in {name} ({results[version]['returncode']}): "
+                        f"{str(results[version]['stderr']).strip()}"
+                    )
+
+                if results[version]["returncode"] == 0 and name in {"part_dbfs", "multilevel"}:
                     output_base = next(
                         command[index + 1]
                         for index, item in enumerate(command)
@@ -113,14 +130,20 @@ def main() -> int:
             assert isinstance(candidate_metrics, dict)
 
             if name == "stats":
-                for key in ("#vertices", "#hyperedges", "#reds", "pmax"):
-                    if baseline_metrics.get(key) != candidate_metrics.get(key):
-                        raise AssertionError(
-                            f"stats mismatch for {key}: "
-                            f"{baseline_metrics.get(key)} != {candidate_metrics.get(key)}"
-                        )
+                if results["baseline"]["returncode"] == 0:
+                    for key in ("#vertices", "#hyperedges", "#reds", "pmax"):
+                        if baseline_metrics.get(key) != candidate_metrics.get(key):
+                            raise AssertionError(
+                                f"stats mismatch for {key}: "
+                                f"{baseline_metrics.get(key)} != {candidate_metrics.get(key)}"
+                            )
 
-            deltas: dict[str, object] = {}
+            deltas: dict[str, object] = {
+                "baseline_returncode": results["baseline"]["returncode"],
+                "candidate_returncode": results["candidate"]["returncode"],
+            }
+            if results["baseline"]["returncode"] != 0:
+                deltas["baseline_error"] = str(results["baseline"]["stderr"]).strip()
             for metric_name in ("pmax", "cut", "cost", "clusters"):
                 old = objective(baseline_metrics, metric_name)
                 new = objective(candidate_metrics, metric_name)
