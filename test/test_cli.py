@@ -344,6 +344,42 @@ def main() -> int:
         assert mismatched_resources.returncode != 0
         assert "resource dimensions" in mismatched_resources.stderr
 
+        chain = root / "test" / "fixtures" / "chain.rzn2"
+        path_arch = root / "test" / "fixtures" / "arch_path.arch"
+        ccp_chain = run(
+            binary,
+            root,
+            str(chain),
+            "part",
+            "ccp",
+            "part_number",
+            "3",
+            "archfile",
+            str(path_arch),
+            "partfile",
+            str(temp / "chain-ccp"),
+            "seed",
+            "11",
+        )
+        assert ccp_chain.returncode == 0, ccp_chain.stderr
+        ccp_metrics = metrics(ccp_chain.stdout)
+        evaluated_chain = run(
+            binary,
+            root,
+            str(chain),
+            "eval",
+            "part_number",
+            "3",
+            "partfile",
+            str(temp / "chain-ccp.sol"),
+            "archfile",
+            str(path_arch),
+        )
+        assert evaluated_chain.returncode == 0, evaluated_chain.stderr
+        eval_metrics = metrics(evaluated_chain.stdout)
+        assert ccp_metrics["ccp pmax"] == eval_metrics["eval pmax"] == "39"
+        assert ccp_metrics["ccp cut"] == eval_metrics["eval cut"] == "1"
+
         invalid_graph = temp / "invalid.rzn2"
         invalid_graph.write_text(
             "2 2 1 1 1\n"
