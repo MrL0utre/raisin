@@ -108,7 +108,7 @@ dkfm(Hypergraph * h,
     PART * partitionp = (PART*)calloc(nv, sizeof(PART)); MEM_ERROR(partitionp);
     /* min_crit: all-same partition (trivial lower bound) */
     INT min_crit_path = compute_partition_criticality_with_buf(h, a, out_neighbors, in_neighbors, sort, partitionp, _delays, _is_red, _flag);
-    for (INT u = 0; u < nv; u++) partitionp[u] = u;
+    for (INT u = 0; u < nv; u++) partitionp[u] = (PART)(u % k);
     INT max_crit_path = compute_partition_criticality_with_buf(h, a, out_neighbors, in_neighbors, sort, partitionp, _delays, _is_red, _flag);
     INT cur_crit_path = compute_partition_criticality_with_buf(h, a, out_neighbors, in_neighbors, sort, partition,  _delays, _is_red, _flag);
 
@@ -333,7 +333,7 @@ dkfm_fast(Hypergraph * h,
 
     PART * partitionp = (PART*)calloc(nv, sizeof(PART)); MEM_ERROR(partitionp);
     INT min_crit_path = compute_partition_criticality_with_buf(h, a, out_neighbors, in_neighbors, sort, partitionp, _delays, _is_red, _flag);
-    for (INT u = 0; u < nv; u++) partitionp[u] = u;
+    for (INT u = 0; u < nv; u++) partitionp[u] = (PART)(u % k);
     INT max_crit_path = compute_partition_criticality_with_buf(h, a, out_neighbors, in_neighbors, sort, partitionp, _delays, _is_red, _flag);
     INT cur_crit_path = compute_partition_criticality_with_buf(h, a, out_neighbors, in_neighbors, sort, partition,  _delays, _is_red, _flag);
 
@@ -930,7 +930,6 @@ kfm(Hypergraph * h,
 
   return 0;
 }
-
 
 
 
