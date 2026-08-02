@@ -66,6 +66,23 @@ if(BUILD_TESTING)
     COMMAND test_invariants "${CMAKE_CURRENT_SOURCE_DIR}/hypergraphs/b14.rzn2"
   )
 
+  add_executable(test_arch "${CMAKE_CURRENT_SOURCE_DIR}/test/test_arch.c")
+  target_link_libraries(test_arch PRIVATE raisin_core)
+  if(RAISIN_ENABLE_SANITIZERS AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(test_arch PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(test_arch PRIVATE -fsanitize=address,undefined)
+  endif()
+  set_target_properties(test_arch PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+  )
+  add_test(
+    NAME architecture_topology
+    COMMAND test_arch
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_path.arch"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_disconnected.arch"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_duplicate.arch"
+  )
+
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
     add_test(

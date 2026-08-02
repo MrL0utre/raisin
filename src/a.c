@@ -23,14 +23,94 @@
 
 
 #include "a.h"
+#include <limits.h>
+
+static void
+arch_release_arrays(Arch *this)
+{
+  free(this->ti_capacity);
+  free(this->ti_link_delay);
+  free(this->ti_delay);
+  free(this->ti_next_hop);
+  this->ti_capacity = NULL;
+  this->ti_link_delay = NULL;
+  this->ti_delay = NULL;
+  this->ti_next_hop = NULL;
+  this->i_m = 0;
+  this->i_n = 0;
+}
+
+static int
+arch_compute_routes(Arch *this, const char *path)
+{
+  INT n = this->i_n;
+
+  for (INT i = 0; i < n; i++) {
+    for (INT j = 0; j < n; j++) {
+      size_t index = (size_t)i * (size_t)n + (size_t)j;
+      if (i == j) {
+        this->ti_delay[index] = 0;
+        this->ti_next_hop[index] = i;
+      } else if (this->ti_link_delay[index] >= 0) {
+        this->ti_delay[index] = this->ti_link_delay[index];
+        this->ti_next_hop[index] = j;
+      } else {
+        this->ti_delay[index] = INT_MAX;
+        this->ti_next_hop[index] = -1;
+      }
+    }
+  }
+
+  for (INT via = 0; via < n; via++) {
+    for (INT from = 0; from < n; from++) {
+      INT from_via = this->ti_delay[from * n + via];
+      if (from_via == INT_MAX)
+        continue;
+      for (INT to = 0; to < n; to++) {
+        INT via_to = this->ti_delay[via * n + to];
+        if (via_to == INT_MAX || from_via > INT_MAX - via_to)
+          continue;
+        INT candidate = from_via + via_to;
+        if (candidate < this->ti_delay[from * n + to]) {
+          this->ti_delay[from * n + to] = candidate;
+          this->ti_next_hop[from * n + to] =
+              this->ti_next_hop[from * n + via];
+        }
+      }
+    }
+  }
+
+  for (INT from = 0; from < n; from++) {
+    for (INT to = 0; to < n; to++) {
+      if (this->ti_delay[from * n + to] == INT_MAX) {
+        fprintf(stderr,
+                "Architecture %s is disconnected: no route from %d to %d\n",
+                path, from, to);
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
 
 int arch_init(Arch * this, INT m, INT n) {
 
   this->ti_capacity      = (INT *)calloc((size_t)m * (size_t)n, sizeof(INT));
   MEM_ERROR(this->ti_capacity);
 
+  this->ti_link_delay    = (INT *)malloc((size_t)m * (size_t)n * sizeof(INT));
+  MEM_ERROR(this->ti_link_delay);
+
   this->ti_delay         = (INT *)calloc((size_t)m * (size_t)n, sizeof(INT));
   MEM_ERROR(this->ti_delay);
+
+  this->ti_next_hop      = (INT *)malloc((size_t)m * (size_t)n * sizeof(INT));
+  MEM_ERROR(this->ti_next_hop);
+
+  for (INT i = 0; i < m * n; i++) {
+    this->ti_link_delay[i] = -1;
+    this->ti_next_hop[i] = -1;
+  }
 
  
   this->i_m = m;
@@ -41,8 +121,7 @@ int arch_init(Arch * this, INT m, INT n) {
 
 int arch_free(Arch * this) {
 
-  free(this->ti_capacity);
-  free(this->ti_delay);
+  arch_release_arrays(this);
   if (this->s_arch_name != NULL) {
     free(this->s_arch_name);
   }
@@ -57,7 +136,9 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
 
   this->s_arch_name = NULL;
   this->ti_capacity = NULL;
+  this->ti_link_delay = NULL;
   this->ti_delay = NULL;
+  this->ti_next_hop = NULL;
   this->i_m = 0;
   this->i_n = 0;
 
@@ -103,10 +184,7 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
 
     if (read_line(in, buffer, BUFSIZE) <= 0) {
       fprintf(stderr, "Architecture file %s ends before connection %d\n", s_path, j);
-      free(this->ti_capacity);
-      free(this->ti_delay);
-      this->ti_capacity = NULL;
-      this->ti_delay = NULL;
+      arch_release_arrays(this);
       free(buffer);
       fclose(in);
       return 4;
@@ -118,25 +196,56 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
     if (n != 4 || capacity < 0 || delay < 0 ||
         u < 0 || u >= i_n || v < 0 || v >= i_n || u == v) {
       fprintf(stderr, "Invalid architecture connection %d in %s\n", j, s_path);
-      free(this->ti_capacity);
-      free(this->ti_delay);
-      this->ti_capacity = NULL;
-      this->ti_delay = NULL;
+      arch_release_arrays(this);
       free(buffer);
       fclose(in);
       return 5;
     }
 
+    if (this->ti_link_delay[u * i_n + v] >= 0) {
+      fprintf(stderr, "Duplicate architecture connection %d-%d in %s\n",
+              u, v, s_path);
+      arch_release_arrays(this);
+      free(buffer);
+      fclose(in);
+      return 6;
+    }
+
     this->ti_capacity[u*i_n+v] = capacity;
-    this->   ti_delay[u*i_n+v] = delay;
+    this->ti_link_delay[u*i_n+v] = delay;
 
     this->ti_capacity[v*i_n+u] = capacity;
-    this->   ti_delay[v*i_n+u] = delay;
+    this->ti_link_delay[v*i_n+u] = delay;
 
   }
   
+  if (arch_compute_routes(this, s_path) != 0) {
+    arch_release_arrays(this);
+    free(buffer);
+    fclose(in);
+    return 7;
+  }
+
   free(buffer);
   fclose(in);
 
   return (0);
+}
+
+bool
+arch_has_link(const Arch *this, INT u, INT v)
+{
+  if (this == NULL || this->ti_link_delay == NULL ||
+      u < 0 || v < 0 || u >= this->i_m || v >= this->i_n || u == v)
+    return false;
+  return this->ti_link_delay[u * this->i_n + v] >= 0;
+}
+
+INT
+arch_next_hop(const Arch *this, INT u, INT v)
+{
+  if (this == NULL || this->ti_next_hop == NULL ||
+      u < 0 || v < 0 || u >= this->i_m || v >= this->i_n)
+    return -1;
+  return this->ti_next_hop[u * this->i_n + v];
 }

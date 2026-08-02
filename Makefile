@@ -11,6 +11,7 @@ BUILD_DIR := build
 BIN_DIR := exe
 TARGET := $(BIN_DIR)/raisin
 TEST_TARGET := $(BUILD_DIR)/test_invariants
+ARCH_TEST_TARGET := $(BUILD_DIR)/test_arch
 PYTHON ?= python3
 
 SOURCES := $(wildcard $(SRC_DIR)/*.c)
@@ -36,8 +37,15 @@ $(BUILD_DIR)/test_invariants.o: test/test_invariants.c | $(BUILD_DIR)
 $(TEST_TARGET): $(BUILD_DIR)/test_invariants.o $(CORE_OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-check: raisin $(TEST_TARGET)
+$(BUILD_DIR)/test_arch.o: test/test_arch.c | $(BUILD_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
+
+$(ARCH_TEST_TARGET): $(BUILD_DIR)/test_arch.o $(CORE_OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+check: raisin $(TEST_TARGET) $(ARCH_TEST_TARGET)
 	$(TEST_TARGET) hypergraphs/b14.rzn2
+	$(ARCH_TEST_TARGET) test/fixtures/arch_path.arch test/fixtures/arch_disconnected.arch test/fixtures/arch_duplicate.arch
 	$(PYTHON) test/test_cli.py $(TARGET) .
 
 $(BUILD_DIR) $(BIN_DIR):

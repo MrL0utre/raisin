@@ -66,7 +66,10 @@ Each following connection line contains:
 
 Capacities and delays must be non-negative. Part identifiers must be in
 `0..<parts>` and a connection cannot link a part to itself. The loader mirrors
-each connection, so the architecture matrix is symmetric.
+each connection, so the architecture matrix is symmetric. Missing connections
+are routed over the lowest-delay path and remain distinct from explicitly
+declared zero-delay connections. Architectures must be connected; duplicate
+connections and disconnected topologies are rejected.
 
 Example:
 
