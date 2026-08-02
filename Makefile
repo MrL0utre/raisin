@@ -8,12 +8,15 @@ SRC_DIR := src
 BUILD_DIR := build
 BIN_DIR := exe
 TARGET := $(BIN_DIR)/raisin
+TEST_TARGET := $(BUILD_DIR)/test_invariants
+PYTHON ?= python3
 
 SOURCES := $(wildcard $(SRC_DIR)/*.c)
 OBJECTS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SOURCES))
+CORE_OBJECTS := $(filter-out $(BUILD_DIR)/raisin.o,$(OBJECTS))
 DEPS := $(OBJECTS:.o=.d)
 
-.PHONY: all raisin debug sanitize clean
+.PHONY: all raisin check debug sanitize clean
 
 all: raisin
 
@@ -24,6 +27,16 @@ $(TARGET): $(OBJECTS) | $(BIN_DIR)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
+
+$(BUILD_DIR)/test_invariants.o: test/test_invariants.c | $(BUILD_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
+
+$(TEST_TARGET): $(BUILD_DIR)/test_invariants.o $(CORE_OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+check: raisin $(TEST_TARGET)
+	$(TEST_TARGET) hypergraphs/b14.rzn2
+	$(PYTHON) test/test_cli.py $(TARGET) .
 
 $(BUILD_DIR) $(BIN_DIR):
 	mkdir -p $@
