@@ -104,6 +104,22 @@ def main() -> int:
         assert invalid_partition.returncode != 0
         assert "ends before vertex" in invalid_partition.stderr
 
+        invalid_arch = temp / "invalid.arch"
+        invalid_arch.write_text("4 1\n100 30 0\n", encoding="ascii")
+        malformed_architecture = run(
+            binary,
+            root,
+            str(graph),
+            "part",
+            "dbfs",
+            "part_number",
+            "4",
+            "archfile",
+            str(invalid_arch),
+        )
+        assert malformed_architecture.returncode != 0
+        assert "Invalid architecture connection" in malformed_architecture.stderr
+
     print("CLI regression checks passed")
     return 0
 

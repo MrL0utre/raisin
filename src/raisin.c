@@ -207,7 +207,8 @@ int main(int argv, char ** argc){
        rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
-       arch_load(a, arch_path, false);
+       require_cli(arch_load(a, arch_path, false) == 0,
+                   "Unable to load target architecture");
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -497,7 +498,8 @@ int main(int argv, char ** argc){
        rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
-       arch_load(a, arch_path, false);
+       require_cli(arch_load(a, arch_path, false) == 0,
+                   "Unable to load target architecture");
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -846,7 +848,8 @@ int main(int argv, char ** argc){
        rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
-       arch_load(a, arch_path, false);
+       require_cli(arch_load(a, arch_path, false) == 0,
+                   "Unable to load target architecture");
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -1147,7 +1150,8 @@ int main(int argv, char ** argc){
        rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
-       arch_load(a, arch_path, false);
+       require_cli(arch_load(a, arch_path, false) == 0,
+                   "Unable to load target architecture");
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);
@@ -1476,7 +1480,8 @@ int main(int argv, char ** argc){
        rbh_load(h, graph_path, 0, false);
        rbh_validate(h);
 
-       arch_load(a, arch_path, false);
+       require_cli(arch_load(a, arch_path, false) == 0,
+                   "Unable to load target architecture");
 
        h->s_rbh_name = (char*)malloc(sizeof(char) * (strlen(graph_path) + 1));
        MEM_ERROR(h->s_rbh_name);

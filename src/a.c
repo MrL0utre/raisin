@@ -26,10 +26,10 @@
 
 int arch_init(Arch * this, INT m, INT n) {
 
-  this->ti_capacity      = (INT *)calloc(m*n, sizeof(INT));
+  this->ti_capacity      = (INT *)calloc((size_t)m * (size_t)n, sizeof(INT));
   MEM_ERROR(this->ti_capacity);
 
-  this->ti_delay         = (INT *)calloc(m*n, sizeof(INT));
+  this->ti_delay         = (INT *)calloc((size_t)m * (size_t)n, sizeof(INT));
   MEM_ERROR(this->ti_delay);
 
  
@@ -55,28 +55,43 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
   char * buffer = (char*)malloc(BUFSIZE);
   MEM_ERROR(buffer);
 
+  this->s_arch_name = NULL;
+  this->ti_capacity = NULL;
+  this->ti_delay = NULL;
+  this->i_m = 0;
+  this->i_n = 0;
+
   FILE * in = NULL;
   in = fopen(s_path, "r");
   if (in == NULL) {
     fprintf(stderr, "Cannot open file %s\n", s_path);
-    exit(EXIT_FAILURE);
+    free(buffer);
+    return 1;
   }
 
   INT i_n, i_m, i_ncon;
+  char extra;
 
-  read_line(in, buffer, BUFSIZE);
+  if (read_line(in, buffer, BUFSIZE) <= 0) {
+    fprintf(stderr, "Architecture file %s has no header\n", s_path);
+    free(buffer);
+    fclose(in);
+    return 2;
+  }
   
-  int n = sscanf(buffer,"%d %d",&i_m,&i_ncon);
+  int n = sscanf(buffer, "%d %d %c", &i_m, &i_ncon, &extra);
   
   i_n = i_m;
-  if (n<0) {
-    printf("error\n");
-  }
   if (verbose) {
     printf("%d %d\n", i_m, i_n); 
   }
 
-  FATAL(n!=2,"Invalid arch file format");
+  if (n != 2 || i_m <= 0 || i_ncon < 0) {
+    fprintf(stderr, "Invalid architecture header in %s\n", s_path);
+    free(buffer);
+    fclose(in);
+    return 3;
+  }
 
   arch_init(this, i_m, i_n);
 
@@ -84,25 +99,33 @@ int arch_load(Arch * this, const char * s_path, bool verbose)
   INT       delay      = 0;
   INT       u;
   INT       v;
-  char *    raw;
-  char      token[2]   = " ";
-
   for (INT j = 0; j < i_ncon; j++) {
 
-    read_line(in, buffer, BUFSIZE);
+    if (read_line(in, buffer, BUFSIZE) <= 0) {
+      fprintf(stderr, "Architecture file %s ends before connection %d\n", s_path, j);
+      free(this->ti_capacity);
+      free(this->ti_delay);
+      this->ti_capacity = NULL;
+      this->ti_delay = NULL;
+      free(buffer);
+      fclose(in);
+      return 4;
+    }
     if (verbose) {
       printf("j(%d)\n%s\n", j, buffer);
     }
-    raw = strtok(buffer, token);
-
-    capacity = atoi(raw);
-    raw      = strtok(NULL, token);
-    delay    = atoi(raw);
-    raw      = strtok(NULL, token);
-    u        = atoi(raw);
-    raw      = strtok(NULL, token);
-    v        = atoi(raw);
-    raw      = strtok(NULL, token);
+    n = sscanf(buffer, "%d %d %d %d %c", &capacity, &delay, &u, &v, &extra);
+    if (n != 4 || capacity < 0 || delay < 0 ||
+        u < 0 || u >= i_n || v < 0 || v >= i_n || u == v) {
+      fprintf(stderr, "Invalid architecture connection %d in %s\n", j, s_path);
+      free(this->ti_capacity);
+      free(this->ti_delay);
+      this->ti_capacity = NULL;
+      this->ti_delay = NULL;
+      free(buffer);
+      fclose(in);
+      return 5;
+    }
 
     this->ti_capacity[u*i_n+v] = capacity;
     this->   ti_delay[u*i_n+v] = delay;
