@@ -734,6 +734,9 @@ compute_list_neighbors(Hypergraph * this,
         }
         for(INT t = 0; t < n_touched; t++) seen[touched[t]] = -1;
     }
+
+    free(touched);
+    free(seen);
     return(0);
 }
 
