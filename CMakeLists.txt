@@ -51,6 +51,10 @@ include(CTest)
 if(BUILD_TESTING)
   add_executable(test_invariants "${CMAKE_CURRENT_SOURCE_DIR}/test/test_invariants.c")
   target_link_libraries(test_invariants PRIVATE raisin_core)
+  if(RAISIN_ENABLE_SANITIZERS AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(test_invariants PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(test_invariants PRIVATE -fsanitize=address,undefined)
+  endif()
   set_target_properties(test_invariants PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
   )
