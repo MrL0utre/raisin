@@ -101,6 +101,22 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_resources.arch"
   )
 
+  add_executable(test_scientific "${CMAKE_CURRENT_SOURCE_DIR}/test/test_scientific.c")
+  target_link_libraries(test_scientific PRIVATE raisin_core)
+  if(RAISIN_ENABLE_SANITIZERS AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(test_scientific PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(test_scientific PRIVATE -fsanitize=address,undefined)
+  endif()
+  set_target_properties(test_scientific PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+  )
+  add_test(
+    NAME scientific_reference
+    COMMAND test_scientific
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/chain.rzn2"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures/arch_path.arch"
+  )
+
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
     add_test(

@@ -13,6 +13,7 @@ TARGET := $(BIN_DIR)/raisin
 TEST_TARGET := $(BUILD_DIR)/test_invariants
 ARCH_TEST_TARGET := $(BUILD_DIR)/test_arch
 CAPACITY_TEST_TARGET := $(BUILD_DIR)/test_capacity
+SCIENTIFIC_TEST_TARGET := $(BUILD_DIR)/test_scientific
 PYTHON ?= python3
 
 SOURCES := $(wildcard $(SRC_DIR)/*.c)
@@ -50,10 +51,17 @@ $(BUILD_DIR)/test_capacity.o: test/test_capacity.c | $(BUILD_DIR)
 $(CAPACITY_TEST_TARGET): $(BUILD_DIR)/test_capacity.o $(CORE_OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-check: raisin $(TEST_TARGET) $(ARCH_TEST_TARGET) $(CAPACITY_TEST_TARGET)
+$(BUILD_DIR)/test_scientific.o: test/test_scientific.c | $(BUILD_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
+
+$(SCIENTIFIC_TEST_TARGET): $(BUILD_DIR)/test_scientific.o $(CORE_OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+check: raisin $(TEST_TARGET) $(ARCH_TEST_TARGET) $(CAPACITY_TEST_TARGET) $(SCIENTIFIC_TEST_TARGET)
 	$(TEST_TARGET) hypergraphs/b14.rzn2
 	$(ARCH_TEST_TARGET) test/fixtures/arch_path.arch test/fixtures/arch_disconnected.arch test/fixtures/arch_duplicate.arch test/fixtures/arch_resources.arch test/fixtures/arch_bad_resources.arch
 	$(CAPACITY_TEST_TARGET) test/fixtures/arch_path.arch test/fixtures/arch_resources.arch
+	$(SCIENTIFIC_TEST_TARGET) test/fixtures/chain.rzn2 test/fixtures/arch_path.arch
 	$(PYTHON) test/test_cli.py $(TARGET) .
 
 $(BUILD_DIR) $(BIN_DIR):
