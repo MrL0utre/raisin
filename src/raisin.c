@@ -53,6 +53,18 @@
 #include <stdlib.h>
 #include <time.h>
 
+static char *
+default_partition_path(const char *graph_path)
+{
+    static const char suffix[] = ".part";
+    size_t length = strlen(graph_path) + sizeof(suffix);
+    char *path = (char *)malloc(length);
+
+    MEM_ERROR(path);
+    snprintf(path, length, "%s%s", graph_path, suffix);
+    return path;
+}
+
 
 /**
  * @brief Function launching application.  
@@ -134,11 +146,8 @@ int main(int argv, char ** argc){
        
        if(part_path == NULL)
          {
-          /* set default partition file */
-          part_path = (char*)malloc(sizeof(char) * (strlen(argc[1])+6));
-          MEM_ERROR(part_path);
-          strcpy(part_path, graph_path);
-          strcpy(part_path, ".part");
+           /* set default partition file */
+           part_path = default_partition_path(graph_path);
          }
        
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
@@ -427,13 +436,8 @@ int main(int argv, char ** argc){
        
        if(part_path == NULL) 
          {
-          /* set default partition file */
-          part_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 6));
-          MEM_ERROR(part_path);
-          
-          strcpy(part_path, graph_path);
-          
-          strcpy(part_path, ".part");
+           /* set default partition file */
+           part_path = default_partition_path(graph_path);
          }
        
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
@@ -778,13 +782,8 @@ int main(int argv, char ** argc){
        
        if(part_path == NULL) 
          {
-          /* set default partition file */
-          part_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 6));
-          MEM_ERROR(part_path);
-          
-          strcpy(part_path, graph_path);
-          
-          strcpy(part_path, ".part");
+           /* set default partition file */
+           part_path = default_partition_path(graph_path);
          }
        
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
@@ -1075,10 +1074,7 @@ int main(int argv, char ** argc){
        if(part_path == NULL) 
          {
            /* set default partition file */
-           part_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 6));
-           MEM_ERROR(part_path);
-           strcpy(part_path, graph_path);
-           strcpy(part_path, ".part");
+           part_path = default_partition_path(graph_path);
          }
        
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
@@ -1424,13 +1420,8 @@ int main(int argv, char ** argc){
        
        if(part_path == NULL) 
          {
-          /* set default partition file */
-          part_path = (char*)malloc(sizeof(char) * (strlen(argc[1]) + 6));
-          MEM_ERROR(part_path);
-
-          strcpy(part_path, graph_path);
-          
-          strcpy(part_path, ".part");
+           /* set default partition file */
+           part_path = default_partition_path(graph_path);
          }
        
        Hypergraph * h = (Hypergraph*)malloc(sizeof(Hypergraph));
