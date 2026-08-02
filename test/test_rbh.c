@@ -49,10 +49,10 @@ int main(void){
     MEM_ERROR(arch_path);
     strcpy(arch_path, "../targets/arch0.arch");
 
-    h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(file_path));
+    h->s_rbh_name = (char*)malloc(sizeof(char)*(strlen(file_path) + 1));
     MEM_ERROR(h->s_rbh_name);
 
-    a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+    a->s_arch_name = (char*)malloc(sizeof(char)*(strlen(arch_path) + 1));
     MEM_ERROR(a->s_arch_name);
 
 

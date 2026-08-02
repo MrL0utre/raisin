@@ -60,10 +60,10 @@ int main(void){
 
     archLoad(a, arch_path, true);
 
-    h->s_rbh_name = (char*)malloc(sizeof(char)*strlen(file_path));
+    h->s_rbh_name = (char*)malloc(sizeof(char)*(strlen(file_path) + 1));
     MEM_ERROR(h->s_rbh_name);
 
-    a->s_arch_name = (char*)malloc(sizeof(char)*strlen(arch_path));
+    a->s_arch_name = (char*)malloc(sizeof(char)*(strlen(arch_path) + 1));
     MEM_ERROR(a->s_arch_name);
 
 
