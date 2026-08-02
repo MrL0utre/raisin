@@ -354,7 +354,8 @@ int main(int argv, char ** argc){
          PART *_part_tmp = (PART*)malloc(sizeof(PART) * h->i_vertices);
          MEM_ERROR(_part_tmp);
          for(INT _i=0; _i<h->i_vertices; _i++) _part_tmp[_i] = (PART)map[_i];
-         write_partition(h->i_vertices, _part_tmp, part_path);
+         require_cli(write_partition(h->i_vertices, _part_tmp, part_path) == 0,
+                     "Unable to write clustering partition");
          free(_part_tmp);
        }
        
@@ -653,7 +654,8 @@ int main(int argv, char ** argc){
            free(is_in);
          }
 
-       write_partition(h->i_vertices, partition, part_path);
+       require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
+                   "Unable to write partition");
        
        INT * size_parts = (INT*)calloc(k * h->i_weights, sizeof(INT));
        
@@ -895,7 +897,8 @@ int main(int argv, char ** argc){
        PART * partition = (PART*)malloc(sizeof(PART)*h->i_vertices);
        MEM_ERROR(partition);
        
-       load_partition(h->i_vertices, partition, init_part_path);
+       require_cli(load_partition(h->i_vertices, partition, init_part_path) == 0,
+                   "Unable to load initial partition");
 
        if(strcmp(algo, "kfm") == 0) 
          {
@@ -923,7 +926,8 @@ int main(int argv, char ** argc){
            printf("\ndkfm cut;%d\n", cut);
          }
        
-       write_partition(h->i_vertices, partition, part_path);
+       require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
+                   "Unable to write refined partition");
        
        INT * size_parts = (INT*)calloc(k*h->i_weights, sizeof(INT));
        
@@ -1363,7 +1367,8 @@ int main(int argv, char ** argc){
        
        printf("balance;%.2f\n", (float)max_dif * 100.0 / (float)h->i_vertices);
        
-       write_partition(h->i_vertices, partition, part_path);
+       require_cli(write_partition(h->i_vertices, partition, part_path) == 0,
+                   "Unable to write multilevel partition");
        
        /* free section */
        free(size_parts);
@@ -1522,7 +1527,8 @@ int main(int argv, char ** argc){
        PART * partition = (PART*)malloc(sizeof(PART)*h->i_vertices);
        MEM_ERROR(partition);
        
-       load_partition(h->i_vertices, partition, init_part_path);
+       require_cli(load_partition(h->i_vertices, partition, init_part_path) == 0,
+                   "Unable to load partition for evaluation");
 
        INT pmax = compute_partition_criticality(h, a, neighbors_list, in_neighbors_list, sort, partition); 
        

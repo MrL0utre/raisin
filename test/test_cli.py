@@ -87,6 +87,23 @@ def main() -> int:
         assert replay.returncode == 0, replay.stderr
         assert original == solution.read_bytes()
 
+        truncated = temp / "truncated.sol"
+        truncated.write_text("0\n1\n", encoding="ascii")
+        invalid_partition = run(
+            binary,
+            root,
+            str(graph),
+            "eval",
+            "part_number",
+            "4",
+            "partfile",
+            str(truncated),
+            "archfile",
+            str(arch),
+        )
+        assert invalid_partition.returncode != 0
+        assert "ends before vertex" in invalid_partition.stderr
+
     print("CLI regression checks passed")
     return 0
 

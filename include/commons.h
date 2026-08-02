@@ -49,7 +49,7 @@
 
 #ifndef RAISIN_PART_INT
 typedef uint8_t PART;
-#define RAISIN_PART_MAX UINT8_MAX
+#define RAISIN_PART_MAX ((INT)UINT8_MAX)
 #else
 typedef int     PART;
 #define RAISIN_PART_MAX INT_MAX

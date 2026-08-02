@@ -38,6 +38,7 @@
 /************************************************************/
 
 #include"io.h"
+#include <errno.h>
 
 /**
  * @brief Read a line and removing trailing '\n'.
@@ -88,13 +89,34 @@ load_partition(INT          i_vertices,
   if (in == NULL) 
     {
       fprintf(stderr, "Cannot open file %s\n", s_path);
-      exit(0);
+      free(buffer);
+      return 1;
     }
 
   for(INT i = 0; i < i_vertices; i++) 
     {
-      read_line(in, buffer, BUFSIZE);
-      partition[i] = atoi(buffer);
+      char *end = NULL;
+      long value;
+
+      if (read_line(in, buffer, BUFSIZE) == 0)
+        {
+          fprintf(stderr, "Partition file %s ends before vertex %d\n", s_path, i);
+          free(buffer);
+          fclose(in);
+          return 2;
+        }
+
+      errno = 0;
+      value = strtol(buffer, &end, 10);
+      if (errno == ERANGE || end == buffer || *end != '\0' ||
+          value < 0 || value > RAISIN_PART_MAX)
+        {
+          fprintf(stderr, "Invalid partition value for vertex %d: %s\n", i, buffer);
+          free(buffer);
+          fclose(in);
+          return 3;
+        }
+      partition[i] = (PART)value;
     }
 
   free(buffer);
@@ -117,12 +139,11 @@ write_partition(INT          i_vertices,
                 PART       * partition, 
                 const char * file_path)
 {
-  char * buffer = malloc(BUFSIZE);
-  MEM_ERROR(buffer);
-
-  char file_name[strlen(file_path) + 5];
-  strcpy(file_name, file_path);
-  strcat(file_name,".sol");
+  static const char suffix[] = ".sol";
+  size_t file_name_size = strlen(file_path) + sizeof(suffix);
+  char *file_name = (char *)malloc(file_name_size);
+  MEM_ERROR(file_name);
+  snprintf(file_name, file_name_size, "%s%s", file_path, suffix);
 
   FILE * out = NULL;
   out = fopen(file_name, "w+");
@@ -130,7 +151,8 @@ write_partition(INT          i_vertices,
   if (out == NULL) 
     {
       fprintf(stderr, "Cannot open file %s\n", file_name);
-      exit(0);
+      free(file_name);
+      return 1;
     }
 
   for(INT i = 0; i < i_vertices; i++) 
@@ -139,7 +161,7 @@ write_partition(INT          i_vertices,
     }
 
   fclose(out);
-  free(buffer);
+  free(file_name);
   
   return (0);
 }
