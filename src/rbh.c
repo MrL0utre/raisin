@@ -1364,8 +1364,6 @@ compute_criticality(Hypergraph * h,
       delays_bwd[i] = 0;
       
       flag[i]       = false;
-      
-      is_red[i]     = false;
     }
 
     INT u,v;
